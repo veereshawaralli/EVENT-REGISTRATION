@@ -1,0 +1,13 @@
+# Core
+Django>=5.1,<5.2
+Pillow>=10.4,<11.0
+
+# Production
+gunicorn>=22.0,<23.0
+psycopg2-binary>=2.9,<3.0
+whitenoise>=6.7,<7.0
+dj-database-url>=2.2,<3.0
+python-decouple>=3.8,<4.0
+
+# Development
+django-debug-toolbar>=4.4,<5.0

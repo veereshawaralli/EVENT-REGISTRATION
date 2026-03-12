@@ -1,0 +1,231 @@
+/* ==========================================================================
+   EventHub — Custom Styles
+   Extends Bootstrap 5 with project-specific design tokens and components.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. CSS Variables (Design Tokens)
+   -------------------------------------------------------------------------- */
+:root {
+    --eh-primary: #4f46e5;
+    --eh-primary-dark: #4338ca;
+    --eh-gradient-start: #4f46e5;
+    --eh-gradient-end: #7c3aed;
+    --eh-font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Oxygen, Ubuntu, sans-serif;
+    --eh-border-radius: 0.75rem;
+    --eh-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    --eh-shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.12);
+    --eh-transition: 0.25s ease;
+}
+
+/* --------------------------------------------------------------------------
+   2. Global resets
+   -------------------------------------------------------------------------- */
+body {
+    font-family: var(--eh-font-family);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fb;
+    color: #1e293b;
+}
+
+main {
+    flex: 1;
+}
+
+/* --------------------------------------------------------------------------
+   3. Hero section
+   -------------------------------------------------------------------------- */
+.hero-section {
+    background: linear-gradient(135deg, var(--eh-gradient-start), var(--eh-gradient-end));
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -25%;
+    width: 600px;
+    height: 600px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.hero-section h1 {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* --------------------------------------------------------------------------
+   4. Event cards
+   -------------------------------------------------------------------------- */
+.event-card {
+    border-radius: var(--eh-border-radius);
+    transition: transform var(--eh-transition), box-shadow var(--eh-transition);
+    overflow: hidden;
+}
+
+.event-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--eh-shadow-lg);
+}
+
+.featured-card {
+    border: 2px solid transparent;
+    background-image: linear-gradient(#fff, #fff),
+        linear-gradient(135deg, var(--eh-gradient-start), var(--eh-gradient-end));
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+}
+
+.event-card-img {
+    height: 200px;
+    object-fit: cover;
+}
+
+.event-card-img-placeholder {
+    height: 200px;
+    background: linear-gradient(135deg, var(--eh-gradient-start), var(--eh-gradient-end));
+}
+
+.event-card-img-placeholder-sm {
+    height: 160px;
+    background: linear-gradient(135deg, var(--eh-gradient-start), var(--eh-gradient-end));
+}
+
+/* --------------------------------------------------------------------------
+   5. Event detail page
+   -------------------------------------------------------------------------- */
+.event-detail-banner {
+    max-height: 400px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.event-detail-banner-placeholder {
+    height: 300px;
+    background: linear-gradient(135deg, var(--eh-gradient-start), var(--eh-gradient-end));
+}
+
+.icon-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+}
+
+.seats-display {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+/* --------------------------------------------------------------------------
+   6. Profile avatar placeholder
+   -------------------------------------------------------------------------- */
+.avatar-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--eh-gradient-start), var(--eh-gradient-end));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.75rem;
+}
+
+/* --------------------------------------------------------------------------
+   7. Dashboard gradient header
+   -------------------------------------------------------------------------- */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--eh-gradient-start), var(--eh-gradient-end));
+}
+
+/* --------------------------------------------------------------------------
+   8. Navbar overrides
+   -------------------------------------------------------------------------- */
+.navbar-brand {
+    font-size: 1.35rem;
+    letter-spacing: -0.5px;
+}
+
+.navbar .btn-primary {
+    background: var(--eh-primary);
+    border-color: var(--eh-primary);
+}
+
+/* --------------------------------------------------------------------------
+   9. Button overrides
+   -------------------------------------------------------------------------- */
+.btn-primary {
+    background-color: var(--eh-primary);
+    border-color: var(--eh-primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--eh-primary-dark);
+    border-color: var(--eh-primary-dark);
+}
+
+.btn-outline-primary {
+    color: var(--eh-primary);
+    border-color: var(--eh-primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--eh-primary);
+    border-color: var(--eh-primary);
+}
+
+/* --------------------------------------------------------------------------
+   10. Footer
+   -------------------------------------------------------------------------- */
+.footer a:hover {
+    color: #fff !important;
+}
+
+/* --------------------------------------------------------------------------
+   11. Cards — global rounding
+   -------------------------------------------------------------------------- */
+.card {
+    border-radius: var(--eh-border-radius);
+}
+
+/* --------------------------------------------------------------------------
+   12. Alerts — auto-dismiss animation target
+   -------------------------------------------------------------------------- */
+.alert {
+    border-radius: var(--eh-border-radius);
+}
+
+/* --------------------------------------------------------------------------
+   13. Responsive adjustments
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0;
+    }
+
+    .hero-section h1 {
+        font-size: 1.75rem;
+    }
+
+    .seats-display {
+        font-size: 2.2rem;
+    }
+
+    .event-card-img,
+    .event-card-img-placeholder {
+        height: 160px;
+    }
+}

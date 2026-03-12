@@ -1,0 +1,37 @@
+﻿Collecting Django
+  Downloading django-6.0.3-py3-none-any.whl.metadata (3.9 kB)
+Collecting asgiref>=3.9.1 (from Django)
+  Using cached asgiref-3.11.1-py3-none-any.whl.metadata (9.3 kB)
+Collecting sqlparse>=0.5.0 (from Django)
+  Using cached sqlparse-0.5.5-py3-none-any.whl.metadata (4.7 kB)
+Collecting tzdata (from Django)
+  Using cached tzdata-2025.3-py2.py3-none-any.whl.metadata (1.4 kB)
+Downloading django-6.0.3-py3-none-any.whl (8.4 MB)
+   ---------------------------------------- 8.4/8.4 MB 6.7 MB/s  0:00:01
+Using cached asgiref-3.11.1-py3-none-any.whl (24 kB)
+Using cached sqlparse-0.5.5-py3-none-any.whl (46 kB)
+Using cached tzdata-2025.3-py2.py3-none-any.whl (348 kB)
+Installing collected packages: tzdata, sqlparse, asgiref, Django
+
+Successfully installed Django-6.0.3 asgiref-3.11.1 sqlparse-0.5.5 tzdata-2025.3
+.\venv\Scripts\pip.exe : 
+At line:1 char:1
++ .\venv\Scripts\pip.exe 
+install Django 2>&1 | 
+Out-File -FilePath pip_o 
+...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: (:St  
+  ring) [], RemoteExcept   
+ ion
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+[notice] A new release of 
+pip is available: 25.2 -> 
+26.0.1
+[notice] To update, run: 
+python.exe -m pip install 
+--upgrade pip

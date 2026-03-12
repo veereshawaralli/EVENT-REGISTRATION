@@ -1,0 +1,51 @@
+﻿Collecting gunicorn
+  Downloading gunicorn-25.1.0-py3-none-any.whl.metadata (5.5 kB)
+Collecting whitenoise
+  Using cached whitenoise-6.12.0-py3-none-any.whl.metadata (3.7 kB)
+Collecting dj-database-url
+  Downloading dj_database_url-3.1.2-py3-none-any.whl.metadata (13 kB)
+Collecting psycopg2-binary
+  Using cached psycopg2_binary-2.9.11-cp314-cp314-win_amd64.whl.metadata (5.1 kB)
+Collecting Pillow
+  Downloading pillow-12.1.1-cp314-cp314-win_amd64.whl.metadata (9.0 kB)
+Collecting python-dotenv
+  Using cached python_dotenv-1.2.2-py3-none-any.whl.metadata (27 kB)
+Collecting packaging (from gunicorn)
+  Using cached packaging-26.0-py3-none-any.whl.metadata (3.3 kB)
+Requirement already satisfied: django>=4.2 in c:\users\veeresh awaralli\.gemini\antigravity\scratch\event_registration\venv\lib\site-packages (from dj-database-url) (6.0.3)
+Requirement already satisfied: asgiref>=3.9.1 in c:\users\veeresh awaralli\.gemini\antigravity\scratch\event_registration\venv\lib\site-packages (from django>=4.2->dj-database-url) (3.11.1)
+Requirement already satisfied: sqlparse>=0.5.0 in c:\users\veeresh awaralli\.gemini\antigravity\scratch\event_registration\venv\lib\site-packages (from django>=4.2->dj-database-url) (0.5.5)
+Requirement already satisfied: tzdata in c:\users\veeresh awaralli\.gemini\antigravity\scratch\event_registration\venv\lib\site-packages (from django>=4.2->dj-database-url) (2025.3)
+Downloading gunicorn-25.1.0-py3-none-any.whl (197 kB)
+Using cached whitenoise-6.12.0-py3-none-any.whl (20 kB)
+Downloading dj_database_url-3.1.2-py3-none-any.whl (9.0 kB)
+Using cached psycopg2_binary-2.9.11-cp314-cp314-win_amd64.whl (2.8 MB)
+Downloading pillow-12.1.1-cp314-cp314-win_amd64.whl (7.2 MB)
+   ---------------------------------------- 7.2/7.2 MB 20.4 MB/s  0:00:00
+Using cached python_dotenv-1.2.2-py3-none-any.whl (22 kB)
+Using cached packaging-26.0-py3-none-any.whl (74 kB)
+Installing collected packages: whitenoise, python-dotenv, psycopg2-binary, Pillow, packaging, gunicorn, dj-database-url
+
+Successfully installed Pillow-12.1.1 dj-database-url-3.1.2 gunicorn-25.1.0 packaging-26.0 psycopg2-binary-2.9.11 python-dotenv-1.2.2 whitenoise-6.12.0
+.\venv\Scripts\pip.exe : 
+At line:1 char:1
++ .\venv\Scripts\pip.exe 
+install gunicorn 
+whitenoise dj-database-url 
+ps ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: (:St  
+  ring) [], RemoteExcept   
+ ion
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+[notice] A new release of 
+pip is available: 25.2 -> 
+26.0.1
+[notice] To update, run: 
+python.exe -m pip install 
+--upgrade pip

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}My Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">
+            <i class="bi bi-grid me-2"></i>My Dashboard
+        </h1>
+        <a href="{% url 'events:event_list' %}" class="btn btn-outline-primary">
+            <i class="bi bi-search me-1"></i>Browse Events
+        </a>
+    </div>
+
+    <!-- Confirmed Registrations -->
+    <section class="mb-5">
+        <h3 class="fw-semibold mb-3">
+            <i class="bi bi-check-circle text-success me-2"></i>Active Registrations
+            <span class="badge bg-success ms-2">{{ confirmed_registrations.count }}</span>
+        </h3>
+
+        {% if confirmed_registrations %}
+        <div class="row g-4">
+            {% for reg in confirmed_registrations %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    {% if reg.event.banner %}
+                    <img src="{{ reg.event.banner.url }}" class="card-img-top" alt="{{ reg.event.title }}"
+                         style="height: 140px; object-fit: cover;">
+                    {% else %}
+                    <div class="bg-gradient-primary d-flex align-items-center justify-content-center"
+                         style="height: 140px;">
+                        <i class="bi bi-calendar-event display-4 text-white opacity-50"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-semibold">{{ reg.event.title }}</h5>
+                        <ul class="list-unstyled small text-muted mb-3">
+                            <li class="mb-1">
+                                <i class="bi bi-calendar3 me-1"></i>{{ reg.event.date|date:"M d, Y" }}
+                                at {{ reg.event.time|time:"g:i A" }}
+                            </li>
+                            <li class="mb-1">
+                                <i class="bi bi-geo-alt me-1"></i>{{ reg.event.location }}
+                            </li>
+                            <li>
+                                <i class="bi bi-clock me-1"></i>Registered {{ reg.registration_date|naturaltime }}
+                            </li>
+                        </ul>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="{{ reg.event.get_absolute_url }}" class="btn btn-outline-primary btn-sm flex-grow-1">
+                                View Event
+                            </a>
+                            <form method="post" action="{% url 'registrations:cancel' reg.pk %}" class="flex-grow-1">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100"
+                                        onclick="return confirm('Cancel registration for {{ reg.event.title }}?');">
+                                    Cancel
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-calendar-plus display-3 text-muted"></i>
+                <p class="text-muted mt-3 mb-0">You haven't registered for any events yet.</p>
+                <a href="{% url 'events:event_list' %}" class="btn btn-primary mt-3">Find Events</a>
+            </div>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Cancelled Registrations -->
+    {% if cancelled_registrations %}
+    <section>
+        <h3 class="fw-semibold mb-3">
+            <i class="bi bi-x-circle text-muted me-2"></i>Cancelled Registrations
+            <span class="badge bg-secondary ms-2">{{ cancelled_registrations.count }}</span>
+        </h3>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Location</th>
+                        <th>Cancelled</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in cancelled_registrations %}
+                    <tr class="text-muted">
+                        <td>
+                            <a href="{{ reg.event.get_absolute_url }}" class="text-decoration-none">
+                                {{ reg.event.title }}
+                            </a>
+                        </td>
+                        <td>{{ reg.event.date|date:"M d, Y" }}</td>
+                        <td>{{ reg.event.location }}</td>
+                        <td>{{ reg.registration_date|naturaltime }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+﻿.\venv\Scripts\python.exe 
+: Traceback (most recent 
+call last):
+At line:1 char:1
++ 
+.\venv\Scripts\python.exe 
+manage.py migrate 2>&1 | 
+Out-File -FilePath ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: (Tra  
+  ceback (most recent ca   
+ ll last)::String) [],     
+RemoteException
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+  File "C:\Users\VEERESH AW
+ARALLI\.gemini\antigravity\
+scratch\event_registration\
+manage.py", line 11, in 
+main
+    from 
+django.core.management 
+import 
+execute_from_command_line
+ModuleNotFoundError: No 
+module named 'django'
+
+The above exception was 
+the direct cause of the 
+following exception:
+
+Traceback (most recent 
+call last):
+  File "C:\Users\VEERESH AW
+ARALLI\.gemini\antigravity\
+scratch\event_registration\
+manage.py", line 22, in 
+<module>
+    main()
+    ~~~~^^
+  File "C:\Users\VEERESH AW
+ARALLI\.gemini\antigravity\
+scratch\event_registration\
+manage.py", line 13, in 
+main
+    raise ImportError(
+    ...<3 lines>...
+    ) from exc
+ImportError: Couldn't 
+import Django. Are you 
+sure it's installed and 
+available on your 
+PYTHONPATH environment 
+variable? Did you forget 
+to activate a virtual 
+environment?
