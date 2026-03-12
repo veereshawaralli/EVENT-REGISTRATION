@@ -18,7 +18,7 @@ A production-ready Django application for discovering, creating, and registering
 ### 1. Clone & Create Virtual Environment
 
 ```bash
-git clone <repo-url> event_registration
+git clone https://github.com/veereshawaralli/EVENT-REGISTRATION.git
 cd event_registration
 python -m venv venv
 
