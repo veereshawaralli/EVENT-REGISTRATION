@@ -23,4 +23,9 @@ class Command(BaseCommand):
             User.objects.create_superuser(username, email, password)
             self.stdout.write(self.style.SUCCESS(f'Superuser "{username}" created successfully!'))
         else:
-            self.stdout.write(self.style.SUCCESS(f'Superuser "{username}" already exists.'))
+            # Force update the password in case they changed it in Render env vars
+            user = User.objects.get(username=username)
+            user.set_password(password)
+            user.email = email
+            user.save()
+            self.stdout.write(self.style.SUCCESS(f'Superuser "{username}" password updated to match Render Environment Variables.'))
