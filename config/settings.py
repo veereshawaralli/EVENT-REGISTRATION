@@ -30,7 +30,7 @@ DEBUG = config("DEBUG", default=True, cast=bool)
 
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",
-    default="localhost,127.0.0.1,.onrender.com",
+    default="localhost,127.0.0.1,.onrender.com,.vercel.app",
     cast=Csv()
 )
 
@@ -41,10 +41,10 @@ RENDER_EXTERNAL_HOSTNAME = config("RENDER_EXTERNAL_HOSTNAME", default=None)
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-# CSRF trusted origins (required for HTTPS on Render)
+# CSRF trusted origins (required for HTTPS on Render/Vercel)
 CSRF_TRUSTED_ORIGINS = config(
     "CSRF_TRUSTED_ORIGINS",
-    default="https://*.onrender.com",
+    default="https://*.onrender.com,https://*.vercel.app",
     cast=Csv()
 )
 
