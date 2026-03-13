@@ -41,6 +41,11 @@ RENDER_EXTERNAL_HOSTNAME = config("RENDER_EXTERNAL_HOSTNAME", default=None)
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
+# Vercel dynamic URL detection
+VERCEL_URL = config("VERCEL_URL", default=None)
+if VERCEL_URL:
+    ALLOWED_HOSTS.append(VERCEL_URL)
+
 # CSRF trusted origins (required for HTTPS on Render/Vercel)
 CSRF_TRUSTED_ORIGINS = config(
     "CSRF_TRUSTED_ORIGINS",
