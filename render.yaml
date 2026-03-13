@@ -1,11 +1,6 @@
-# Render Blueprint — Infrastructure as Code
-# https://render.com/docs/blueprint-spec
-
-databases:
-  - name: event-registration-db
-    plan: free
-    databaseName: event_registration
-    user: event_admin
+# Render Web Service Configuration
+# Database: Use Neon (https://neon.tech) free PostgreSQL
+# Set DATABASE_URL env var manually in Render dashboard
 
 services:
   - type: web
@@ -15,10 +10,6 @@ services:
     buildCommand: "./build.sh"
     startCommand: "gunicorn config.wsgi:application"
     envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: event-registration-db
-          property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
@@ -29,3 +20,5 @@ services:
         value: "3.12.3"
       - key: WEB_CONCURRENCY
         value: "4"
+      # Set DATABASE_URL manually in Render dashboard
+      # Get it from Neon: https://neon.tech
