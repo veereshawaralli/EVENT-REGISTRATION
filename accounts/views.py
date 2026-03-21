@@ -66,3 +66,27 @@ def profile_view(request):
         "profile_form": profile_form,
     }
     return render(request, "accounts/profile.html", context)
+
+
+from django.http import HttpResponse
+from django.core.mail import send_mail
+from django.conf import settings
+
+def test_email_view(request):
+    """Diagnostic view to test SMTP delivery from browser."""
+    if not request.user.is_superuser:
+        return HttpResponse("Unauthorized", status=403)
+        
+    recipient = request.GET.get('email', request.user.email)
+    try:
+        send_mail(
+            subject='EventHub SMTP Test (From Browser)',
+            message='If you are reading this, your SMTP settings on Render are working perfectly!',
+            from_email=None,
+            recipient_list=[recipient],
+            fail_silently=False,
+        )
+        return HttpResponse(f"Successfully sent test email to {recipient}!")
+    except Exception as e:
+        import traceback
+        return HttpResponse(f"Failed to send email: {e}<br><br><pre>{traceback.format_exc()}</pre>")
