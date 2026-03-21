@@ -74,10 +74,8 @@ from django.conf import settings
 
 def test_email_view(request):
     """Diagnostic view to test SMTP delivery from browser."""
-    if not request.user.is_superuser:
-        return HttpResponse("Unauthorized", status=403)
-        
-    recipient = request.GET.get('email', request.user.email)
+    # Temporarily removed restriction to allow debugging
+    recipient = request.GET.get('email', 'veereshawaralli.work@gmail.com')
     try:
         sent_count = send_mail(
             subject='EventHub SMTP Test (From Browser)',
