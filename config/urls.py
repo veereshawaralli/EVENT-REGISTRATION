@@ -16,8 +16,8 @@ urlpatterns = [
     path("reviews/", include("reviews.urls", namespace="reviews")),
     path("comments/", include("comments.urls", namespace="comments")),
     path("api/", include("api.urls")),
-    # Redirect root to event list
-    path("", RedirectView.as_view(pattern_name="events:event_list", permanent=False)),
+    # Serve event list directly on root to avoid redirect issues with crawlers
+    path("", include("events.urls")), 
 ]
 
 # Serve media files during development
