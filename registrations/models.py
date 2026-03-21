@@ -13,8 +13,15 @@ class Registration(models.Model):
     """A user's registration for a specific event."""
 
     STATUS_CHOICES = [
+        ("pending", "Pending Registration"),
         ("confirmed", "Confirmed"),
         ("cancelled", "Cancelled"),
+    ]
+
+    PAYMENT_CHOICES = [
+        ("pending", "Pending"),
+        ("completed", "Completed"),
+        ("failed", "Failed"),
     ]
 
     user = models.ForeignKey(
@@ -33,6 +40,14 @@ class Registration(models.Model):
         choices=STATUS_CHOICES,
         default="confirmed",
     )
+    payment_status = models.CharField(
+        max_length=20,
+        choices=PAYMENT_CHOICES,
+        default="pending",
+    )
+    razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    
     attended = models.BooleanField(default=False)
     qr_code = models.ImageField(upload_to="qr_codes/", blank=True, null=True)
 
@@ -73,12 +88,10 @@ class Registration(models.Model):
         self.qr_code.save(filename, ContentFile(buffer.getvalue()), save=False)
 
     def save(self, *args, **kwargs):
-        is_new = self.pk is None
         super().save(*args, **kwargs)
-        # Generate QR code only for new confirmed registrations
-        if is_new and self.status == "confirmed" and not self.qr_code:
+        # Generate QR code whenever it first becomes confirmed
+        if self.status == "confirmed" and not self.qr_code:
             self.generate_qr_code()
-            # Save again with QR code (avoid recursion by calling super directly)
             Registration.objects.filter(pk=self.pk).update(qr_code=self.qr_code)
 
 

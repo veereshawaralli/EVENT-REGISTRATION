@@ -1,9 +1,13 @@
+import razorpay
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 
 from events.models import Event
@@ -96,17 +100,33 @@ def register_for_event(request, event_id):
         user=request.user, event=event, status="cancelled"
     ).first()
     if cancelled_reg:
-        cancelled_reg.status = "confirmed"
-        cancelled_reg.save()
-        _send_registration_email(request.user, event, action="registered")
-        messages.success(request, f"You have been re-registered for {event.title}!")
-        return redirect("events:event_detail", pk=event_id)
+        if event.is_free:
+            cancelled_reg.status = "confirmed"
+            cancelled_reg.payment_status = "completed"
+            cancelled_reg.save()
+            _send_registration_email(request.user, event, action="registered")
+            messages.success(request, f"You have been re-registered for {event.title}!")
+            return redirect("events:event_detail", pk=event_id)
+        else:
+            cancelled_reg.status = "pending"
+            cancelled_reg.payment_status = "pending"
+            cancelled_reg.save()
+            return redirect("registrations:checkout", registration_id=cancelled_reg.id)
 
     # Create new registration
     try:
-        Registration.objects.create(user=request.user, event=event, status="confirmed")
-        _send_registration_email(request.user, event, action="registered")
-        messages.success(request, f"Successfully registered for {event.title}!")
+        registration = Registration.objects.create(
+            user=request.user, 
+            event=event, 
+            status="confirmed" if event.is_free else "pending",
+            payment_status="completed" if event.is_free else "pending"
+        )
+        if event.is_free:
+            _send_registration_email(request.user, event, action="registered")
+            messages.success(request, f"Successfully registered for {event.title}!")
+            return redirect("events:event_detail", pk=event_id)
+        else:
+            return redirect("registrations:checkout", registration_id=registration.id)
     except IntegrityError:
         messages.error(request, "Registration failed. Please try again.")
 
@@ -262,3 +282,87 @@ def dashboard(request):
         "waitlist_entries": waitlist_entries,
     }
     return render(request, "registrations/dashboard.html", context)
+
+
+@login_required
+def payment_checkout(request, registration_id):
+    """Render checkout page and configure Razorpay SDK."""
+    registration = get_object_or_404(
+        Registration, pk=registration_id, user=request.user, status="pending"
+    )
+    event = registration.event
+
+    if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
+        messages.error(request, "Payment gateway is not configured. Please contact support.")
+        return redirect("events:event_detail", pk=event.id)
+
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+    amount_in_paise = int(event.price * 100)
+
+    # Generate a Razorpay order if we don't have one yet
+    if not registration.razorpay_order_id:
+        try:
+            order_data = {
+                "amount": amount_in_paise,
+                "currency": "INR",
+                "receipt": f"reg_{registration.id}",
+                "payment_capture": "1"
+            }
+            order = client.order.create(data=order_data)
+            registration.razorpay_order_id = order['id']
+            registration.save(update_fields=['razorpay_order_id'])
+        except Exception as e:
+            messages.error(request, "Failed to initialize payment gateway.")
+            return redirect("events:event_detail", pk=event.id)
+
+    context = {
+        "registration": registration,
+        "event": event,
+        "razorpay_order_id": registration.razorpay_order_id,
+        "razorpay_key_id": settings.RAZORPAY_KEY_ID,
+        "amount": amount_in_paise,
+    }
+    return render(request, "registrations/checkout.html", context)
+
+
+@csrf_exempt
+def payment_callback(request):
+    """Callback for Razorpay to securely report a payment transaction."""
+    if request.method == "POST":
+        payment_id = request.POST.get('razorpay_payment_id', '')
+        razorpay_order_id = request.POST.get('razorpay_order_id', '')
+        signature = request.POST.get('razorpay_signature', '')
+
+        registration = get_object_or_404(Registration, razorpay_order_id=razorpay_order_id)
+        
+        # Payment must be pending
+        if registration.status == "confirmed":
+            return redirect('registrations:dashboard')
+
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        try:
+            # Cryptographically verify the signature
+            client.utility.verify_payment_signature({
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': payment_id,
+                'razorpay_signature': signature
+            })
+
+            # Verification Successful
+            registration.payment_status = "completed"
+            registration.status = "confirmed"
+            registration.razorpay_payment_id = payment_id
+            registration.save()
+
+            _send_registration_email(registration.user, registration.event, action="registered")
+            messages.success(request, f"Payment successful! You are successfully registered for {registration.event.title}.")
+            return redirect('registrations:dashboard')
+
+        except razorpay.errors.SignatureVerificationError:
+            # Verification Failed
+            registration.payment_status = "failed"
+            registration.save(update_fields=['payment_status'])
+            messages.error(request, "Payment signature verification failed. The transaction was aborted.")
+            return redirect('events:event_detail', pk=registration.event.id)
+
+    return redirect('events:event_list')

@@ -10,7 +10,7 @@ class Command(BaseCommand):
         
         # Get credentials securely from environment variables
         username = os.environ.get('DJANGO_SUPERUSER_USERNAME')
-        email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@example.com')
+        email = os.environ.get('DJANGO_SUPERUSER_EMAIL')
         password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
 
         if not username or not password:
