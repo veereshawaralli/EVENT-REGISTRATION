@@ -296,34 +296,33 @@ def dashboard(request):
 
 @login_required
 def payment_checkout(request, registration_id):
-    """Render checkout page and configure Razorpay SDK."""
+    """Render checkout page and configure Razorpay SDK if available."""
     registration = get_object_or_404(
         Registration, pk=registration_id, user=request.user, status="pending"
     )
     event = registration.event
-
-    if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
-        messages.error(request, "Payment gateway is not configured. Please contact support.")
-        return redirect("events:event_detail", pk=event.id)
-
-    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
     amount_in_paise = int(event.price * 100)
 
-    # Generate a Razorpay order if we don't have one yet
-    if not registration.razorpay_order_id:
-        try:
-            order_data = {
-                "amount": amount_in_paise,
-                "currency": "INR",
-                "receipt": f"reg_{registration.id}",
-                "payment_capture": "1"
-            }
-            order = client.order.create(data=order_data)
-            registration.razorpay_order_id = order['id']
-            registration.save(update_fields=['razorpay_order_id'])
-        except Exception as e:
-            messages.error(request, "Failed to initialize payment gateway.")
-            return redirect("events:event_detail", pk=event.id)
+    razorpay_configured = bool(settings.RAZORPAY_KEY_ID and settings.RAZORPAY_KEY_SECRET)
+    
+    if razorpay_configured:
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        
+        # Generate a Razorpay order if we don't have one yet
+        if not registration.razorpay_order_id:
+            try:
+                order_data = {
+                    "amount": amount_in_paise,
+                    "currency": "INR",
+                    "receipt": f"reg_{registration.id}",
+                    "payment_capture": "1"
+                }
+                order = client.order.create(data=order_data)
+                registration.razorpay_order_id = order['id']
+                registration.save(update_fields=['razorpay_order_id'])
+            except Exception as e:
+                # Silently fail Razorpay but allow offline payment
+                razorpay_configured = False
 
     context = {
         "registration": registration,
@@ -331,6 +330,7 @@ def payment_checkout(request, registration_id):
         "razorpay_order_id": registration.razorpay_order_id,
         "razorpay_key_id": settings.RAZORPAY_KEY_ID,
         "amount": amount_in_paise,
+        "razorpay_configured": razorpay_configured,
     }
     return render(request, "registrations/checkout.html", context)
 

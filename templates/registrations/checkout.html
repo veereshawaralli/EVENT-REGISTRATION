@@ -24,6 +24,7 @@
                         <span class="h3 mb-0 fw-bold text-primary">₹{{ event.price }}</span>
                     </div>
 
+                    {% if razorpay_configured %}
                     <div class="d-grid mb-3">
                         <button id="rzp-button1" class="btn btn-primary btn-lg py-3 shadow-sm">
                             <i class="bi bi-shield-check me-2"></i>Pay Now online (Razorpay)
@@ -34,20 +35,27 @@
                         <hr class="text-muted">
                         <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small fw-semibold">OR</span>
                     </div>
+                    {% else %}
+                    <div class="alert alert-warning text-center small mb-4">
+                        <i class="bi bi-exclamation-triangle me-1"></i> Online payments are currently disabled. Please use the Pay at Venue option below.
+                    </div>
+                    {% endif %}
 
                     <form method="post" action="{% url 'registrations:process_offline_payment' registration.id %}">
                         {% csrf_token %}
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-outline-secondary btn-lg py-3">
+                            <button type="submit" class="btn btn-outline-secondary btn-lg py-3 fw-bold">
                                 <i class="bi bi-cash-coin me-2"></i>Reserve & Pay at Venue
                             </button>
                         </div>
                     </form>
 
+                    {% if razorpay_configured %}
                     <div class="mt-4 text-center">
                         <img src="https://cdn.razorpay.com/static/assets/badgetest.png" alt="Razorpay Secure" style="max-height: 40px;">
                         <p class="small text-muted mt-2">100% Secure & Encrypted Payments</p>
                     </div>
+                    {% endif %}
                 </div>
             </div>
             
