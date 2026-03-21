@@ -388,18 +388,23 @@ def payment_callback(request):
 @require_POST
 def process_offline_payment(request, registration_id):
     """Process an 'offline' (Pay at Venue) payment choice."""
-    registration = get_object_or_404(
-        Registration, pk=registration_id, user=request.user, status="pending"
-    )
-    
-    # Update registration to reflect offline choice
-    registration.payment_method = "offline"
-    registration.status = "confirmed"  # Confirm the ticket so they receive it
-    # We deliberately leave payment_status as "pending" since they need to pay at venue
-    registration.save()
-    
-    # Send email containing the ticket/QR code
-    _send_registration_email(registration.user, registration.event, action="registered")
-    messages.success(request, f"Your spot for {registration.event.title} is reserved! Please pay at the venue.")
-    
-    return redirect('registrations:dashboard')
+    try:
+        registration = get_object_or_404(
+            Registration, pk=registration_id, user=request.user, status="pending"
+        )
+        
+        # Update registration to reflect offline choice
+        registration.payment_method = "offline"
+        registration.status = "confirmed"  # Confirm the ticket so they receive it
+        # We deliberately leave payment_status as "pending" since they need to pay at venue
+        registration.save()
+        
+        # Send email containing the ticket/QR code
+        _send_registration_email(registration.user, registration.event, action="registered")
+        messages.success(request, f"Your spot for {registration.event.title} is reserved! Please pay at the venue.")
+        
+        return redirect('registrations:dashboard')
+    except Exception as e:
+        logger.exception(f"Error processing offline payment for registration {registration_id}: {e}")
+        messages.error(request, "An internal error occurred while processing your offline payment. Please try again.")
+        return redirect('registrations:checkout', registration_id=registration_id)
