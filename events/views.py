@@ -204,6 +204,18 @@ class EventDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+@login_required
+def qr_scanner(request):
+    """
+    Render the HTML5 QR Code Scanner page for organizers/staff to verify tickets.
+    """
+    if not request.user.is_staff:
+        messages.error(request, "You do not have permission to access the scanner.")
+        return redirect("events:event_list")
+        
+    return render(request, "events/scanner.html")
+
+
 # ---------------------------------------------------------------------------
 # Static / Policy Pages (Required for Razorpay Verification)
 # ---------------------------------------------------------------------------

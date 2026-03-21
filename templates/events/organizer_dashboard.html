@@ -10,9 +10,14 @@
             <i class="bi bi-bar-chart-line me-2"></i>Organizer Dashboard
         </h1>
         {% if user.is_staff %}
-        <a href="{% url 'events:event_create' %}" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i>Create Event
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{% url 'events:qr_scanner' %}" class="btn btn-dark shadow-sm">
+                <i class="bi bi-qr-code-scan me-1"></i>Scan Tickets
+            </a>
+            <a href="{% url 'events:event_create' %}" class="btn btn-primary shadow-sm">
+                <i class="bi bi-plus-circle me-1"></i>Create Event
+            </a>
+        </div>
         {% endif %}
     </div>
 
