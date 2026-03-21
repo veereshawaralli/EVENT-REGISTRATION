@@ -51,7 +51,12 @@
                 
                 // The QR code stores the full URL to the verify_ticket view
                 if (decodedText.includes('/registrations/verify/')) {
-                    window.location.href = decodedText;
+                    try {
+                        const url = new URL(decodedText);
+                        window.location.href = window.location.origin + url.pathname;
+                    } catch (e) {
+                        window.location.href = decodedText;
+                    }
                 } else {
                     statusDiv.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle me-1"></i> Invalid QR Code format. Refresh to try again.</span>';
                 }
