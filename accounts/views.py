@@ -79,14 +79,17 @@ def test_email_view(request):
         
     recipient = request.GET.get('email', request.user.email)
     try:
-        send_mail(
+        sent_count = send_mail(
             subject='EventHub SMTP Test (From Browser)',
-            message='If you are reading this, your SMTP settings on Render are working perfectly!',
+            message=f'If you are reading this, your SMTP settings on Render are working perfectly!\n\nSent from: {settings.DEFAULT_FROM_EMAIL}',
             from_email=None,
             recipient_list=[recipient],
             fail_silently=False,
         )
-        return HttpResponse(f"Successfully sent test email to {recipient}!")
+        if sent_count > 0:
+            return HttpResponse(f"Successfully sent {sent_count} test email(s) to {recipient}!<br>Check your Gmail 'Sent' folder and Inbox.")
+        else:
+            return HttpResponse(f"Django reports 0 emails were sent (but no error occurred). Check your DEFAULT_FROM_EMAIL settings.")
     except Exception as e:
         import traceback
         return HttpResponse(f"Failed to send email: {e}<br><br><pre>{traceback.format_exc()}</pre>")
