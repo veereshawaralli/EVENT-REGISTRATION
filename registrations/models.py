@@ -101,8 +101,13 @@ class Registration(models.Model):
         super().save(*args, **kwargs)
         # Generate QR code whenever it first becomes confirmed
         if self.status == "confirmed" and not self.qr_code:
-            self.generate_qr_code()
-            Registration.objects.filter(pk=self.pk).update(qr_code=self.qr_code)
+            try:
+                self.generate_qr_code()
+                Registration.objects.filter(pk=self.pk).update(qr_code=self.qr_code)
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Failed to generate QR code for registration {self.pk}: {e}")
 
 
 class Waitlist(models.Model):

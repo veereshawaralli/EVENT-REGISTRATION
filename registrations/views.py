@@ -10,6 +10,9 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 from events.models import Event
 
@@ -134,6 +137,9 @@ def register_for_event(request, event_id):
             return redirect("registrations:checkout", registration_id=registration.id)
     except IntegrityError:
         messages.error(request, "Registration failed. Please try again.")
+    except Exception as e:
+        logger.exception(f"Unexpected error during registration of user {request.user.id} for event {event_id}: {e}")
+        messages.error(request, "An internal server error occurred. Please try again later.")
 
     return redirect("events:event_detail", pk=event_id)
 
