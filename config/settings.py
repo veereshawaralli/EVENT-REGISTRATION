@@ -66,6 +66,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     # Third-party
+    "cloudinary",
+    "cloudinary_storage",
     "rest_framework",
     # Local apps
     "accounts.apps.AccountsConfig",
@@ -162,6 +164,11 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # ---------------------------------------------------------------------------
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# Cloudinary configuration for production media files
+CLOUDINARY_URL = config("CLOUDINARY_URL", default=None)
+if not DEBUG and CLOUDINARY_URL:
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 # ---------------------------------------------------------------------------
 # Authentication

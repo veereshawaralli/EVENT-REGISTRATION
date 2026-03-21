@@ -18,3 +18,7 @@ python-decouple>=3.8,<4.0
 
 # Development
 django-debug-toolbar>=4.4,<5.0
+
+# Cloud Storage
+django-cloudinary-storage>=0.3.0,<1.0
+cloudinary>=1.40.0,<2.0
