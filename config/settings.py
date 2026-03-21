@@ -157,7 +157,16 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Django 4.2+ STORAGES configuration
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # ---------------------------------------------------------------------------
 # Media files
@@ -168,7 +177,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Cloudinary configuration for production media files
 CLOUDINARY_URL = config("CLOUDINARY_URL", default=None)
 if not DEBUG and CLOUDINARY_URL:
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    STORAGES["default"] = {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    }
 
 # ---------------------------------------------------------------------------
 # Authentication
