@@ -1,4 +1,4 @@
-import razorpay
+# import razorpay (moved inside functions)
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -312,11 +312,12 @@ def payment_checkout(request, registration_id):
     razorpay_configured = bool(settings.RAZORPAY_KEY_ID and settings.RAZORPAY_KEY_SECRET)
     
     if razorpay_configured:
-        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-        
-        # Generate a Razorpay order if we don't have one yet
-        if not registration.razorpay_order_id:
-            try:
+        try:
+            import razorpay
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            
+            # Generate a Razorpay order if we don't have one yet
+            if not registration.razorpay_order_id:
                 order_data = {
                     "amount": amount_in_paise,
                     "currency": "INR",
@@ -326,9 +327,9 @@ def payment_checkout(request, registration_id):
                 order = client.order.create(data=order_data)
                 registration.razorpay_order_id = order['id']
                 registration.save(update_fields=['razorpay_order_id'])
-            except Exception as e:
-                # Silently fail Razorpay but allow offline payment
-                razorpay_configured = False
+        except Exception as e:
+            logger.error(f"Razorpay integration failed: {e}")
+            razorpay_configured = False
 
     context = {
         "registration": registration,
