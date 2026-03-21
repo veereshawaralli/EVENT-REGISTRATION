@@ -42,7 +42,7 @@
                             {% if event.is_free %}
                             <span class="badge bg-success">Free</span>
                             {% else %}
-                            <span class="badge bg-primary">${{ event.price }}</span>
+                            <span class="badge bg-primary">₹{{ event.price }}</span>
                             {% endif %}
                             {% if event.category %}
                             <a href="{% url 'events:event_list' %}?category={{ event.category.slug }}"
@@ -369,7 +369,7 @@
                                 <div>
                                     <small class="text-muted d-block">Ticket Price</small>
                                     <strong class="{% if event.is_free %}text-success{% endif %}">
-                                        {% if event.is_free %}Free{% else %}${{ event.price }}{% endif %}
+                                        {% if event.is_free %}Free{% else %}₹{{ event.price }}{% endif %}
                                     </strong>
                                 </div>
                             </div>

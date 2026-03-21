@@ -28,7 +28,9 @@ SECRET_KEY = config(
 
 DEBUG = config("DEBUG", default=True, cast=bool)
 
-SITE_URL = config("SITE_URL", default="http://localhost:8000")
+# Default to the user's Render app URL in production
+default_url = "http://localhost:8000" if DEBUG else "https://event-registration-kbid.onrender.com"
+SITE_URL = config("SITE_URL", default=default_url)
 
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",

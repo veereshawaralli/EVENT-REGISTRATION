@@ -7,6 +7,16 @@ from .models import Category, Event, Tag
 class EventForm(forms.ModelForm):
     """Form for creating and editing events."""
 
+    tags_input = forms.CharField(
+        required=False,
+        label="Tags",
+        help_text="Enter comma-separated tags (e.g., ai, tech, networking)",
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter tags separated by commas",
+        }),
+    )
+
     class Meta:
         model = Event
         fields = (
@@ -16,7 +26,6 @@ class EventForm(forms.ModelForm):
             "time",
             "location",
             "category",
-            "tags",
             "capacity",
             "price",
             "banner",
@@ -47,7 +56,6 @@ class EventForm(forms.ModelForm):
                 "placeholder": "Event location (address or venue name)",
             }),
             "category": forms.Select(attrs={"class": "form-select"}),
-            "tags": forms.CheckboxSelectMultiple(),
             "capacity": forms.NumberInput(attrs={
                 "class": "form-control",
                 "min": "1",
@@ -84,6 +92,38 @@ class EventForm(forms.ModelForm):
         if price is not None and price < 0:
             raise forms.ValidationError("Price cannot be negative.")
         return price
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields["tags_input"].initial = ", ".join([t.name for t in self.instance.tags.all()])
+
+    def save(self, commit=True):
+        event = super().save(commit=False)
+        
+        tags_str = self.cleaned_data.get("tags_input", "")
+        tag_names = [t.strip() for t in tags_str.split(",") if t.strip()]
+        
+        if commit:
+            event.save()
+            tag_objs = []
+            for name in tag_names:
+                tag, _ = Tag.objects.get_or_create(name=name)
+                tag_objs.append(tag)
+            event.tags.set(tag_objs)
+            self.save_m2m()
+        else:
+            old_save_m2m = self.save_m2m
+            def save_m2m():
+                old_save_m2m()
+                tag_objs = []
+                for name in tag_names:
+                    tag, _ = Tag.objects.get_or_create(name=name)
+                    tag_objs.append(tag)
+                event.tags.set(tag_objs)
+            self.save_m2m = save_m2m
+            
+        return event
 
 
 class EventSearchForm(forms.Form):
