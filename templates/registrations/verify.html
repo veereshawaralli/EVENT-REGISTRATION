@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Verify Ticket - {{ event.title }} | EventHub{% endblock title %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0">Ticket Verification</h4>
+                </div>
+                <div class="card-body text-center p-4">
+                    {% if registration.status == "confirmed" %}
+                        <div class="mb-4">
+                            <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                            <h2 class="text-success mt-2">Valid Ticket</h2>
+                        </div>
+                    {% else %}
+                        <div class="mb-4">
+                            <i class="bi bi-x-circle-fill text-danger" style="font-size: 4rem;"></i>
+                            <h2 class="text-danger mt-2">Invalid Ticket</h2>
+                            <p class="text-muted">Status: {{ registration.get_status_display }}</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="bg-light p-3 rounded mb-4 text-start">
+                        <p class="mb-1"><strong>Attendee:</strong> {{ registration.user.get_full_name|default:registration.user.username }}</p>
+                        <p class="mb-1"><strong>Email:</strong> {{ registration.user.email }}</p>
+                        <p class="mb-1"><strong>Event:</strong> {{ event.title }}</p>
+                        <p class="mb-0"><strong>Status:</strong> 
+                            {% if registration.attended %}
+                                <span class="badge bg-success">Already Checked In</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Not Checked In</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    {% if registration.status == "confirmed" %}
+                        <form action="{% url 'registrations:mark_attended' registration.id %}" method="post">
+                            {% csrf_token %}
+                            {% if registration.attended %}
+                                <button type="submit" class="btn btn-warning btn-lg w-100 mb-2">Undo Check-In</button>
+                            {% else %}
+                                <button type="submit" class="btn btn-success btn-lg w-100 mb-2">Admit Attendee</button>
+                            {% endif %}
+                        </form>
+                    {% endif %}
+                    
+                    <a href="{% url 'events:organizer_dashboard' %}" class="btn btn-outline-secondary w-100 mt-2">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -28,6 +28,8 @@ SECRET_KEY = config(
 
 DEBUG = config("DEBUG", default=True, cast=bool)
 
+SITE_URL = config("SITE_URL", default="http://localhost:8000")
+
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",
     default="localhost,127.0.0.1,.onrender.com,.vercel.app",

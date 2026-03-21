@@ -54,7 +54,14 @@ class Registration(models.Model):
 
     def generate_qr_code(self):
         """Generate and save a QR code image for this registration."""
-        data = f"EventHub|Registration#{self.pk}|{self.user.username}|{self.event.title}"
+        from django.urls import reverse
+        from django.conf import settings
+        
+        verify_path = reverse('registrations:verify_ticket', args=[self.pk])
+        site_url = getattr(settings, 'SITE_URL', 'http://localhost:8000').rstrip('/')
+        
+        # Encode the full verification URL into the QR Code
+        data = f"{site_url}{verify_path}"
         qr = qrcode.QRCode(version=1, box_size=10, border=4)
         qr.add_data(data)
         qr.make(fit=True)

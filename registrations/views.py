@@ -216,8 +216,29 @@ def mark_attended(request, registration_id):
         registration.save(update_fields=["attended"])
         status_text = "attended" if registration.attended else "not attended"
         messages.success(request, f"Marked {registration.user.username} as {status_text}.")
+        
+        # Check if they came from the verification page
+        if 'HTTP_REFERER' in request.META and 'verify' in request.META['HTTP_REFERER']:
+            return redirect("registrations:verify_ticket", registration_id=registration.id)
 
     return redirect("events:organizer_dashboard")
+
+
+@login_required
+def verify_ticket(request, registration_id):
+    """Verify a ticket from QR code scan (organizer or staff only)."""
+    registration = get_object_or_404(Registration, pk=registration_id)
+    event = registration.event
+    
+    if not (request.user.is_staff or event.organizer == request.user):
+        messages.error(request, "You do not have permission to scan tickets for this event.")
+        return redirect("events:event_detail", pk=event.pk)
+    
+    context = {
+        "registration": registration,
+        "event": event,
+    }
+    return render(request, "registrations/verify.html", context)
 
 
 @login_required
