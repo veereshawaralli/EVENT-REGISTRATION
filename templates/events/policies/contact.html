@@ -1,0 +1,32 @@
+{% extends "events/policies/policy_base.html" %}
+
+{% block policy_title %}Contact Us{% endblock %}
+{% block breadcrumb %}Contact Us{% endblock %}
+{% block page_header %}Contact Us{% endblock %}
+
+{% block policy_content %}
+<p>Have questions or need assistance? Our support team is here to help.</p>
+
+<div class="row mt-4 g-4">
+    <div class="col-md-6">
+        <div class="h-100 p-4 bg-light rounded shadow-sm">
+            <h5 class="fw-bold mb-3"><i class="bi bi-envelope me-2 text-primary"></i>Email Us</h5>
+            <p class="mb-0">support@eventhub.com</p>
+            <p class="small text-muted">We typically respond within 24 hours.</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="h-100 p-4 bg-light rounded shadow-sm">
+            <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt me-2 text-primary"></i>Office Address</h5>
+            <p class="mb-0">Sharnbasva University Campus,</p>
+            <p class="mb-0">Kalaburagi, Karnataka, India</p>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <h5 class="fw-bold mb-3">Customer Support Hours</h5>
+    <p>Monday - Friday: 9:00 AM to 6:00 PM (IST)<br>
+    Saturday: 10:00 AM to 2:00 PM (IST)</p>
+</div>
+{% endblock %}

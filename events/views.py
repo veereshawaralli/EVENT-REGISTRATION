@@ -202,3 +202,23 @@ class EventDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(request, "Event deleted successfully.")
         return super().delete(request, *args, **kwargs)
+
+
+# ---------------------------------------------------------------------------
+# Static / Policy Pages (Required for Razorpay Verification)
+# ---------------------------------------------------------------------------
+
+def about_us(request):
+    return render(request, "events/policies/about.html")
+
+def contact_us(request):
+    return render(request, "events/policies/contact.html")
+
+def privacy_policy(request):
+    return render(request, "events/policies/privacy.html")
+
+def terms_conditions(request):
+    return render(request, "events/policies/terms.html")
+
+def refund_policy(request):
+    return render(request, "events/policies/refund.html")
