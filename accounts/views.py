@@ -81,15 +81,36 @@ def test_email_view(request):
     try:
         sent_count = send_mail(
             subject='EventHub SMTP Test (From Browser)',
-            message=f'If you are reading this, your SMTP settings on Render are working perfectly!\n\nSent from: {settings.DEFAULT_FROM_EMAIL}',
+            message=f'If you are reading this, your SMTP settings on Render are working perfectly!\n\n'
+                    f'Sent from: {settings.DEFAULT_FROM_EMAIL}\n'
+                    f'Using Backend: {settings.EMAIL_BACKEND}\n'
+                    f'Host: {settings.EMAIL_HOST}\n'
+                    f'Port: {settings.EMAIL_PORT}\n'
+                    f'SSL/TLS: {settings.EMAIL_USE_SSL}/{settings.EMAIL_USE_TLS}',
             from_email=None,
             recipient_list=[recipient],
             fail_silently=False,
         )
+        debug_info = (
+            f"<b>DEBUG INFO:</b><br>"
+            f"USER: {settings.EMAIL_HOST_USER}<br>"
+            f"FROM: {settings.DEFAULT_FROM_EMAIL}<br>"
+            f"BACKEND: {settings.EMAIL_BACKEND}<br>"
+            f"PORT: {settings.EMAIL_PORT}<br>"
+            f"SSL: {settings.EMAIL_USE_SSL} | TLS: {settings.EMAIL_USE_TLS}<br>"
+        )
         if sent_count > 0:
-            return HttpResponse(f"Successfully sent {sent_count} test email(s) to {recipient}!<br>Check your Gmail 'Sent' folder and Inbox.")
+            return HttpResponse(f"Successfully sent {sent_count} test email(s) to {recipient}!<br><br>{debug_info}<br>Check your Gmail 'Sent' folder and Inbox.")
         else:
-            return HttpResponse(f"Django reports 0 emails were sent (but no error occurred). Check your DEFAULT_FROM_EMAIL settings.")
+            return HttpResponse(f"Django reports 0 emails were sent (but no error occurred).<br><br>{debug_info}")
     except Exception as e:
         import traceback
-        return HttpResponse(f"Failed to send email: {e}<br><br><pre>{traceback.format_exc()}</pre>")
+        debug_info = (
+            f"<b>DEBUG INFO (Current Settings):</b><br>"
+            f"USER: {settings.EMAIL_HOST_USER}<br>"
+            f"FROM: {settings.DEFAULT_FROM_EMAIL}<br>"
+            f"BACKEND: {settings.EMAIL_BACKEND}<br>"
+            f"PORT: {settings.EMAIL_PORT}<br>"
+            f"SSL: {settings.EMAIL_USE_SSL} | TLS: {settings.EMAIL_USE_TLS}<br>"
+        )
+        return HttpResponse(f"Failed to send email: {e}<br><br>{debug_info}<br><pre>{traceback.format_exc()}</pre>")
