@@ -5,24 +5,56 @@
 {% block meta_description %}Browse and register for upcoming events. Find conferences, workshops, meetups, and more.{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section text-white text-center">
-    <div class="container py-5">
-        <h1 class="display-4 fw-bold mb-3">Discover Amazing Events</h1>
-        <p class="lead mb-4">Find conferences, workshops, meetups, and more happening near you.</p>
+<!-- Hero Section — Enhanced -->
+<section class="hero-section text-white text-center position-relative">
+    <!-- Animated floating shapes -->
+    <div class="hero-shape hero-shape-1"></div>
+    <div class="hero-shape hero-shape-2"></div>
+    <div class="hero-shape hero-shape-3"></div>
+
+    <div class="container py-5 position-relative" style="z-index: 2;">
+        <span class="badge bg-white bg-opacity-25 text-white px-3 py-2 mb-3 rounded-pill animate-fade-down" style="animation-delay: 0.1s;">
+            <i class="bi bi-lightning-charge-fill me-1"></i> Your gateway to amazing experiences
+        </span>
+        <h1 class="display-3 fw-bold mb-3 animate-fade-down" style="animation-delay: 0.2s;">
+            Discover <span class="text-decoration-underline" style="text-decoration-color: rgba(255,255,255,0.4) !important; text-underline-offset: 8px;">Amazing</span> Events
+        </h1>
+        <p class="lead mb-4 opacity-75 animate-fade-down" style="animation-delay: 0.3s;">
+            Find conferences, workshops, meetups, hackathons, and more happening near you.
+        </p>
 
         <!-- Search Bar -->
-        <div class="row justify-content-center">
+        <div class="row justify-content-center animate-fade-down" style="animation-delay: 0.4s;">
             <div class="col-md-8 col-lg-6">
                 <form method="get" action="{% url 'events:event_list' %}" class="d-flex" id="search-form">
-                    <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-white border-end-0">
+                    <div class="input-group input-group-lg shadow-lg rounded-pill overflow-hidden">
+                        <span class="input-group-text bg-white border-0 ps-4">
                             <i class="bi bi-search text-muted"></i>
                         </span>
                         {{ search_form.q }}
-                        <button type="submit" class="btn btn-primary px-4">Search</button>
+                        <button type="submit" class="btn btn-primary px-4 fw-semibold">Search</button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="row justify-content-center mt-5 animate-fade-down" style="animation-delay: 0.5s;">
+            <div class="col-md-8">
+                <div class="d-flex justify-content-center gap-5 flex-wrap">
+                    <div class="text-center">
+                        <div class="fs-2 fw-bold counter" data-target="{{ page_obj.paginator.count }}">0</div>
+                        <div class="small opacity-75">Total Events</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="fs-2 fw-bold counter" data-target="{{ categories.count }}">0</div>
+                        <div class="small opacity-75">Categories</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="fs-2 fw-bold"><i class="bi bi-shield-check"></i></div>
+                        <div class="small opacity-75">Secure Payments</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -32,44 +64,55 @@
 
     <!-- Category Filter Pills -->
     {% if categories %}
-    <div class="mb-4 d-flex flex-wrap gap-2 align-items-center">
-        <span class="text-muted small fw-semibold me-1"><i class="bi bi-funnel me-1"></i>Filter:</span>
-        <a href="{% url 'events:event_list' %}{% if query %}?q={{ query }}{% endif %}"
-           class="btn btn-sm {% if not active_category %}btn-dark{% else %}btn-outline-secondary{% endif %} rounded-pill">
-            All
-        </a>
-        {% for cat in categories %}
-        <a href="{% url 'events:event_list' %}?category={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}"
-           class="btn btn-sm {% if active_category == cat %}btn-dark{% else %}btn-outline-secondary{% endif %} rounded-pill">
-            <i class="{{ cat.icon }} me-1"></i>{{ cat.name }}
-        </a>
-        {% endfor %}
+    <div class="mb-4 animate-on-scroll">
+        <div class="d-flex flex-wrap gap-2 align-items-center p-3 bg-white rounded-3 shadow-sm">
+            <span class="text-muted small fw-semibold me-2"><i class="bi bi-funnel me-1"></i>Filter:</span>
+            <a href="{% url 'events:event_list' %}{% if query %}?q={{ query }}{% endif %}"
+               class="btn btn-sm {% if not active_category %}btn-dark{% else %}btn-outline-secondary{% endif %} rounded-pill px-3">
+                All
+            </a>
+            {% for cat in categories %}
+            <a href="{% url 'events:event_list' %}?category={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}"
+               class="btn btn-sm {% if active_category == cat %}btn-dark{% else %}btn-outline-secondary{% endif %} rounded-pill px-3">
+                <i class="{{ cat.icon }} me-1"></i>{{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
     </div>
     {% endif %}
 
     <!-- Featured Events -->
     {% if featured_events %}
     <section class="mb-5">
-        <div class="d-flex align-items-center mb-4">
-            <i class="bi bi-star-fill text-warning fs-4 me-2"></i>
-            <h2 class="fw-bold mb-0">Featured Events</h2>
+        <div class="d-flex align-items-center mb-4 animate-on-scroll">
+            <div class="icon-circle bg-warning bg-opacity-10 text-warning me-3">
+                <i class="bi bi-star-fill"></i>
+            </div>
+            <div>
+                <h2 class="fw-bold mb-0">Featured Events</h2>
+                <p class="text-muted mb-0 small">Handpicked events you don't want to miss</p>
+            </div>
         </div>
         <div class="row g-4">
             {% for event in featured_events %}
-            <div class="col-md-4">
-                <div class="card event-card featured-card h-100 border-0 shadow position-relative">
+            <div class="col-md-4 animate-on-scroll" style="animation-delay: {{ forloop.counter0 }}00ms;">
+                <div class="card event-card featured-card h-100 border-0 shadow position-relative overflow-hidden">
                     {% if event.banner %}
-                    <img src="{{ event.banner.url }}" class="card-img-top event-card-img" alt="{{ event.title }}">
+                    <div class="card-img-wrapper">
+                        <img src="{{ event.banner.url }}" class="card-img-top event-card-img" alt="{{ event.title }}">
+                        <div class="card-img-overlay-gradient"></div>
+                    </div>
                     {% else %}
-                    <div class="card-img-top event-card-img-placeholder d-flex align-items-center justify-content-center">
+                    <div class="card-img-top event-card-img-placeholder d-flex align-items-center justify-content-center position-relative">
                         <i class="bi bi-calendar-event display-1 text-white opacity-50"></i>
+                        <div class="card-img-overlay-gradient"></div>
                     </div>
                     {% endif %}
-                    <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3">
+                    <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 shadow-sm">
                         <i class="bi bi-star-fill me-1"></i>Featured
                     </span>
                     {% if event.is_free %}
-                    <span class="badge bg-success position-absolute top-0 start-0 m-3">Free</span>
+                    <span class="badge bg-success position-absolute top-0 start-0 m-3 shadow-sm">Free</span>
                     {% endif %}
                     <div class="card-body d-flex flex-column">
                         {% if event.category %}
@@ -82,11 +125,13 @@
                                 <span class="text-muted small">
                                     <i class="bi bi-calendar3 me-1"></i>{{ event.date|date:"M d, Y" }}
                                 </span>
-                                <span class="badge {% if event.seats_remaining > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                <span class="badge {% if event.seats_remaining > 0 %}bg-success{% else %}bg-danger{% endif %} rounded-pill">
                                     {% if event.is_full %}Full{% else %}{{ event.seats_remaining }} left{% endif %}
                                 </span>
                             </div>
-                            <a href="{{ event.get_absolute_url }}" class="btn btn-primary w-100">View Details</a>
+                            <a href="{{ event.get_absolute_url }}" class="btn btn-primary w-100 rounded-pill fw-semibold">
+                                <i class="bi bi-arrow-right-circle me-1"></i>View Details
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -98,26 +143,35 @@
 
     <!-- All Events -->
     <section>
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold mb-0">
-                {% if active_category %}
-                    <i class="{{ active_category.icon }} me-2"></i>{{ active_category.name }} Events
-                {% elif query %}
-                    Results for "{{ query }}"
-                {% else %}
-                    Upcoming Events
-                {% endif %}
-            </h2>
-            <span class="text-muted">{{ page_obj.paginator.count }} event{{ page_obj.paginator.count|pluralize }}</span>
+        <div class="d-flex justify-content-between align-items-center mb-4 animate-on-scroll">
+            <div class="d-flex align-items-center">
+                <div class="icon-circle bg-primary bg-opacity-10 text-primary me-3">
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-0">
+                        {% if active_category %}
+                            <i class="{{ active_category.icon }} me-2"></i>{{ active_category.name }} Events
+                        {% elif query %}
+                            Results for "{{ query }}"
+                        {% else %}
+                            Upcoming Events
+                        {% endif %}
+                    </h2>
+                    <p class="text-muted mb-0 small">{{ page_obj.paginator.count }} event{{ page_obj.paginator.count|pluralize }} found</p>
+                </div>
+            </div>
         </div>
 
         {% if page_obj.object_list %}
         <div class="row g-4">
             {% for event in page_obj %}
-            <div class="col-md-6 col-lg-4">
-                <div class="card event-card h-100 border-0 shadow-sm position-relative">
+            <div class="col-md-6 col-lg-4 animate-on-scroll" style="animation-delay: {{ forloop.counter0 }}50ms;">
+                <div class="card event-card h-100 border-0 shadow-sm position-relative overflow-hidden">
                     {% if event.banner %}
-                    <img src="{{ event.banner.url }}" class="card-img-top event-card-img" alt="{{ event.title }}">
+                    <div class="card-img-wrapper">
+                        <img src="{{ event.banner.url }}" class="card-img-top event-card-img" alt="{{ event.title }}">
+                    </div>
                     {% else %}
                     <div class="card-img-top event-card-img-placeholder-sm d-flex align-items-center justify-content-center">
                         <i class="bi bi-calendar-event display-4 text-white opacity-50"></i>
@@ -125,9 +179,9 @@
                     {% endif %}
 
                     {% if event.is_free %}
-                    <span class="badge bg-success position-absolute top-0 start-0 m-2">Free</span>
+                    <span class="badge bg-success position-absolute top-0 start-0 m-2 shadow-sm rounded-pill px-3">Free</span>
                     {% else %}
-                    <span class="badge bg-primary position-absolute top-0 start-0 m-2">₹{{ event.price }}</span>
+                    <span class="badge bg-primary position-absolute top-0 start-0 m-2 shadow-sm rounded-pill px-3">₹{{ event.price }}</span>
                     {% endif %}
 
                     <div class="card-body d-flex flex-column">
@@ -139,21 +193,23 @@
                         <h5 class="card-title fw-semibold">{{ event.title }}</h5>
                         <p class="card-text text-muted small mb-3">{{ event.description|truncatewords:15 }}</p>
                         <div class="mt-auto">
-                            <ul class="list-unstyled small text-muted mb-3">
-                                <li class="mb-1">
-                                    <i class="bi bi-calendar3 me-2"></i>{{ event.date|date:"M d, Y" }} at {{ event.time|time:"g:i A" }}
-                                </li>
-                                <li class="mb-1">
-                                    <i class="bi bi-geo-alt me-2"></i>{{ event.location }}
-                                </li>
-                                <li>
-                                    <i class="bi bi-people me-2"></i>
+                            <div class="event-meta mb-3">
+                                <div class="event-meta-item">
+                                    <i class="bi bi-calendar3 text-primary me-2"></i>
+                                    <span>{{ event.date|date:"M d, Y" }} at {{ event.time|time:"g:i A" }}</span>
+                                </div>
+                                <div class="event-meta-item">
+                                    <i class="bi bi-geo-alt text-danger me-2"></i>
+                                    <span>{{ event.location }}</span>
+                                </div>
+                                <div class="event-meta-item">
+                                    <i class="bi bi-people text-success me-2"></i>
                                     <span class="{% if event.seats_remaining == 0 %}text-danger fw-bold{% elif event.seats_remaining <= 5 %}text-warning{% endif %}">
-                                        {% if event.is_full %}Full{% else %}{{ event.seats_remaining }}/{{ event.capacity }} seats available{% endif %}
+                                        {% if event.is_full %}Full{% else %}{{ event.seats_remaining }}/{{ event.capacity }} seats{% endif %}
                                     </span>
-                                </li>
-                            </ul>
-                            <a href="{{ event.get_absolute_url }}" class="btn btn-outline-primary w-100">
+                                </div>
+                            </div>
+                            <a href="{{ event.get_absolute_url }}" class="btn btn-outline-primary w-100 rounded-pill fw-semibold">
                                 View Details <i class="bi bi-arrow-right ms-1"></i>
                             </a>
                         </div>
@@ -169,7 +225,7 @@
             <ul class="pagination justify-content-center">
                 {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                    <a class="page-link rounded-pill me-1" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ page_obj.previous_page_number }}">
                         <i class="bi bi-chevron-left"></i> Previous
                     </a>
                 </li>
@@ -177,17 +233,17 @@
 
                 {% for num in page_obj.paginator.page_range %}
                     {% if page_obj.number == num %}
-                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    <li class="page-item active"><span class="page-link rounded-pill mx-1">{{ num }}</span></li>
                     {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                     <li class="page-item">
-                        <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ num }}">{{ num }}</a>
+                        <a class="page-link rounded-pill mx-1" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ num }}">{{ num }}</a>
                     </li>
                     {% endif %}
                 {% endfor %}
 
                 {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ page_obj.next_page_number }}">
+                    <a class="page-link rounded-pill ms-1" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ page_obj.next_page_number }}">
                         Next <i class="bi bi-chevron-right"></i>
                     </a>
                 </li>
@@ -197,12 +253,16 @@
         {% endif %}
 
         {% else %}
-        <div class="text-center py-5">
-            <i class="bi bi-calendar-x display-1 text-muted"></i>
+        <div class="text-center py-5 animate-on-scroll">
+            <div class="mb-4">
+                <div class="icon-circle bg-light mx-auto" style="width: 80px; height: 80px; font-size: 2rem;">
+                    <i class="bi bi-calendar-x text-muted"></i>
+                </div>
+            </div>
             <h4 class="mt-3 text-muted">No events found</h4>
             {% if query or active_category %}
             <p class="text-muted">Try a different search term or remove filters.</p>
-            <a href="{% url 'events:event_list' %}" class="btn btn-outline-primary">Clear Filters</a>
+            <a href="{% url 'events:event_list' %}" class="btn btn-outline-primary rounded-pill px-4">Clear Filters</a>
             {% else %}
             <p class="text-muted">Check back later for upcoming events.</p>
             {% endif %}
@@ -210,4 +270,41 @@
         {% endif %}
     </section>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Counter animation for stats
+document.addEventListener('DOMContentLoaded', () => {
+    const counters = document.querySelectorAll('.counter');
+    counters.forEach(counter => {
+        const target = +counter.getAttribute('data-target');
+        const duration = 1500;
+        const start = performance.now();
+
+        function update(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            // Ease out cubic
+            const ease = 1 - Math.pow(1 - progress, 3);
+            counter.textContent = Math.floor(ease * target);
+            if (progress < 1) requestAnimationFrame(update);
+            else counter.textContent = target;
+        }
+        requestAnimationFrame(update);
+    });
+
+    // Scroll-triggered animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+});
+</script>
 {% endblock %}
