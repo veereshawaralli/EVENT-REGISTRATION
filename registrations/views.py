@@ -76,11 +76,15 @@ def register_for_event(request, event_id):
 
     # Check for existing confirmed registration
     existing = Registration.objects.filter(
-        user=request.user, event=event, status="confirmed"
-    ).exists()
+        user=request.user, event=event
+    ).first()
+    
     if existing:
-        messages.warning(request, "You are already registered for this event.")
-        return redirect("events:event_detail", pk=event_id)
+        if existing.status == "confirmed":
+            messages.warning(request, "You are already registered for this event.")
+            return redirect("events:event_detail", pk=event_id)
+        elif existing.status == "pending":
+            return redirect("registrations:checkout", registration_id=existing.id)
 
     # If event is full → send to waitlist
     if event.is_full:
@@ -276,10 +280,15 @@ def dashboard(request):
         user=request.user
     ).select_related("event")
 
+    pending_payments = Registration.objects.filter(
+        user=request.user, status="pending"
+    ).select_related("event")
+
     context = {
         "confirmed_registrations": confirmed,
         "cancelled_registrations": cancelled,
         "waitlist_entries": waitlist_entries,
+        "pending_payments": pending_payments,
     }
     return render(request, "registrations/dashboard.html", context)
 

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout - {{ event.title }} | EventHub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0">Secure Checkout</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h5 class="text-muted">Event Registration</h5>
+                        <h3 class="fw-bold">{{ event.title }}</h3>
+                        <p class="mb-1"><i class="bi bi-calendar3 me-2"></i>{{ event.date }} at {{ event.time }}</p>
+                        <p><i class="bi bi-geo-alt me-2"></i>{{ event.location }}</p>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-4">
+                        <span class="h5 mb-0">Total Amount:</span>
+                        <span class="h3 mb-0 fw-bold text-primary">₹{{ event.price }}</span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button id="rzp-button1" class="btn btn-primary btn-lg py-3">
+                            <i class="bi bi-shield-check me-2"></i>Pay Now with Razorpay
+                        </button>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <img src="https://cdn.razorpay.com/static/assets/badgetest.png" alt="Razorpay Secure" style="max-height: 40px;">
+                        <p class="small text-muted mt-2">100% Secure & Encrypted Payments</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-3">
+                <a href="{% url 'events:event_detail' event.id %}" class="btn btn-link text-decoration-none">
+                    <i class="bi bi-arrow-left me-1"></i>Cancel and go back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Razorpay Integration -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ razorpay_key_id }}",
+        "amount": "{{ amount }}",
+        "currency": "INR",
+        "name": "EventHub",
+        "description": "Registration for {{ event.title }}",
+        "image": "{% static 'img/logo.png' %}",
+        "order_id": "{{ razorpay_order_id }}",
+        "handler": function (response){
+            // Create a form and submit it to the callback URL
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{% url 'registrations:payment_callback' %}";
+            
+            var params = {
+                'razorpay_payment_id': response.razorpay_payment_id,
+                'razorpay_order_id': response.razorpay_order_id,
+                'razorpay_signature': response.razorpay_signature
+            };
+
+            for (var key in params) {
+                var hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = key;
+                hiddenField.value = params[key];
+                form.appendChild(hiddenField);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        },
+        "prefill": {
+            "name": "{{ request.user.get_full_name|default:request.user.username }}",
+            "email": "{{ request.user.email }}",
+        },
+        "theme": {
+            "color": "#0d6efd"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    document.getElementById('rzp-button1').onclick = function(e){
+        rzp1.open();
+        e.preventDefault();
+    }
+</script>
+{% endblock %}

@@ -14,6 +14,35 @@
         </a>
     </div>
 
+    <!-- Pending Payments -->
+    {% if pending_payments %}
+    <section class="mb-5">
+        <h3 class="fw-semibold mb-3 text-warning">
+            <i class="bi bi-credit-card me-2"></i>Awaiting Payment
+            <span class="badge bg-warning text-dark ms-2">{{ pending_payments.count }}</span>
+        </h3>
+        <div class="row g-4">
+            {% for reg in pending_payments %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-warning shadow-sm h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-semibold">{{ reg.event.title }}</h5>
+                        <p class="text-muted small mb-3">
+                            ₹{{ reg.event.price }} payment required to confirm your spot.
+                        </p>
+                        <div class="mt-auto d-grid">
+                            <a href="{% url 'registrations:checkout' reg.id %}" class="btn btn-warning">
+                                <i class="bi bi-wallet2 me-1"></i>Pay Now (₹{{ reg.event.price }})
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
     <!-- Confirmed Registrations -->
     <section class="mb-5">
         <h3 class="fw-semibold mb-3">
