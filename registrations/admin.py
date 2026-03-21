@@ -1,14 +1,29 @@
 from django.contrib import admin
 
-from .models import Registration
+from .models import Registration, Waitlist
 
 
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
-    """Admin interface for Registration model."""
+    list_display = ("user", "event", "status", "attended", "registration_date")
+    list_filter = ("status", "attended", "event")
+    search_fields = ("user__username", "event__title")
+    list_editable = ("attended",)
+    readonly_fields = ("registration_date", "qr_code")
+    actions = ["mark_attended", "mark_not_attended"]
 
-    list_display = ("user", "event", "registration_date", "status")
-    list_filter = ("status", "registration_date")
-    search_fields = ("user__username", "user__email", "event__title")
-    list_editable = ("status",)
-    raw_id_fields = ("user", "event")
+    @admin.action(description="Mark selected as attended")
+    def mark_attended(self, request, queryset):
+        queryset.update(attended=True)
+
+    @admin.action(description="Mark selected as not attended")
+    def mark_not_attended(self, request, queryset):
+        queryset.update(attended=False)
+
+
+@admin.register(Waitlist)
+class WaitlistAdmin(admin.ModelAdmin):
+    list_display = ("user", "event", "position", "joined_at")
+    list_filter = ("event",)
+    search_fields = ("user__username", "event__title")
+    readonly_fields = ("joined_at",)

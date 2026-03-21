@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Organizer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">
+            <i class="bi bi-bar-chart-line me-2"></i>Organizer Dashboard
+        </h1>
+        {% if user.is_staff %}
+        <a href="{% url 'events:event_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>Create Event
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow text-center p-4">
+                <div class="display-5 fw-bold text-primary mb-1">{{ total_events }}</div>
+                <p class="text-muted mb-0"><i class="bi bi-calendar-event me-1"></i>Total Events</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow text-center p-4">
+                <div class="display-5 fw-bold text-success mb-1">{{ total_regs }}</div>
+                <p class="text-muted mb-0"><i class="bi bi-person-check me-1"></i>Total Registrations</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow text-center p-4">
+                <div class="display-5 fw-bold text-warning mb-1">{{ total_attended }}</div>
+                <p class="text-muted mb-0"><i class="bi bi-check2-all me-1"></i>Confirmed Attendees</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart -->
+    {% if chart_labels %}
+    <div class="card border-0 shadow mb-5">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-graph-up me-2"></i>Registrations Overview</h5>
+            <canvas id="regsChart" height="80"></canvas>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Events Table -->
+    <div class="card border-0 shadow">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-list-ul me-2"></i>Your Events</h5>
+            {% if my_events %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Event</th>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Registrations</th>
+                            <th>Attendance</th>
+                            <th>Capacity</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in my_events %}
+                        <tr>
+                            <td>
+                                <a href="{{ event.get_absolute_url }}" class="fw-semibold text-decoration-none">
+                                    {{ event.title }}
+                                </a>
+                                {% if event.is_featured %}
+                                <span class="badge bg-warning text-dark ms-1">Featured</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">{{ event.date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if event.category %}
+                                <span class="badge bg-secondary">{{ event.category.name }}</span>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ event.confirmed_count }}</span>
+                            </td>
+                            <td>
+                                {% if event.confirmed_count > 0 %}
+                                    {% widthratio event.attended_count event.confirmed_count 100 as att_pct %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height:6px;">
+                                            <div class="progress-bar bg-success" style="width: {{ att_pct }}%"></div>
+                                        </div>
+                                        <small>{{ event.attended_count }}/{{ event.confirmed_count }}</small>
+                                    </div>
+                                {% else %}
+                                <span class="text-muted small">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">{{ event.confirmed_count }}/{{ event.capacity }}</td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ event.get_absolute_url }}" class="btn btn-sm btn-outline-primary"
+                                       title="View"><i class="bi bi-eye"></i></a>
+                                    <a href="{% url 'events:event_update' event.pk %}" class="btn btn-sm btn-outline-secondary"
+                                       title="Edit"><i class="bi bi-pencil"></i></a>
+                                    <a href="{% url 'events:event_delete' event.pk %}" class="btn btn-sm btn-outline-danger"
+                                       title="Delete"><i class="bi bi-trash"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="bi bi-calendar-x display-3 text-muted"></i>
+                <p class="text-muted mt-2">No events yet.</p>
+                {% if user.is_staff %}
+                <a href="{% url 'events:event_create' %}" class="btn btn-primary">Create Your First Event</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if chart_labels %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const ctx = document.getElementById('regsChart');
+const labels = {{ chart_labels|safe }};
+const regsData = {{ chart_regs|safe }};
+const attendedData = {{ chart_attended|safe }};
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Registrations',
+                data: regsData,
+                backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                borderRadius: 6,
+            },
+            {
+                label: 'Attended',
+                data: attendedData,
+                backgroundColor: 'rgba(25, 135, 84, 0.7)',
+                borderRadius: 6,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'top' },
+            tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 }
+            }
+        }
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

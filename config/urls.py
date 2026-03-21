@@ -13,6 +13,9 @@ urlpatterns = [
     path("accounts/", include("accounts.urls", namespace="accounts")),
     path("events/", include("events.urls", namespace="events")),
     path("registrations/", include("registrations.urls", namespace="registrations")),
+    path("reviews/", include("reviews.urls", namespace="reviews")),
+    path("comments/", include("comments.urls", namespace="comments")),
+    path("api/", include("api.urls")),
     # Redirect root to event list
     path("", RedirectView.as_view(pattern_name="events:event_list", permanent=False)),
 ]

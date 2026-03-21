@@ -30,6 +30,23 @@
 
 <div class="container py-5">
 
+    <!-- Category Filter Pills -->
+    {% if categories %}
+    <div class="mb-4 d-flex flex-wrap gap-2 align-items-center">
+        <span class="text-muted small fw-semibold me-1"><i class="bi bi-funnel me-1"></i>Filter:</span>
+        <a href="{% url 'events:event_list' %}{% if query %}?q={{ query }}{% endif %}"
+           class="btn btn-sm {% if not active_category %}btn-dark{% else %}btn-outline-secondary{% endif %} rounded-pill">
+            All
+        </a>
+        {% for cat in categories %}
+        <a href="{% url 'events:event_list' %}?category={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}"
+           class="btn btn-sm {% if active_category == cat %}btn-dark{% else %}btn-outline-secondary{% endif %} rounded-pill">
+            <i class="{{ cat.icon }} me-1"></i>{{ cat.name }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- Featured Events -->
     {% if featured_events %}
     <section class="mb-5">
@@ -40,7 +57,7 @@
         <div class="row g-4">
             {% for event in featured_events %}
             <div class="col-md-4">
-                <div class="card event-card featured-card h-100 border-0 shadow">
+                <div class="card event-card featured-card h-100 border-0 shadow position-relative">
                     {% if event.banner %}
                     <img src="{{ event.banner.url }}" class="card-img-top event-card-img" alt="{{ event.title }}">
                     {% else %}
@@ -51,7 +68,13 @@
                     <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3">
                         <i class="bi bi-star-fill me-1"></i>Featured
                     </span>
+                    {% if event.is_free %}
+                    <span class="badge bg-success position-absolute top-0 start-0 m-3">Free</span>
+                    {% endif %}
                     <div class="card-body d-flex flex-column">
+                        {% if event.category %}
+                        <small class="text-muted mb-1"><i class="{{ event.category.icon }} me-1"></i>{{ event.category.name }}</small>
+                        {% endif %}
                         <h5 class="card-title fw-bold">{{ event.title }}</h5>
                         <p class="card-text text-muted small">{{ event.description|truncatewords:20 }}</p>
                         <div class="mt-auto">
@@ -60,7 +83,7 @@
                                     <i class="bi bi-calendar3 me-1"></i>{{ event.date|date:"M d, Y" }}
                                 </span>
                                 <span class="badge {% if event.seats_remaining > 0 %}bg-success{% else %}bg-danger{% endif %}">
-                                    {{ event.seats_remaining }} seat{{ event.seats_remaining|pluralize }} left
+                                    {% if event.is_full %}Full{% else %}{{ event.seats_remaining }} left{% endif %}
                                 </span>
                             </div>
                             <a href="{{ event.get_absolute_url }}" class="btn btn-primary w-100">View Details</a>
@@ -77,7 +100,9 @@
     <section>
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold mb-0">
-                {% if query %}
+                {% if active_category %}
+                    <i class="{{ active_category.icon }} me-2"></i>{{ active_category.name }} Events
+                {% elif query %}
                     Results for "{{ query }}"
                 {% else %}
                     Upcoming Events
@@ -90,7 +115,7 @@
         <div class="row g-4">
             {% for event in page_obj %}
             <div class="col-md-6 col-lg-4">
-                <div class="card event-card h-100 border-0 shadow-sm">
+                <div class="card event-card h-100 border-0 shadow-sm position-relative">
                     {% if event.banner %}
                     <img src="{{ event.banner.url }}" class="card-img-top event-card-img" alt="{{ event.title }}">
                     {% else %}
@@ -98,7 +123,19 @@
                         <i class="bi bi-calendar-event display-4 text-white opacity-50"></i>
                     </div>
                     {% endif %}
+
+                    {% if event.is_free %}
+                    <span class="badge bg-success position-absolute top-0 start-0 m-2">Free</span>
+                    {% else %}
+                    <span class="badge bg-primary position-absolute top-0 start-0 m-2">${{ event.price }}</span>
+                    {% endif %}
+
                     <div class="card-body d-flex flex-column">
+                        {% if event.category %}
+                        <small class="text-muted mb-1">
+                            <i class="{{ event.category.icon }} me-1"></i>{{ event.category.name }}
+                        </small>
+                        {% endif %}
                         <h5 class="card-title fw-semibold">{{ event.title }}</h5>
                         <p class="card-text text-muted small mb-3">{{ event.description|truncatewords:15 }}</p>
                         <div class="mt-auto">
@@ -112,7 +149,7 @@
                                 <li>
                                     <i class="bi bi-people me-2"></i>
                                     <span class="{% if event.seats_remaining == 0 %}text-danger fw-bold{% elif event.seats_remaining <= 5 %}text-warning{% endif %}">
-                                        {{ event.seats_remaining }}/{{ event.capacity }} seats available
+                                        {% if event.is_full %}Full{% else %}{{ event.seats_remaining }}/{{ event.capacity }} seats available{% endif %}
                                     </span>
                                 </li>
                             </ul>
@@ -132,7 +169,7 @@
             <ul class="pagination justify-content-center">
                 {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                    <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ page_obj.previous_page_number }}">
                         <i class="bi bi-chevron-left"></i> Previous
                     </a>
                 </li>
@@ -143,14 +180,14 @@
                     <li class="page-item active"><span class="page-link">{{ num }}</span></li>
                     {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                     <li class="page-item">
-                        <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}page={{ num }}">{{ num }}</a>
+                        <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ num }}">{{ num }}</a>
                     </li>
                     {% endif %}
                 {% endfor %}
 
                 {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.next_page_number }}">
+                    <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ page_obj.next_page_number }}">
                         Next <i class="bi bi-chevron-right"></i>
                     </a>
                 </li>
@@ -163,9 +200,9 @@
         <div class="text-center py-5">
             <i class="bi bi-calendar-x display-1 text-muted"></i>
             <h4 class="mt-3 text-muted">No events found</h4>
-            {% if query %}
-            <p class="text-muted">Try a different search term.</p>
-            <a href="{% url 'events:event_list' %}" class="btn btn-outline-primary">Clear Search</a>
+            {% if query or active_category %}
+            <p class="text-muted">Try a different search term or remove filters.</p>
+            <a href="{% url 'events:event_list' %}" class="btn btn-outline-primary">Clear Filters</a>
             {% else %}
             <p class="text-muted">Check back later for upcoming events.</p>
             {% endif %}

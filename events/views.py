@@ -2,22 +2,19 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.generic import CreateView, DeleteView, UpdateView
 
 from .forms import EventForm, EventSearchForm
-from .models import Event
+from .models import Category, Event
 
 
 def event_list(request):
-    """
-    Homepage: list all upcoming events with search and pagination.
-    Featured events are shown in a separate section.
-    """
+    """Homepage: list upcoming events with search, category filter, and pagination."""
     search_form = EventSearchForm(request.GET)
-    queryset = Event.objects.filter(date__gte=timezone.now().date())
+    queryset = Event.objects.filter(date__gte=timezone.now().date()).select_related("category")
 
     query = request.GET.get("q", "").strip()
     if query:
@@ -27,13 +24,26 @@ def event_list(request):
             | Q(description__icontains=query)
         )
 
-    # Featured events (only on the first page without search)
+    category_slug = request.GET.get("category", "").strip()
+    active_category = None
+    if category_slug:
+        active_category = Category.objects.filter(slug=category_slug).first()
+        if active_category:
+            queryset = queryset.filter(category=active_category)
+
+    tag_slug = request.GET.get("tag", "").strip()
+    if tag_slug:
+        queryset = queryset.filter(tags__slug=tag_slug)
+
+    # Featured events (only on page 1 without active filters)
     featured_events = []
-    if not query and request.GET.get("page") in (None, "1"):
+    if not query and not category_slug and request.GET.get("page") in (None, "1"):
         featured_events = Event.objects.filter(
             is_featured=True,
             date__gte=timezone.now().date(),
-        )[:3]
+        ).select_related("category")[:3]
+
+    categories = Category.objects.all()
 
     paginator = Paginator(queryset, 9)
     page_number = request.GET.get("page")
@@ -44,28 +54,92 @@ def event_list(request):
         "search_form": search_form,
         "featured_events": featured_events,
         "query": query,
+        "categories": categories,
+        "active_category": active_category,
+        "active_tag": tag_slug,
     }
     return render(request, "events/event_list.html", context)
 
 
 def event_detail(request, pk):
-    """Show full event details and registration status."""
-    event = get_object_or_404(Event, pk=pk)
+    """Show full event details, registration status, reviews, and comments."""
+    event = get_object_or_404(
+        Event.objects.select_related("organizer", "category").prefetch_related("tags"),
+        pk=pk
+    )
 
     user_registered = False
     registration = None
+    user_on_waitlist = False
+    user_has_reviewed = False
+
     if request.user.is_authenticated:
         registration = event.registrations.filter(
             user=request.user, status="confirmed"
         ).first()
         user_registered = registration is not None
+        user_on_waitlist = event.waitlist.filter(user=request.user).exists()
+        user_has_reviewed = event.reviews.filter(user=request.user).exists()
+
+    reviews = event.reviews.select_related("user").all()
+    comments = event.comments.select_related("user").all()
+
+    # Organizer: attendee list (for mark_attended view)
+    attendee_list = None
+    if request.user.is_authenticated and (
+        request.user.is_staff or event.organizer == request.user
+    ):
+        attendee_list = event.registrations.filter(status="confirmed").select_related("user")
 
     context = {
         "event": event,
         "user_registered": user_registered,
         "registration": registration,
+        "user_on_waitlist": user_on_waitlist,
+        "user_has_reviewed": user_has_reviewed,
+        "reviews": reviews,
+        "comments": comments,
+        "attendee_list": attendee_list,
     }
     return render(request, "events/event_detail.html", context)
+
+
+@login_required
+def organizer_dashboard(request):
+    """Stats dashboard for organizers/staff."""
+    if not (request.user.is_staff or request.user.organized_events.exists()):
+        messages.error(request, "This page is for event organizers only.")
+        return redirect("events:event_list")
+
+    if request.user.is_staff:
+        my_events = Event.objects.all()
+    else:
+        my_events = Event.objects.filter(organizer=request.user)
+
+    my_events = my_events.annotate(
+        confirmed_count=Count("registrations", filter=Q(registrations__status="confirmed")),
+        attended_count=Count("registrations", filter=Q(registrations__attended=True)),
+    ).order_by("-date")
+
+    total_events = my_events.count()
+    total_regs = sum(e.confirmed_count for e in my_events)
+    total_attended = sum(e.attended_count for e in my_events)
+
+    # Chart.js data
+    chart_labels = [e.title[:20] for e in my_events[:10]]
+    chart_regs = [e.confirmed_count for e in my_events[:10]]
+    chart_attended = [e.attended_count for e in my_events[:10]]
+
+    context = {
+        "my_events": my_events,
+        "total_events": total_events,
+        "total_regs": total_regs,
+        "total_attended": total_attended,
+        "chart_labels": chart_labels,
+        "chart_regs": chart_regs,
+        "chart_attended": chart_attended,
+    }
+    return render(request, "events/organizer_dashboard.html", context)
 
 
 class EventCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):

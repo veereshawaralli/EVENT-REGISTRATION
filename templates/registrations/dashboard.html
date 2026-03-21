@@ -49,17 +49,47 @@
                                 <i class="bi bi-clock me-1"></i>Registered {{ reg.registration_date|naturaltime }}
                             </li>
                         </ul>
-                        <div class="mt-auto d-flex gap-2">
-                            <a href="{{ reg.event.get_absolute_url }}" class="btn btn-outline-primary btn-sm flex-grow-1">
-                                View Event
-                            </a>
-                            <form method="post" action="{% url 'registrations:cancel' reg.pk %}" class="flex-grow-1">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-danger btn-sm w-100"
-                                        onclick="return confirm('Cancel registration for {{ reg.event.title }}?');">
-                                    Cancel
-                                </button>
-                            </form>
+
+                        <!-- Attendance Badge -->
+                        {% if reg.attended %}
+                        <span class="badge bg-success mb-2 align-self-start">
+                            <i class="bi bi-check2 me-1"></i>Attended
+                        </span>
+                        {% endif %}
+
+                        <!-- QR Code -->
+                        {% if reg.qr_code %}
+                        <div class="text-center mb-3">
+                            <img src="{{ reg.qr_code.url }}" alt="QR Code" style="max-width: 100px;" class="img-fluid">
+                            <p class="small text-muted mb-0">Entry QR Code</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-auto d-flex flex-column gap-2">
+                            <div class="d-flex gap-2">
+                                <a href="{{ reg.event.get_absolute_url }}" class="btn btn-outline-primary btn-sm flex-grow-1">
+                                    View Event
+                                </a>
+                                <form method="post" action="{% url 'registrations:cancel' reg.pk %}" class="flex-grow-1">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100"
+                                            onclick="return confirm('Cancel registration for {{ reg.event.title }}?');">
+                                        Cancel
+                                    </button>
+                                </form>
+                            </div>
+                            {% if reg.event.is_upcoming %}
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'registrations:download_ics' reg.pk %}"
+                                   class="btn btn-outline-secondary btn-sm flex-grow-1">
+                                    <i class="bi bi-calendar-plus"></i> .ics
+                                </a>
+                                <a href="https://www.google.com/calendar/render?action=TEMPLATE&text={{ reg.event.title|urlencode }}&dates={{ reg.event.date|date:'Ymd' }}T{{ reg.event.time|time:'His' }}&location={{ reg.event.location|urlencode }}"
+                                   target="_blank" class="btn btn-outline-danger btn-sm flex-grow-1">
+                                    <i class="bi bi-google"></i> GCal
+                                </a>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -76,6 +106,47 @@
         </div>
         {% endif %}
     </section>
+
+    <!-- Waitlist Entries -->
+    {% if waitlist_entries %}
+    <section class="mb-5">
+        <h3 class="fw-semibold mb-3">
+            <i class="bi bi-clock text-warning me-2"></i>Waitlisted Events
+            <span class="badge bg-warning text-dark ms-2">{{ waitlist_entries.count }}</span>
+        </h3>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Your Position</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in waitlist_entries %}
+                    <tr>
+                        <td>
+                            <a href="{{ entry.event.get_absolute_url }}" class="text-decoration-none fw-semibold">
+                                {{ entry.event.title }}
+                            </a>
+                        </td>
+                        <td class="text-muted">{{ entry.event.date|date:"M d, Y" }}</td>
+                        <td><span class="badge bg-warning text-dark">#{{ entry.position }}</span></td>
+                        <td>
+                            <form method="post" action="{% url 'registrations:leave_waitlist' entry.event.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-secondary btn-sm">Leave</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
 
     <!-- Cancelled Registrations -->
     {% if cancelled_registrations %}

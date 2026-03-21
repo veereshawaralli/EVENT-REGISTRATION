@@ -9,6 +9,11 @@
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'events:event_list' %}">Events</a></li>
+            {% if event.category %}
+            <li class="breadcrumb-item">
+                <a href="{% url 'events:event_list' %}?category={{ event.category.slug }}">{{ event.category.name }}</a>
+            </li>
+            {% endif %}
             <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
         </ol>
     </nav>
@@ -28,12 +33,49 @@
                 <div class="card-body p-4">
                     <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
                         <h1 class="fw-bold mb-0">{{ event.title }}</h1>
-                        {% if event.is_featured %}
-                        <span class="badge bg-warning text-dark ms-2">
-                            <i class="bi bi-star-fill me-1"></i>Featured
-                        </span>
-                        {% endif %}
+                        <div class="d-flex gap-2 ms-2 flex-wrap">
+                            {% if event.is_featured %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-star-fill me-1"></i>Featured
+                            </span>
+                            {% endif %}
+                            {% if event.is_free %}
+                            <span class="badge bg-success">Free</span>
+                            {% else %}
+                            <span class="badge bg-primary">${{ event.price }}</span>
+                            {% endif %}
+                            {% if event.category %}
+                            <a href="{% url 'events:event_list' %}?category={{ event.category.slug }}"
+                               class="badge bg-secondary text-decoration-none">
+                                <i class="{{ event.category.icon }} me-1"></i>{{ event.category.name }}
+                            </a>
+                            {% endif %}
+                        </div>
                     </div>
+
+                    <!-- Star rating summary -->
+                    {% if event.average_rating %}
+                    <div class="mb-3">
+                        <span class="text-warning fs-5">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= event.average_rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="text-muted ms-1">{{ event.average_rating }}/5 ({{ reviews|length }} review{{ reviews|length|pluralize }})</span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Tags -->
+                    {% if event.tags.all %}
+                    <div class="mb-3">
+                        {% for tag in event.tags.all %}
+                        <a href="{% url 'events:event_list' %}?tag={{ tag.slug }}"
+                           class="badge bg-light text-dark border me-1 text-decoration-none">
+                            #{{ tag.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
 
                     <p class="text-muted mb-4">
                         Organized by <strong>{{ event.organizer.get_full_name|default:event.organizer.username }}</strong>
@@ -42,6 +84,47 @@
                     <div class="mb-4">
                         {{ event.description|linebreaks }}
                     </div>
+
+                    <!-- Social share -->
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <small class="fw-semibold text-muted d-block mb-2">Share this event:</small>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="https://twitter.com/intent/tweet?text={{ event.title|urlencode }}&url={{ request.build_absolute_uri }}"
+                               target="_blank" class="btn btn-sm btn-outline-dark">
+                                <i class="bi bi-twitter-x me-1"></i>Twitter / X
+                            </a>
+                            <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri|urlencode }}"
+                               target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-linkedin me-1"></i>LinkedIn
+                            </a>
+                            <a href="https://wa.me/?text={{ event.title|urlencode }}%20{{ request.build_absolute_uri|urlencode }}"
+                               target="_blank" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-whatsapp me-1"></i>WhatsApp
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Map embed -->
+                    {% if event.latitude and event.longitude %}
+                    <div class="mb-4">
+                        <h5 class="fw-semibold mb-2"><i class="bi bi-map me-2"></i>Location Map</h5>
+                        <div class="ratio ratio-16x9 rounded overflow-hidden">
+                            <iframe
+                                src="https://www.openstreetmap.org/export/embed.html?bbox={{ event.longitude|add:'-0.01' }},{{ event.latitude|add:'-0.01' }},{{ event.longitude|add:'0.01' }},{{ event.latitude|add:'0.01' }}&layer=mapnik&marker={{ event.latitude }},{{ event.longitude }}"
+                                style="border:0;"
+                                allowfullscreen
+                                loading="lazy"
+                                title="Event location map">
+                            </iframe>
+                        </div>
+                        <small class="text-muted">
+                            <a href="https://www.openstreetmap.org/?mlat={{ event.latitude }}&mlon={{ event.longitude }}"
+                               target="_blank" class="text-decoration-none">
+                                <i class="bi bi-box-arrow-up-right me-1"></i>Open in OpenStreetMap
+                            </a>
+                        </small>
+                    </div>
+                    {% endif %}
 
                     <!-- Admin actions -->
                     {% if user.is_staff or user == event.organizer %}
@@ -53,8 +136,175 @@
                         <a href="{% url 'events:event_delete' event.pk %}" class="btn btn-outline-danger btn-sm">
                             <i class="bi bi-trash me-1"></i>Delete Event
                         </a>
+                        <a href="{% url 'events:organizer_dashboard' %}" class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-bar-chart me-1"></i>Dashboard
+                        </a>
                     </div>
                     {% endif %}
+                </div>
+            </div>
+
+            <!-- Organizer Attendee Management -->
+            {% if attendee_list %}
+            <div class="card border-0 shadow mt-4">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-person-check me-2"></i>Attendee Management</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead class="table-light">
+                                <tr><th>Name</th><th>Email</th><th>Attended</th><th>Action</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for reg in attendee_list %}
+                                <tr>
+                                    <td>{{ reg.user.get_full_name|default:reg.user.username }}</td>
+                                    <td><small>{{ reg.user.email }}</small></td>
+                                    <td>
+                                        {% if reg.attended %}
+                                        <span class="badge bg-success">Yes</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">No</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{% url 'registrations:mark_attended' reg.pk %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-xs btn-outline-{% if reg.attended %}warning{% else %}success{% endif %} btn-sm">
+                                                {% if reg.attended %}Unmark{% else %}Mark Attended{% endif %}
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Comments Section -->
+            <div class="card border-0 shadow mt-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-chat-dots me-2"></i>Discussion
+                        <span class="badge bg-light text-dark border ms-1">{{ comments|length }}</span>
+                    </h5>
+
+                    {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'comments:add_comment' event.pk %}" class="mb-4">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2">
+                            <textarea name="body" class="form-control" rows="2"
+                                      placeholder="Ask a question or leave a comment..." required></textarea>
+                            <button type="submit" class="btn btn-primary align-self-end" id="post-comment-btn">
+                                <i class="bi bi-send"></i>
+                            </button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-light border mb-3">
+                        <a href="{% url 'accounts:login' %}?next={{ request.path }}">Log in</a> to join the discussion.
+                    </div>
+                    {% endif %}
+
+                    {% for comment in comments %}
+                    <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold"
+                                 style="width:40px;height:40px;font-size:1rem;">
+                                {{ comment.user.username|first|upper }}
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong class="small">{{ comment.user.username }}</strong>
+                                <small class="text-muted">{{ comment.created_at|naturaltime }}</small>
+                            </div>
+                            <p class="mb-1">{{ comment.body }}</p>
+                            {% if user == comment.user or user.is_staff %}
+                            <form method="post" action="{% url 'comments:delete_comment' comment.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link btn-sm text-danger p-0"
+                                        onclick="return confirm('Delete this comment?')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center py-3">No comments yet. Be the first!</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="card border-0 shadow mt-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-star me-2"></i>Reviews
+                        <span class="badge bg-light text-dark border ms-1">{{ reviews|length }}</span>
+                    </h5>
+
+                    {% if user.is_authenticated and not user_has_reviewed %}
+                    <div class="card bg-light border-0 mb-4 p-3">
+                        <p class="small text-muted mb-2">
+                            {% if not event.is_upcoming %}
+                            Only verified attendees can leave a review. <br>
+                            {% endif %}
+                            Rate this event:
+                        </p>
+                        <form method="post" action="{% url 'reviews:submit_review' event.pk %}">
+                            {% csrf_token %}
+                            <div class="star-rating mb-2">
+                                {% for i in "54321" %}
+                                <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}" required>
+                                <label for="star{{ i }}" title="{{ i }} stars">★</label>
+                                {% endfor %}
+                            </div>
+                            <textarea name="comment" class="form-control mb-2" rows="2"
+                                      placeholder="Share your experience (optional)"></textarea>
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="bi bi-star me-1"></i>Submit Review
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    {% for review in reviews %}
+                    <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center text-dark fw-bold"
+                                 style="width:40px;height:40px;font-size:1rem;">
+                                {{ review.user.username|first|upper }}
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <strong class="small">{{ review.user.username }}</strong>
+                                <small class="text-muted">{{ review.created_at|naturaltime }}</small>
+                            </div>
+                            <div class="text-warning">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </div>
+                            {% if review.comment %}<p class="mb-1 small">{{ review.comment }}</p>{% endif %}
+                            {% if user == review.user or user.is_staff %}
+                            <form method="post" action="{% url 'reviews:delete_review' review.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link btn-sm text-danger p-0"
+                                        onclick="return confirm('Delete this review?')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center py-3">No reviews yet.</p>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -99,7 +349,7 @@
                                 </div>
                             </div>
                         </li>
-                        <li>
+                        <li class="mb-3">
                             <div class="d-flex align-items-center">
                                 <div class="icon-circle bg-warning-subtle text-warning me-3">
                                     <i class="bi bi-people"></i>
@@ -111,19 +361,42 @@
                                 </div>
                             </div>
                         </li>
+                        <li>
+                            <div class="d-flex align-items-center">
+                                <div class="icon-circle bg-info-subtle text-info me-3">
+                                    <i class="bi bi-tag"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Ticket Price</small>
+                                    <strong class="{% if event.is_free %}text-success{% endif %}">
+                                        {% if event.is_free %}Free{% else %}${{ event.price }}{% endif %}
+                                    </strong>
+                                </div>
+                            </div>
+                        </li>
                     </ul>
+
+                    <!-- Waitlist info -->
+                    {% if event.is_full and event.waitlist_count > 0 %}
+                    <div class="alert alert-warning py-2 small mb-0">
+                        <i class="bi bi-clock-history me-1"></i>
+                        {{ event.waitlist_count }} people on the waitlist
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
             <!-- Seats & Registration Card -->
-            <div class="card border-0 shadow">
+            <div class="card border-0 shadow mb-4">
                 <div class="card-body p-4 text-center">
                     <!-- Seats Remaining -->
                     <div class="mb-3">
                         <div class="seats-display {% if event.is_full %}text-danger{% elif event.seats_remaining <= 5 %}text-warning{% else %}text-success{% endif %}">
-                            {{ event.seats_remaining }}
+                            {% if event.is_full %}FULL{% else %}{{ event.seats_remaining }}{% endif %}
                         </div>
+                        {% if not event.is_full %}
                         <p class="text-muted mb-0">seat{{ event.seats_remaining|pluralize }} remaining</p>
+                        {% endif %}
                     </div>
 
                     <!-- Progress bar -->
@@ -146,14 +419,29 @@
                         <form method="post" action="{% url 'registrations:cancel' registration.pk %}">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-outline-danger w-100"
-                                    onclick="return confirm('Are you sure you want to cancel your registration?');">
+                                    onclick="return confirm('Cancel your registration?');">
                                 <i class="bi bi-x-circle me-1"></i>Cancel Registration
                             </button>
                         </form>
                         {% elif event.is_full %}
-                        <button class="btn btn-secondary w-100" disabled>
-                            <i class="bi bi-x-circle me-1"></i>Event is Full
-                        </button>
+                            {% if user_on_waitlist %}
+                            <div class="alert alert-warning py-2 mb-3">
+                                <i class="bi bi-clock me-1"></i>You're on the waitlist!
+                            </div>
+                            <form method="post" action="{% url 'registrations:leave_waitlist' event.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-secondary w-100">
+                                    <i class="bi bi-dash-circle me-1"></i>Leave Waitlist
+                                </button>
+                            </form>
+                            {% else %}
+                            <form method="post" action="{% url 'registrations:register' event.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning w-100">
+                                    <i class="bi bi-clock me-1"></i>Join Waitlist
+                                </button>
+                            </form>
+                            {% endif %}
                         {% elif not event.is_upcoming %}
                         <button class="btn btn-secondary w-100" disabled>
                             <i class="bi bi-clock-history me-1"></i>Event has Passed
@@ -161,7 +449,7 @@
                         {% else %}
                         <form method="post" action="{% url 'registrations:register' event.pk %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <button type="submit" class="btn btn-primary btn-lg w-100" id="register-btn">
                                 <i class="bi bi-check2-circle me-1"></i>Register Now
                             </button>
                         </form>
@@ -173,7 +461,45 @@
                     {% endif %}
                 </div>
             </div>
+
+            <!-- Calendar & Download (for registered users) -->
+            {% if user_registered %}
+            <div class="card border-0 shadow mb-4">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-calendar-check me-2"></i>Your Ticket</h6>
+
+                    {% if registration.qr_code %}
+                    <div class="text-center mb-3">
+                        <img src="{{ registration.qr_code.url }}" alt="QR Code" class="img-fluid" style="max-width: 180px;">
+                        <p class="small text-muted mt-1">Scan at entry</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'registrations:download_ics' registration.pk %}"
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-calendar-plus me-1"></i>Download .ics (Apple/Outlook)
+                        </a>
+                        <a href="https://www.google.com/calendar/render?action=TEMPLATE&text={{ event.title|urlencode }}&dates={{ event.date|date:'Ymd' }}T{{ event.time|time:'His' }}&details={{ event.description|truncatewords:20|urlencode }}&location={{ event.location|urlencode }}"
+                           target="_blank" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-google me-1"></i>Add to Google Calendar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+{% block extra_css %}
+<style>
+.star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
+.star-rating input { display: none; }
+.star-rating label { font-size: 1.8rem; color: #ccc; cursor: pointer; transition: color 0.2s; }
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label { color: #ffc107; }
+</style>
+{% endblock %}
 {% endblock %}
