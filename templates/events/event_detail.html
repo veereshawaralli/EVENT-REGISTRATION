@@ -110,7 +110,7 @@
                         <h5 class="fw-semibold mb-2"><i class="bi bi-map me-2"></i>Location Map</h5>
                         <div class="ratio ratio-16x9 rounded overflow-hidden">
                             <iframe
-                                src="https://www.openstreetmap.org/export/embed.html?bbox={{ event.longitude|add:'-0.01' }},{{ event.latitude|add:'-0.01' }},{{ event.longitude|add:'0.01' }},{{ event.latitude|add:'0.01' }}&layer=mapnik&marker={{ event.latitude }},{{ event.longitude }}"
+                                src="https://maps.google.com/maps?q={{ event.latitude }},{{ event.longitude }}&t=&z=15&ie=UTF8&iwloc=&output=embed"
                                 style="border:0;"
                                 allowfullscreen
                                 loading="lazy"
@@ -118,9 +118,9 @@
                             </iframe>
                         </div>
                         <small class="text-muted">
-                            <a href="https://www.openstreetmap.org/?mlat={{ event.latitude }}&mlon={{ event.longitude }}"
+                            <a href="https://www.google.com/maps/search/?api=1&query={{ event.latitude }},{{ event.longitude }}"
                                target="_blank" class="text-decoration-none">
-                                <i class="bi bi-box-arrow-up-right me-1"></i>Open in OpenStreetMap
+                                <i class="bi bi-box-arrow-up-right me-1"></i>Open in Google Maps
                             </a>
                         </small>
                     </div>
