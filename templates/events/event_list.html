@@ -270,6 +270,75 @@
         {% endif %}
     </section>
 </div>
+
+<!-- How It Works Section -->
+<section class="py-5 bg-white animate-on-scroll">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3">Simple Process</span>
+            <h2 class="fw-bold">How It Works</h2>
+            <p class="text-muted col-md-6 mx-auto">Getting started with EventHub is easy. Browse, register, pay, and attend — all in just a few clicks.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3 col-6">
+                <div class="how-it-works-step animate-on-scroll" style="animation-delay: 100ms;">
+                    <div class="step-number">1</div>
+                    <div class="step-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <h6 class="fw-bold">Discover</h6>
+                    <p class="text-muted small mb-0">Browse events by category, date, or keyword.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="how-it-works-step animate-on-scroll" style="animation-delay: 200ms;">
+                    <div class="step-number">2</div>
+                    <div class="step-icon bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-person-plus"></i>
+                    </div>
+                    <h6 class="fw-bold">Register</h6>
+                    <p class="text-muted small mb-0">Sign up and reserve your spot instantly.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="how-it-works-step animate-on-scroll" style="animation-delay: 300ms;">
+                    <div class="step-number">3</div>
+                    <div class="step-icon bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-credit-card"></i>
+                    </div>
+                    <h6 class="fw-bold">Pay Securely</h6>
+                    <p class="text-muted small mb-0">Complete payment via Razorpay (UPI, Cards & more).</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="how-it-works-step animate-on-scroll" style="animation-delay: 400ms;">
+                    <div class="step-number">4</div>
+                    <div class="step-icon bg-info bg-opacity-10 text-info">
+                        <i class="bi bi-qr-code"></i>
+                    </div>
+                    <h6 class="fw-bold">Get QR Ticket</h6>
+                    <p class="text-muted small mb-0">Receive your unique QR code ticket via email.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Banner -->
+<section class="py-5 animate-on-scroll" style="background: linear-gradient(135deg, var(--eh-gradient-start), var(--eh-gradient-end));">
+    <div class="container text-center text-white">
+        <h2 class="fw-bold mb-3">Ready to Explore Events?</h2>
+        <p class="lead opacity-75 mb-4 col-md-8 mx-auto">Join thousands of attendees discovering amazing experiences. Create your free account today!</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{% url 'accounts:signup' %}" class="btn btn-light btn-lg rounded-pill px-5 fw-semibold shadow">
+                <i class="bi bi-rocket-takeoff me-2"></i>Get Started Free
+            </a>
+            <a href="{% url 'events:about' %}" class="btn btn-outline-light btn-lg rounded-pill px-5 fw-semibold">
+                Learn More
+            </a>
+        </div>
+    </div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
