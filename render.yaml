@@ -18,22 +18,12 @@ services:
         value: ".onrender.com"
       - key: PYTHON_VERSION
         value: "3.12.3"
-      - key: WEB_CONCURRENCY
-        value: "4"
       - key: EMAIL_BACKEND
-        value: "django.core.mail.backends.smtp.EmailBackend"
-      - key: EMAIL_HOST
-        value: "smtp.gmail.com"
-      - key: EMAIL_PORT
-        value: "465"
-      - key: EMAIL_USE_TLS
-        value: "False"
-      - key: EMAIL_USE_SSL
-        value: "True"
-      - key: EMAIL_HOST_USER
-        value: "veereshawaralli.work@gmail.com"
-      - key: EMAIL_HOST_PASSWORD
-        sync: false # Set this value manually in Render dashboard for security
+        value: "anymail.backends.mailjet.EmailBackend"
+      - key: MAILJET_API_KEY
+        sync: false
+      - key: MAILJET_SECRET_KEY
+        sync: false
       - key: DEFAULT_FROM_EMAIL
         value: "EventHub <veereshawaralli.work@gmail.com>"
       # Set DATABASE_URL manually in Render dashboard
