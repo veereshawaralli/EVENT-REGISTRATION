@@ -103,8 +103,15 @@ def test_email_view(request):
             return HttpResponse(f"Django reports 0 emails were sent (but no error occurred).<br><br>{debug_info}")
     except Exception as e:
         import traceback
+        import socket
+        try:
+            resolved_ip = socket.gethostbyname(settings.EMAIL_HOST)
+        except Exception as dns_e:
+            resolved_ip = f"DNS Resolution Failed: {dns_e}"
+            
         debug_info = (
             f"<b>DEBUG INFO (Current Settings):</b><br>"
+            f"HOST: {settings.EMAIL_HOST} ({resolved_ip})<br>"
             f"USER: {settings.EMAIL_HOST_USER}<br>"
             f"FROM: {settings.DEFAULT_FROM_EMAIL}<br>"
             f"BACKEND: {settings.EMAIL_BACKEND}<br>"
