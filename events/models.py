@@ -140,3 +140,41 @@ class Event(models.Model):
     def waitlist_count(self):
         from registrations.models import Waitlist
         return Waitlist.objects.filter(event=self).count()
+
+
+class CustomField(models.Model):
+    """Custom question for an event registration form."""
+
+    FIELD_TYPES = (
+        ("text", "Text Input"),
+        ("textarea", "Long Text"),
+        ("select", "Dropdown Menu"),
+        ("checkbox", "Checkbox"),
+    )
+
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name="custom_fields"
+    )
+    label = models.CharField(max_length=200, help_text="The question to ask.")
+    field_type = models.CharField(max_length=20, choices=FIELD_TYPES, default="text")
+    required = models.BooleanField(default=True)
+    placeholder = models.CharField(max_length=200, blank=True, null=True)
+    choices = models.TextField(
+        blank=True,
+        null=True,
+        help_text="For Dropdown: Enter options separated by commas.",
+    )
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+
+    def __str__(self):
+        return f"{self.label} ({self.event.title})"
+
+    def get_choices(self):
+        """Convert comma-separated string to list of tuples for Django form."""
+        if not self.choices:
+            return []
+        options = [opt.strip() for opt in self.choices.split(",")]
+        return [(opt, opt) for opt in options]

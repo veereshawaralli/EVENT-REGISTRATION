@@ -157,8 +157,20 @@
                             <tbody>
                                 {% for reg in attendee_list %}
                                 <tr>
-                                    <td>{{ reg.user.get_full_name|default:reg.user.username }}</td>
-                                    <td><small>{{ reg.user.email }}</small></td>
+                                    <td>
+                                        <div class="fw-semibold">{{ reg.user.get_full_name|default:reg.user.username }}</div>
+                                        <div class="text-muted small">{{ reg.user.email }}</div>
+                                        {% if reg.custom_values.all %}
+                                        <div class="mt-2 p-2 bg-light rounded small border">
+                                            {% for val in reg.custom_values.all %}
+                                            <div class="mb-1">
+                                                <span class="text-muted">{{ val.field.label }}:</span>
+                                                <span class="fw-medium font-monospace">{{ val.value }}</span>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         {% if reg.attended %}
                                         <span class="badge bg-success">Yes</span>

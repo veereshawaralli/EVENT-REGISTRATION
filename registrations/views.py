@@ -15,8 +15,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 from events.models import Event
-from .models import Registration, Waitlist
+from .models import Registration, Waitlist, CustomFieldValue
 from .emails import send_registration_confirmation, send_waitlist_promotion
+from .forms import CustomRegistrationForm
 
 
 def _send_registration_email(user, event, action="registered", registration=None):
@@ -108,13 +109,21 @@ def register_for_event(request, event_id):
 
     # Create new registration
     try:
+        # If there are custom fields OR it's a paid event, start as pending
+        has_questions = event.custom_fields.exists()
+        is_pending = not event.is_free or has_questions
+
         registration = Registration.objects.create(
             user=request.user, 
             event=event, 
-            status="confirmed" if event.is_free else "pending",
-            payment_status="completed" if event.is_free else "pending"
+            status="pending" if is_pending else "confirmed",
+            payment_status="pending"
         )
-        if event.is_free:
+        
+        if not is_pending:
+            # Immediate confirmation only if free AND no questions
+            registration.payment_status = "completed"
+            registration.save()
             _send_registration_email(request.user, event, action="registered", registration=registration)
             messages.success(request, f"Successfully registered for {event.title}!")
             return redirect("events:event_detail", pk=event_id)
@@ -288,16 +297,43 @@ def dashboard(request):
 
 @login_required
 def payment_checkout(request, registration_id):
-    """Render checkout page and configure Razorpay SDK if available."""
+    """Render checkout and handle custom registration questions."""
     registration = get_object_or_404(
         Registration, pk=registration_id, user=request.user, status="pending"
     )
     event = registration.event
     amount_in_paise = int(event.price * 100)
+    
+    # Initialize dynamic questions form
+    custom_form = CustomRegistrationForm(request.POST or None, event=event)
+    
+    if request.method == "POST" and custom_form.is_valid():
+        # Save custom field values
+        for field in event.custom_fields.all():
+            field_name = f"custom_{field.id}"
+            value = custom_form.cleaned_data.get(field_name)
+            if value is not None:
+                CustomFieldValue.objects.update_or_create(
+                    registration=registration,
+                    field=field,
+                    defaults={'value': str(value)}
+                )
+        
+        # If the event is FREE, confirm registration immediately after questions
+        if event.is_free:
+            registration.status = "confirmed"
+            registration.payment_status = "completed"
+            registration.save()
+            _send_registration_email(registration.user, registration.event, action="registered", registration=registration) # Assuming this is the correct function
+            messages.success(request, f"Registration complete! See you at {event.title}.")
+            return redirect("registrations:dashboard")
+        
+        # If PAID, proceed with Razorpay logic below...
+        # (We stay on the same page but now the payment JS can be triggered)
 
     razorpay_configured = bool(settings.RAZORPAY_KEY_ID and settings.RAZORPAY_KEY_SECRET)
     
-    if razorpay_configured:
+    if razorpay_configured and not event.is_free:
         try:
             import razorpay
             client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
@@ -320,10 +356,12 @@ def payment_checkout(request, registration_id):
     context = {
         "registration": registration,
         "event": event,
+        "custom_form": custom_form,
         "razorpay_order_id": registration.razorpay_order_id,
         "razorpay_key_id": settings.RAZORPAY_KEY_ID,
         "amount": amount_in_paise,
         "razorpay_configured": razorpay_configured,
+        "has_questions": event.custom_fields.exists(),
     }
     return render(request, "registrations/checkout.html", context)
 

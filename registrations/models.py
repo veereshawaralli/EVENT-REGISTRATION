@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import models
 
-from events.models import Event
+from events.models import Event, CustomField
 
 
 class Registration(models.Model):
@@ -144,3 +144,23 @@ class Waitlist(models.Model):
         return Waitlist.objects.filter(
             event=self.event, joined_at__lte=self.joined_at
         ).count()
+
+
+class CustomFieldValue(models.Model):
+    """Answers to custom questions for a specific registration."""
+
+    registration = models.ForeignKey(
+        Registration, on_delete=models.CASCADE, related_name="custom_values"
+    )
+    field = models.ForeignKey(
+        CustomField, on_delete=models.CASCADE, related_name="values"
+    )
+    value = models.TextField(help_text="The answer provided by the attendee.")
+
+    class Meta:
+        unique_together = ("registration", "field")
+        verbose_name = "Custom Field Value"
+        verbose_name_plural = "Custom Field Values"
+
+    def __str__(self):
+        return f"{self.field.label}: {self.value}"

@@ -91,7 +91,7 @@ def event_detail(request, pk):
     if request.user.is_authenticated and (
         request.user.is_staff or event.organizer == request.user
     ):
-        attendee_list = event.registrations.filter(status="confirmed").select_related("user")
+        attendee_list = event.registrations.filter(status="confirmed").select_related("user").prefetch_related("custom_values__field")
 
     context = {
         "event": event,
@@ -165,24 +165,37 @@ def export_attendees_csv(request, event_id):
         messages.error(request, "You don't have permission to export this list.")
         return redirect("events:organizer_dashboard")
 
-    registrations = event.registrations.filter(status="confirmed").select_related("user")
+    registrations = event.registrations.filter(status="confirmed").select_related("user").prefetch_related("custom_values__field")
+    custom_fields = event.custom_fields.all()
 
     response = HttpResponse(content_type='text/csv')
     filename = f"attendees_{event.title.replace(' ', '_')}.csv"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
     writer = csv.writer(response)
-    writer.writerow(['Name', 'Email', 'Registration Date', 'Payment Status', 'Payment Method', 'Attended'])
+    
+    # Dynamic header
+    header = ['Name', 'Email', 'Registration Date', 'Payment Status', 'Payment Method', 'Attended']
+    for field in custom_fields:
+        header.append(field.label)
+    writer.writerow(header)
 
     for reg in registrations:
-        writer.writerow([
+        row = [
             reg.user.get_full_name() or reg.user.username,
             reg.user.email,
             reg.registration_date.strftime('%Y-%m-%d %H:%M'),
             reg.payment_status,
             reg.get_payment_method_display(),
             'Yes' if reg.attended else 'No'
-        ])
+        ]
+        
+        # Add values for each custom field
+        custom_values_map = {val.field_id: val.value for val in reg.custom_values.all()}
+        for field in custom_fields:
+            row.append(custom_values_map.get(field.id, ""))
+            
+        writer.writerow(row)
 
     return response
 
