@@ -128,3 +128,35 @@ def test_email_view(request):
             f"SSL: {settings.EMAIL_USE_SSL} | TLS: {settings.EMAIL_USE_TLS}<br>"
         )
         return HttpResponse(f"<b>Error:</b> {e}<br><br>{debug_info}<br><pre>{traceback.format_exc()}</pre>")
+
+
+def test_rich_email_view(request):
+    """Test the actual rich HTML registration email flow."""
+    from registrations.models import Registration
+    from registrations.emails import send_registration_confirmation
+    import traceback
+    from django.http import HttpResponse
+
+    # Get any confirmed registration to test with
+    reg = Registration.objects.filter(status="confirmed").first()
+    if not reg:
+        return HttpResponse("Error: No confirmed registrations found to test with. Please register for an event first.")
+
+    try:
+        # This will use fail_silently=False now
+        sent = send_registration_confirmation(reg)
+        
+        return HttpResponse(f"""
+            <h1>Rich Email Test</h1>
+            <p>Attempted to send confirmation for <strong>{reg.event.title}</strong> to <strong>{reg.user.email}</strong>.</p>
+            <p>Result: {'✅ Sent' if sent else '❌ Failed (Check logs)'}</p>
+            <hr>
+            <h3>Settings:</h3>
+            <pre>
+FROM: {settings.DEFAULT_FROM_EMAIL}
+HOST: {settings.EMAIL_HOST}
+PORT: {settings.EMAIL_PORT}
+</pre>
+        """)
+    except Exception as e:
+        return HttpResponse(f"<h1>Rich Email Error</h1><p><b>{str(e)}</b></p><pre>{traceback.format_exc()}</pre>")

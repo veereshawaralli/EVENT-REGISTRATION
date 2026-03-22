@@ -34,4 +34,5 @@ urlpatterns = [
 
     # Diagnostic
     path("test-email/", views.test_email_view, name="test_email"),
+    path("test-rich-email/", views.test_rich_email_view, name="test_rich_email"),
 ]

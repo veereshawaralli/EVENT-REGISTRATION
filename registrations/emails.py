@@ -26,7 +26,7 @@ def send_html_email(subject, template_name, context, recipient_list):
         to=recipient_list
     )
     email.attach_alternative(html_content, "text/html")
-    return email.send(fail_silently=True)
+    return email.send(fail_silently=False)
 
 def send_registration_confirmation(registration):
     """
