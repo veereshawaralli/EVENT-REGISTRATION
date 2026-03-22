@@ -104,17 +104,33 @@ def test_email_view(request):
     except Exception as e:
         import traceback
         import socket
-        try:
-            resolved_ip = socket.gethostbyname(settings.EMAIL_HOST)
-        except Exception as dns_e:
-            resolved_ip = f"DNS Resolution Failed: {dns_e}"
+        
+        # Comprehensive Port Scan for diagnostics
+        targets = [
+            ("smtp.gmail.com", 587),
+            ("smtp.gmail.com", 465),
+            ("in-v3.mailjet.com", 587),
+            ("in-v3.mailjet.com", 2525),
+            ("smtp.sendgrid.net", 587),
+            ("smtp.sendgrid.net", 2525),
+            ("smtp-relay.brevo.com", 587),
+        ]
+        scan_results = []
+        for host, port in targets:
+            try:
+                s = socket.create_connection((host, port), timeout=3)
+                s.close()
+                scan_results.append(f"✅ {host}:{port} - REACHABLE")
+            except Exception as se:
+                scan_results.append(f"❌ {host}:{port} - {se}")
+        
+        scan_info = "<br>".join(scan_results)
             
         debug_info = (
-            f"<b>DEBUG INFO (Current Settings):</b><br>"
-            f"HOST: {settings.EMAIL_HOST} ({resolved_ip})<br>"
+            f"<b>PORT SCAN RESULTS:</b><br>{scan_info}<br><br>"
+            f"<b>CURRENT SETTINGS:</b><br>"
+            f"HOST: {settings.EMAIL_HOST}<br>"
             f"USER: {settings.EMAIL_HOST_USER}<br>"
-            f"FROM: {settings.DEFAULT_FROM_EMAIL}<br>"
-            f"BACKEND: {settings.EMAIL_BACKEND}<br>"
             f"PORT: {settings.EMAIL_PORT}<br>"
             f"SSL: {settings.EMAIL_USE_SSL} | TLS: {settings.EMAIL_USE_TLS}<br>"
         )
