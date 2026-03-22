@@ -156,12 +156,12 @@
                         <p class="mb-0 opacity-75 small">Get notified about the latest events in your area.</p>
                     </div>
                     <div class="col-md-6">
-                        <div class="d-flex gap-2">
-                            <input type="email" class="form-control rounded-pill border-0 shadow-sm" placeholder="Enter your email address" disabled>
-                            <button class="btn btn-light rounded-pill px-4 fw-semibold text-nowrap" disabled>
+                        <form onsubmit="event.preventDefault(); alert('Newsletter coming soon! Thank you for subscribing.');" class="d-flex gap-2">
+                            <input type="email" class="form-control rounded-pill border-0 shadow-sm" placeholder="Enter your email address">
+                            <button type="submit" class="btn btn-light rounded-pill px-4 fw-semibold text-nowrap">
                                 <i class="bi bi-send me-1"></i>Subscribe
                             </button>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -217,7 +217,7 @@
                         <ul class="list-unstyled footer-links">
                             <li class="d-flex align-items-start mb-3">
                                 <i class="bi bi-envelope text-primary me-3 mt-1"></i>
-                                <span>support@eventhub.com</span>
+                                <span>veeawaralli@gmail.com</span>
                             </li>
                             <li class="d-flex align-items-start mb-3">
                                 <i class="bi bi-geo-alt text-primary me-3 mt-1"></i>
