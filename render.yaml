@@ -33,5 +33,5 @@ services:
       - key: EMAIL_HOST_PASSWORD
         sync: false
       - key: DEFAULT_FROM_EMAIL
-        value: "EventHub <veereshawaralli.work@gmail.com>"
+        value: "EventHub <veeawaralli@gmail.com>"
       # Set DATABASE_URL manually in Render dashboard
