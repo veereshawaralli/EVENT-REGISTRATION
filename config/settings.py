@@ -206,6 +206,10 @@ EMAIL_BACKEND = config(
     default="django.core.mail.backends.smtp.EmailBackend",
 )
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="EventHub <noreply@eventhub.com>")
+# Ensure the value is properly read even if it has brackets
+if "<" not in DEFAULT_FROM_EMAIL and "@" not in DEFAULT_FROM_EMAIL:
+    # If it's just a name, append a placeholder or use the host user if applicable
+    DEFAULT_FROM_EMAIL = f"{DEFAULT_FROM_EMAIL} <no-reply@onrender.com>"
 
 # SMTP Settings (Optimized for Render/Brevo)
 EMAIL_HOST = config("EMAIL_HOST", default="smtp-relay.brevo.com")

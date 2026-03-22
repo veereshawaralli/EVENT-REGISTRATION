@@ -136,6 +136,7 @@ def test_rich_email_view(request):
     from registrations.emails import send_registration_confirmation
     import traceback
     from django.http import HttpResponse
+    from django.utils.html import escape
 
     # Get any confirmed registration to test with
     reg = Registration.objects.filter(status="confirmed").first()
@@ -153,10 +154,10 @@ def test_rich_email_view(request):
             <hr>
             <h3>Settings:</h3>
             <pre>
-FROM: {settings.DEFAULT_FROM_EMAIL}
-HOST: {settings.EMAIL_HOST}
+FROM: {escape(settings.DEFAULT_FROM_EMAIL)}
+HOST: {escape(settings.EMAIL_HOST)}
 PORT: {settings.EMAIL_PORT}
 </pre>
         """)
     except Exception as e:
-        return HttpResponse(f"<h1>Rich Email Error</h1><p><b>{str(e)}</b></p><pre>{traceback.format_exc()}</pre>")
+        return HttpResponse(f"<h1>Rich Email Error</h1><p><b>{escape(str(e))}</b></p><pre>{escape(traceback.format_exc())}</pre>")
