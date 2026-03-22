@@ -38,7 +38,8 @@ def send_registration_confirmation(registration):
     
     qr_code_url = ""
     if registration.qr_code:
-        qr_code_url = f"{site_url}{registration.qr_code.url}"
+        _url = registration.qr_code.url
+        qr_code_url = _url if _url.startswith(('http:', 'https:')) else f"{site_url}{_url}"
     
     context = {
         'user': user,
@@ -71,7 +72,8 @@ def send_event_reminder(registration):
     
     qr_code_url = ""
     if registration.qr_code:
-        qr_code_url = f"{site_url}{registration.qr_code.url}"
+        _url = registration.qr_code.url
+        qr_code_url = _url if _url.startswith(('http:', 'https:')) else f"{site_url}{_url}"
     
     context = {
         'user': user,
