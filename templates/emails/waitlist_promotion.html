@@ -1,0 +1,27 @@
+{% extends "emails/base_email.html" %}
+
+{% block header %}
+<h1>Good News: A Spot Opened Up!</h1>
+{% endblock %}
+
+{% block content %}
+<p>Hi {{ user.first_name|default:user.username }},</p>
+
+<p>Great news! A spot has just opened up for <strong>{{ event.title }}</strong>, and you're next on the list.</p>
+
+<p>To secure your spot, please log in to your dashboard and complete your registration before it's taken by someone else!</p>
+
+<div class="details-box">
+    <p><strong>📅 Date:</strong> {{ event.date|date:"F d, Y" }}</p>
+    <p><strong>⏰ Time:</strong> {{ event.time|time:"h:i A" }}</p>
+    <p><strong>📍 Location:</strong> {{ event.location }}</p>
+</div>
+
+<div style="text-align: center;">
+    <a href="{{ dashboard_url }}" class="btn">View My Dashboard</a>
+</div>
+
+<p>We can't wait to see you there!</p>
+
+<p>Warmly,<br>The EventHub Team</p>
+{% endblock %}

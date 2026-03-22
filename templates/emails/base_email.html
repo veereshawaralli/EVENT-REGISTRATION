@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f7f6; }
+        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: #ffffff; padding: 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .content { padding: 30px; }
+        .footer { background: #f8f9fa; color: #6c757d; padding: 20px; text-align: center; font-size: 12px; }
+        .btn { display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 20px; }
+        .details-box { background: #f1f8ff; border-left: 4px solid #007bff; padding: 20px; margin: 20px 0; border-radius: 0 4px 4px 0; }
+        .qr-section { text-align: center; margin-top: 30px; padding-top: 30px; border-top: 1px dashed #dee2e6; }
+        .qr-code { max-width: 200px; height: auto; border: 1px solid #dee2e6; padding: 10px; background: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            {% block header %}
+            <h1>EventHub</h1>
+            {% endblock %}
+        </div>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        <div class="footer">
+            <p>&copy; 2026 EventHub Inc. | Your premier event registration platform</p>
+            <p>You received this email because you registered on our platform.</p>
+        </div>
+    </div>
+</body>
+</html>

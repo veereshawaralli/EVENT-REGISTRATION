@@ -15,54 +15,39 @@ import logging
 logger = logging.getLogger(__name__)
 
 from events.models import Event
-
 from .models import Registration, Waitlist
+from .emails import send_registration_confirmation, send_waitlist_promotion
 
 
-def _send_registration_email(user, event, action="registered"):
-    subject_map = {
-        "registered": f"✅ Registered: {event.title}",
-        "cancelled": f"❌ Cancelled: {event.title}",
-        "waitlisted": f"⏳ Waitlisted: {event.title}",
-        "promoted": f"🎉 Spot Available: {event.title}",
-    }
-    body_map = {
-        "registered": (
-            f"Hi {user.first_name or user.username},\n\n"
-            f"You've successfully registered for {event.title}.\n"
-            f"📅 Date: {event.date.strftime('%B %d, %Y')} at {event.time.strftime('%I:%M %p')}\n"
-            f"📍 Location: {event.location}\n\n"
-            f"See you there!\n— EventHub Team"
-        ),
-        "cancelled": (
-            f"Hi {user.first_name or user.username},\n\n"
-            f"Your registration for {event.title} has been cancelled.\n"
-            f"If you change your mind, you can re-register anytime.\n\n"
-            f"— EventHub Team"
-        ),
-        "waitlisted": (
-            f"Hi {user.first_name or user.username},\n\n"
-            f"{event.title} is currently full. You've been added to the waitlist.\n"
-            f"We'll notify you if a spot opens up!\n\n"
-            f"— EventHub Team"
-        ),
-        "promoted": (
-            f"Hi {user.first_name or user.username},\n\n"
-            f"Great news! A spot opened up for {event.title}.\n"
-            f"Please log in to confirm your registration.\n\n"
-            f"— EventHub Team"
-        ),
-    }
-    try:
-        send_mail(
-            subject=subject_map.get(action, "EventHub Notification"),
-            message=body_map.get(action, ""),
-            from_email=None,  # Uses DEFAULT_FROM_EMAIL from settings
-            recipient_list=[user.email],
-            fail_silently=True,
-        )
-    except Exception:
-        pass
+def _send_registration_email(user, event, action="registered", registration=None):
+    """
+    Deprecated: Using rich HTML emails from .emails instead.
+    Refactored to call the new helpers for backward compatibility where possible.
+    """
+    if action == "registered" and registration:
+        send_registration_confirmation(registration)
+    elif action == "promoted":
+        send_waitlist_promotion(user, event)
+    else:
+        # Fallback for simple actions or missing registration object
+        subject_map = {
+            "cancelled": f"❌ Cancelled: {event.title}",
+            "waitlisted": f"⏳ Waitlisted: {event.title}",
+        }
+        body_map = {
+            "cancelled": f"Hi {user.first_name or user.username},\n\nYour registration for {event.title} has been cancelled.",
+            "waitlisted": f"Hi {user.first_name or user.username},\n\n{event.title} is full. You've been added to the waitlist.",
+        }
+        try:
+            send_mail(
+                subject=subject_map.get(action, "EventHub Notification"),
+                message=body_map.get(action, "Notification from EventHub"),
+                from_email=None,
+                recipient_list=[user.email],
+                fail_silently=True,
+            )
+        except Exception:
+            pass
 
 
 @login_required
@@ -109,11 +94,11 @@ def register_for_event(request, event_id):
     ).first()
     if cancelled_reg:
         if event.is_free:
-            cancelled_reg.status = "confirmed"
-            cancelled_reg.payment_status = "completed"
-            cancelled_reg.save()
-            _send_registration_email(request.user, event, action="registered")
-            messages.success(request, f"You have been re-registered for {event.title}!")
+        cancelled_reg.status = "confirmed"
+        cancelled_reg.payment_status = "completed"
+        cancelled_reg.save()
+        _send_registration_email(request.user, event, action="registered", registration=cancelled_reg)
+        messages.success(request, f"You have been re-registered for {event.title}!")
             return redirect("events:event_detail", pk=event_id)
         else:
             cancelled_reg.status = "pending"
@@ -130,7 +115,7 @@ def register_for_event(request, event_id):
             payment_status="completed" if event.is_free else "pending"
         )
         if event.is_free:
-            _send_registration_email(request.user, event, action="registered")
+            _send_registration_email(request.user, event, action="registered", registration=registration)
             messages.success(request, f"Successfully registered for {event.title}!")
             return redirect("events:event_detail", pk=event_id)
         else:
@@ -160,10 +145,11 @@ def cancel_registration(request, registration_id):
             f"Your registration for {registration.event.title} has been cancelled.",
         )
         # Promote first waitlist user
-        next_waiter = Waitlist.objects.filter(event=registration.event).first()
+        next_waiter = Waitlist.objects.filter(event=registration.event).order_by('joined_at').first()
         if next_waiter:
             _send_registration_email(next_waiter.user, registration.event, action="promoted")
-            next_waiter.delete()
+            # Note: We don't delete from waitlist until they actually register or we automate it.
+            # For now, we just notify them.
 
     return redirect("registrations:dashboard")
 
@@ -371,7 +357,7 @@ def payment_callback(request):
             registration.razorpay_payment_id = payment_id
             registration.save()
 
-            _send_registration_email(registration.user, registration.event, action="registered")
+            _send_registration_email(registration.user, registration.event, action="registered", registration=registration)
             messages.success(request, f"Payment successful! You are successfully registered for {registration.event.title}.")
             return redirect('registrations:dashboard')
 
@@ -400,7 +386,7 @@ def process_offline_payment(request, registration_id):
         registration.save()
         
         # Send email containing the ticket/QR code
-        _send_registration_email(registration.user, registration.event, action="registered")
+        _send_registration_email(registration.user, registration.event, action="registered", registration=registration)
         messages.success(request, f"Your spot for {registration.event.title} is reserved! Please pay at the venue.")
         
         return redirect('registrations:dashboard')

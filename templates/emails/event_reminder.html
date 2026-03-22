@@ -1,0 +1,34 @@
+{% extends "emails/base_email.html" %}
+
+{% block header %}
+<h1>Quick Reminder: {{ event.title }} is Tomorrow!</h1>
+{% endblock %}
+
+{% block content %}
+<p>Hi {{ user.first_name|default:user.username }},</p>
+
+<p>You're all set for <strong>{{ event.title }}</strong>! This is just a friendly reminder that the event will be starting in about 24 hours.</p>
+
+<div class="details-box">
+    <p><strong>📅 Date:</strong> {{ event.date|date:"F d, Y" }}</p>
+    <p><strong>⏰ Time:</strong> {{ event.time|time:"h:i A" }}</p>
+    <p><strong>📍 Location:</strong> {{ event.location }}</p>
+</div>
+
+<p>To enter the event, please have your ticket QR code ready below:</p>
+
+{% if qr_code_url %}
+<div class="qr-section">
+    <h3>Your Entry Ticket</h3>
+    <img src="{{ qr_code_url }}" alt="Your QR Code Ticket" class="qr-code">
+</div>
+{% endif %}
+
+<div style="text-align: center;">
+    <a href="{{ dashboard_url }}" class="btn">View My Dashboard</a>
+</div>
+
+<p>We're so excited to have you join us. If you can no longer attend, please cancel your spot to allow others to join.</p>
+
+<p>Warmly,<br>The EventHub Team</p>
+{% endblock %}

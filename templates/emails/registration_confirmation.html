@@ -1,0 +1,38 @@
+{% extends "emails/base_email.html" %}
+
+{% block header %}
+<h1>Confirmation: You're Registered!</h1>
+{% endblock %}
+
+{% block content %}
+<p>Hi {{ user.first_name|default:user.username }},</p>
+
+<p>Exciting news! Your registration for <strong>{{ event.title }}</strong> is confirmed. We've reserved a spot for you, and we can't wait to see you there!</p>
+
+<div class="details-box">
+    <p><strong>📅 Date:</strong> {{ event.date|date:"F d, Y" }}</p>
+    <p><strong>⏰ Time:</strong> {{ event.time|time:"h:i A" }}</p>
+    <p><strong>📍 Location:</strong> {{ event.location }}</p>
+    {% if registration.payment_method == "offline" %}
+    <p style="color: #d9534f;"><strong>⚠️ Note:</strong> Please remember to pay at the venue.</p>
+    {% endif %}
+</div>
+
+<p>To enter the event, please have your ticket QR code ready below. You can also view your ticket any time from your dashboard.</p>
+
+{% if qr_code_url %}
+<div class="qr-section">
+    <h3>Your Entry Ticket</h3>
+    <img src="{{ qr_code_url }}" alt="Your QR Code Ticket" class="qr-code">
+    <p style="font-size: 12px; color: #6c757d; margin-top: 10px;">Unique Ticket ID: #{{ registration.id }}</p>
+</div>
+{% endif %}
+
+<div style="text-align: center;">
+    <a href="{{ dashboard_url }}" class="btn">View My Dashboard</a>
+</div>
+
+<p>Need to cancel? You can do so from your dashboard at any time before the event starts.</p>
+
+<p>Warmly,<br>The EventHub Team</p>
+{% endblock %}

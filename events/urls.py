@@ -11,6 +11,7 @@ urlpatterns = [
     path("<int:pk>/edit/", views.EventUpdateView.as_view(), name="event_update"),
     path("<int:pk>/delete/", views.EventDeleteView.as_view(), name="event_delete"),
     path("dashboard/", views.organizer_dashboard, name="organizer_dashboard"),
+    path("<int:event_id>/export-attendees/", views.export_attendees_csv, name="export_attendees_csv"),
     path("scanner/", views.qr_scanner, name="qr_scanner"),
     
     # Policy Pages

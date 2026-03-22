@@ -23,22 +23,28 @@
 
     <!-- Stats Cards -->
     <div class="row g-4 mb-5">
-        <div class="col-md-4">
-            <div class="card border-0 shadow text-center p-4">
-                <div class="display-5 fw-bold text-primary mb-1">{{ total_events }}</div>
-                <p class="text-muted mb-0"><i class="bi bi-calendar-event me-1"></i>Total Events</p>
+        <div class="col-md-3">
+            <div class="card border-0 shadow text-center p-4 h-100">
+                <div class="display-6 fw-bold text-primary mb-1">{{ total_events }}</div>
+                <p class="text-muted mb-0 small"><i class="bi bi-calendar-event me-1"></i>Total Events</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow text-center p-4">
-                <div class="display-5 fw-bold text-success mb-1">{{ total_regs }}</div>
-                <p class="text-muted mb-0"><i class="bi bi-person-check me-1"></i>Total Registrations</p>
+        <div class="col-md-3">
+            <div class="card border-0 shadow text-center p-4 h-100">
+                <div class="display-6 fw-bold text-success mb-1">{{ total_regs }}</div>
+                <p class="text-muted mb-0 small"><i class="bi bi-person-check me-1"></i>Total Registrations</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow text-center p-4">
-                <div class="display-5 fw-bold text-warning mb-1">{{ total_attended }}</div>
-                <p class="text-muted mb-0"><i class="bi bi-check2-all me-1"></i>Confirmed Attendees</p>
+        <div class="col-md-3">
+            <div class="card border-0 shadow text-center p-4 h-100">
+                <div class="display-6 fw-bold text-info mb-1">{{ total_attended }}</div>
+                <p class="text-muted mb-0 small"><i class="bi bi-check2-all me-1"></i>Total Attended</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow text-center p-4 h-100 bg-light text-dark">
+                <div class="display-6 fw-bold text-warning mb-1">₹{{ total_revenue|floatformat:0|intcomma }}</div>
+                <p class="text-muted mb-0 small"><i class="bi bi-cash-stack me-1"></i>Total Revenue</p>
             </div>
         </div>
     </div>
@@ -108,13 +114,16 @@
                             </td>
                             <td class="text-muted small">{{ event.confirmed_count }}/{{ event.capacity }}</td>
                             <td>
-                                <div class="d-flex gap-1">
-                                    <a href="{{ event.get_absolute_url }}" class="btn btn-sm btn-outline-primary"
-                                       title="View"><i class="bi bi-eye"></i></a>
-                                    <a href="{% url 'events:event_update' event.pk %}" class="btn btn-sm btn-outline-secondary"
-                                       title="Edit"><i class="bi bi-pencil"></i></a>
-                                    <a href="{% url 'events:event_delete' event.pk %}" class="btn btn-sm btn-outline-danger"
-                                       title="Delete"><i class="bi bi-trash"></i></a>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'events:export_attendees_csv' event.id %}" class="btn btn-outline-success" title="Download Attendee List">
+                                        <i class="bi bi-file-earmark-arrow-down"></i>
+                                    </a>
+                                    <a href="{{ event.get_absolute_url }}" class="btn btn-outline-primary" title="Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'events:event_update' event.pk %}" class="btn btn-outline-secondary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -137,47 +146,74 @@
 {% endblock %}
 
 {% block extra_js %}
-{% if chart_labels %}
+{{ chart_labels|json_script:"chart-labels" }}
+{{ chart_regs|json_script:"chart-regs" }}
+{{ chart_attended|json_script:"chart-attended" }}
+{{ chart_revenue|json_script:"chart-revenue" }}
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-const ctx = document.getElementById('regsChart');
-const labels = {{ chart_labels|safe }};
-const regsData = {{ chart_regs|safe }};
-const attendedData = {{ chart_attended|safe }};
+document.addEventListener('DOMContentLoaded', function() {
+    const labels = JSON.parse(document.getElementById('chart-labels').textContent);
+    const regsData = JSON.parse(document.getElementById('chart-regs').textContent);
+    const attendedData = JSON.parse(document.getElementById('chart-attended').textContent);
+    const revenueData = JSON.parse(document.getElementById('chart-revenue').textContent);
+    
+    const ctx = document.getElementById('regsChart');
+    if (!ctx) return;
 
-new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: labels,
-        datasets: [
-            {
-                label: 'Registrations',
-                data: regsData,
-                backgroundColor: 'rgba(13, 110, 253, 0.7)',
-                borderRadius: 6,
-            },
-            {
-                label: 'Attended',
-                data: attendedData,
-                backgroundColor: 'rgba(25, 135, 84, 0.7)',
-                borderRadius: 6,
-            }
-        ]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { position: 'top' },
-            tooltip: { mode: 'index', intersect: false }
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Registrations',
+                    data: regsData,
+                    backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                    borderRadius: 6,
+                    yAxisID: 'y',
+                },
+                {
+                    label: 'Attended',
+                    data: attendedData,
+                    backgroundColor: 'rgba(25, 135, 84, 0.7)',
+                    borderRadius: 6,
+                    yAxisID: 'y',
+                },
+                {
+                    label: 'Revenue (₹)',
+                    data: revenueData,
+                    type: 'line',
+                    borderColor: '#ffc107',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#ffc107',
+                    tension: 0.3,
+                    yAxisID: 'y1',
+                }
+            ]
         },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: { stepSize: 1 }
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
+            },
+            scales: {
+                y: {
+                    type: 'linear', display: true, position: 'left',
+                    beginAtZero: true, title: { display: true, text: 'Count' },
+                    ticks: { stepSize: 1 }
+                },
+                y1: {
+                    type: 'linear', display: true, position: 'right',
+                    beginAtZero: true, grid: { drawOnChartArea: false },
+                    title: { display: true, text: 'Revenue (₹)' }
+                }
             }
         }
-    }
+    });
 });
 </script>
-{% endif %}
 {% endblock %}

@@ -1,8 +1,6 @@
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.paginator import Paginator
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
+from django.http import HttpResponse
+import csv
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.generic import CreateView, DeleteView, UpdateView
@@ -106,7 +104,7 @@ def event_detail(request, pk):
 
 @login_required
 def organizer_dashboard(request):
-    """Stats dashboard for organizers/staff."""
+    """Enhanced dashboard with revenue analytics and export options."""
     if not (request.user.is_staff or request.user.organized_events.exists()):
         messages.error(request, "This page is for event organizers only.")
         return redirect("events:event_list")
@@ -116,30 +114,73 @@ def organizer_dashboard(request):
     else:
         my_events = Event.objects.filter(organizer=request.user)
 
+    # Annotate with counts and revenue
     my_events = my_events.annotate(
         confirmed_count=Count("registrations", filter=Q(registrations__status="confirmed")),
         attended_count=Count("registrations", filter=Q(registrations__attended=True)),
+        # Total revenue = sum of prices of all confirmed registrations
+        # Note: Event.price is the unit price. Revenue = confirmed_count * price.
     ).order_by("-date")
 
     total_events = my_events.count()
-    total_regs = sum(e.confirmed_count for e in my_events)
-    total_attended = sum(e.attended_count for e in my_events)
+    total_regs = 0
+    total_attended = 0
+    total_revenue = 0
 
-    # Chart.js data
-    chart_labels = [e.title[:20] for e in my_events[:10]]
-    chart_regs = [e.confirmed_count for e in my_events[:10]]
-    chart_attended = [e.attended_count for e in my_events[:10]]
+    for e in my_events:
+        total_regs += e.confirmed_count
+        total_attended += e.attended_count
+        total_revenue += e.confirmed_count * e.price
+
+    # Chart.js data (last 10 events)
+    recent_events = my_events[:10]
+    chart_labels = [e.title[:15] for e in recent_events]
+    chart_regs = [e.confirmed_count for e in recent_events]
+    chart_attended = [e.attended_count for e in recent_events]
+    chart_revenue = [float(e.confirmed_count * e.price) for e in recent_events]
 
     context = {
         "my_events": my_events,
         "total_events": total_events,
         "total_regs": total_regs,
         "total_attended": total_attended,
+        "total_revenue": total_revenue,
         "chart_labels": chart_labels,
         "chart_regs": chart_regs,
         "chart_attended": chart_attended,
+        "chart_revenue": chart_revenue,
     }
     return render(request, "events/organizer_dashboard.html", context)
+
+
+@login_required
+def export_attendees_csv(request, event_id):
+    """Export the attendee list for a specific event as a CSV file."""
+    event = get_object_or_404(Event, pk=event_id)
+    if not (request.user.is_staff or event.organizer == request.user):
+        messages.error(request, "You don't have permission to export this list.")
+        return redirect("events:organizer_dashboard")
+
+    registrations = event.registrations.filter(status="confirmed").select_related("user")
+
+    response = HttpResponse(content_type='text/csv')
+    filename = f"attendees_{event.title.replace(' ', '_')}.csv"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Name', 'Email', 'Registration Date', 'Payment Status', 'Payment Method', 'Attended'])
+
+    for reg in registrations:
+        writer.writerow([
+            reg.user.get_full_name() or reg.user.username,
+            reg.user.email,
+            reg.registration_date.strftime('%Y-%m-%d %H:%M'),
+            reg.payment_status,
+            reg.get_payment_method_display(),
+            'Yes' if reg.attended else 'No'
+        ])
+
+    return response
 
 
 class EventCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
