@@ -203,24 +203,25 @@ LOGOUT_REDIRECT_URL = "events:event_list"
 # ---------------------------------------------------------------------------
 EMAIL_BACKEND = config(
     "EMAIL_BACKEND",
-    default="django.core.mail.backends.console.EmailBackend",
+    default="django.core.mail.backends.smtp.EmailBackend",
 )
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="EventHub <noreply@eventhub.com>")
 
-# Anymail (Mailjet) Configuration
-ANYMAIL = {
-    "MAILJET_API_KEY": config("MAILJET_API_KEY", default=""),
-    "MAILJET_SECRET_KEY": config("MAILJET_SECRET_KEY", default=""),
-}
-
-# Keep SMTP settings for local fallback if needed
-EMAIL_HOST = config("EMAIL_HOST", default="smtp.gmail.com")
-EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+# SMTP Settings (Optimized for Render/Brevo)
+EMAIL_HOST = config("EMAIL_HOST", default="smtp-relay.brevo.com")
+EMAIL_PORT = config("EMAIL_PORT", default=2525, cast=int)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
 EMAIL_USE_SSL = config("EMAIL_USE_SSL", default=False, cast=bool)
 EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", default=10, cast=int)
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+
+# Anymail (Keep for flexibility, but defaulting to SMTP for now)
+ANYMAIL = {
+    "MAILJET_API_KEY": config("MAILJET_API_KEY", default=""),
+    "MAILJET_SECRET_KEY": config("MAILJET_SECRET_KEY", default=""),
+    "BREVO_API_KEY": config("BREVO_API_KEY", default=""),
+}
 
 # ---------------------------------------------------------------------------
 # Django REST Framework

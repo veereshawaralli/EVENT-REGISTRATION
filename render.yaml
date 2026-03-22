@@ -19,10 +19,18 @@ services:
       - key: PYTHON_VERSION
         value: "3.12.3"
       - key: EMAIL_BACKEND
-        value: "anymail.backends.mailjet.EmailBackend"
-      - key: MAILJET_API_KEY
-        sync: false
-      - key: MAILJET_SECRET_KEY
+        value: "django.core.mail.backends.smtp.EmailBackend"
+      - key: EMAIL_HOST
+        value: "smtp-relay.brevo.com"
+      - key: EMAIL_PORT
+        value: "2525"
+      - key: EMAIL_USE_TLS
+        value: "True"
+      - key: EMAIL_USE_SSL
+        value: "False"
+      - key: EMAIL_HOST_USER
+        value: "a5abdb001@smtp-brevo.com"
+      - key: EMAIL_HOST_PASSWORD
         sync: false
       - key: DEFAULT_FROM_EMAIL
         value: "EventHub <veereshawaralli.work@gmail.com>"
