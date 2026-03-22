@@ -94,11 +94,11 @@ def register_for_event(request, event_id):
     ).first()
     if cancelled_reg:
         if event.is_free:
-        cancelled_reg.status = "confirmed"
-        cancelled_reg.payment_status = "completed"
-        cancelled_reg.save()
-        _send_registration_email(request.user, event, action="registered", registration=cancelled_reg)
-        messages.success(request, f"You have been re-registered for {event.title}!")
+            cancelled_reg.status = "confirmed"
+            cancelled_reg.payment_status = "completed"
+            cancelled_reg.save()
+            _send_registration_email(request.user, event, action="registered", registration=cancelled_reg)
+            messages.success(request, f"You have been re-registered for {event.title}!")
             return redirect("events:event_detail", pk=event_id)
         else:
             cancelled_reg.status = "pending"
