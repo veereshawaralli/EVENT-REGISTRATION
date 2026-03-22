@@ -1,3 +1,5 @@
+import socket
+import traceback
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -102,36 +104,27 @@ def test_email_view(request):
         else:
             return HttpResponse(f"Django reports 0 emails were sent (but no error occurred).<br><br>{debug_info}")
     except Exception as e:
-        import traceback
-        import socket
-        
-        # Comprehensive Port Scan for diagnostics
+        # Reduced Port Scan for diagnostics to avoid timeouts
         targets = [
             ("smtp.gmail.com", 587),
-            ("smtp.gmail.com", 465),
-            ("in-v3.mailjet.com", 587),
             ("in-v3.mailjet.com", 2525),
-            ("smtp.sendgrid.net", 587),
             ("smtp.sendgrid.net", 2525),
-            ("smtp-relay.brevo.com", 587),
         ]
         scan_results = []
         for host, port in targets:
             try:
-                s = socket.create_connection((host, port), timeout=3)
+                s = socket.create_connection((host, port), timeout=2)
                 s.close()
-                scan_results.append(f"✅ {host}:{port} - REACHABLE")
+                scan_results.append(f"✅ {host}:{port}")
             except Exception as se:
-                scan_results.append(f"❌ {host}:{port} - {se}")
+                scan_results.append(f"❌ {host}:{port} ({se})")
         
-        scan_info = "<br>".join(scan_results)
+        scan_info = " | ".join(scan_results)
             
         debug_info = (
-            f"<b>PORT SCAN RESULTS:</b><br>{scan_info}<br><br>"
-            f"<b>CURRENT SETTINGS:</b><br>"
-            f"HOST: {settings.EMAIL_HOST}<br>"
-            f"USER: {settings.EMAIL_HOST_USER}<br>"
-            f"PORT: {settings.EMAIL_PORT}<br>"
+            f"<b>SCAN:</b> {scan_info}<br><br>"
+            f"<b>SETTINGS:</b><br>"
+            f"HOST: {settings.EMAIL_HOST} | PORT: {settings.EMAIL_PORT}<br>"
             f"SSL: {settings.EMAIL_USE_SSL} | TLS: {settings.EMAIL_USE_TLS}<br>"
         )
-        return HttpResponse(f"Failed to send email: {e}<br><br>{debug_info}<br><pre>{traceback.format_exc()}</pre>")
+        return HttpResponse(f"<b>Error:</b> {e}<br><br>{debug_info}<br><pre>{traceback.format_exc()}</pre>")
