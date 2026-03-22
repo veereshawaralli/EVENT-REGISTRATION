@@ -2,14 +2,16 @@
 
 A production-ready Django application for discovering, creating, and registering for events.
 
-## Features
+## ✨ Key Features
 
-- **User Authentication** — Sign up, login, logout, profile management
-- **Event Management** — Full CRUD for admin/organizers with image uploads
-- **Registration System** — Register/cancel with capacity limits & duplicate prevention
-- **Search & Filter** — Search by title/location, upcoming events, pagination
-- **Responsive UI** — Bootstrap 5, mobile-friendly, modern card layout
-- **Production Ready** — WhiteNoise, PostgreSQL support, security hardening
+- **🎫 Professional Ticketing** — Secure QR codes for every registration with a built-in mobile-friendly attendee scanner.
+- **📈 Organizer Dashboard** — Real-time revenue analytics, registration graphs (Chart.js), and one-click CSV attendee exports.
+- **📝 Custom Registration Forms** — Create unique questions per event (e.g., T-shirt size, meal preference) with dynamic form validation.
+- **📧 Rich Notifications** — Automated HTML emails for confirmations, waitlist alerts, and 24h event reminders.
+* **💳 Flexible Payments** — Integrated with **Razorpay** for online collections and "Pay at Venue" for offline reservations.
+- **💬 Social Engagement** — Event-specific discussion comments, star ratings, and viral social sharing buttons.
+- **🛡️ Production Hardened** — Optimized for **Render/Vercel**, including Port 2525 email breakthroughs and secure media storage via Cloudinary.
+- **Responsive UI** — Modern, premium design using Bootstrap 5, Bootstrap Icons, and the Inter font.
 
 ---
 
@@ -83,15 +85,17 @@ event_registration/
 │   ├── urls.py
 │   ├── wsgi.py
 │   └── asgi.py
-├── accounts/           # User auth & profiles
-├── events/             # Event CRUD & listing
-├── registrations/      # Registration logic & dashboard
-├── templates/          # HTML templates
-├── static/             # CSS, JS
-├── media/              # Uploaded images (dev)
+├── accounts/           # User auth & password reset
+├── events/             # Event CRUD, categories, tags, custom fields
+├── registrations/      # Registration core & QR ticketing
+├── reviews/            # Attendee star ratings & feedback
+├── comments/           # Real-time event discussions
+├── templates/          # HTML templates (Email & UI)
+├── static/             # CSS (Vanilla), JS
+├── media/              # Uploaded banners (Cloudinary in prod)
 ├── manage.py
 ├── requirements.txt
-├── Procfile
+├── Procfile            # Deployment script
 └── runtime.txt
 ```
 
@@ -101,13 +105,16 @@ event_registration/
 
 ### Environment Variables (Production)
 
-| Variable             | Description                          |
-|----------------------|--------------------------------------|
-| `SECRET_KEY`         | Django secret key                    |
-| `DEBUG`              | Set to `False`                       |
-| `ALLOWED_HOSTS`      | Comma-separated host list            |
-| `DATABASE_URL`       | PostgreSQL connection string         |
-| `SECURE_SSL_REDIRECT`| Set to `True` for HTTPS redirect     |
+| Variable             | Description                                      |
+|----------------------|--------------------------------------------------|
+| `SECRET_KEY`         | Django secret key (Required in Prod)             |
+| `DEBUG`              | Set to `False` in Prod                           |
+| `DATABASE_URL`       | PostgreSQL connection string                      |
+| `EMAIL_HOST_USER`    | SMTP username (e.g., Brevo/Gmail)                |
+| `EMAIL_HOST_PASSWORD`| SMTP password                                    |
+| `CLOUDINARY_URL`     | Cloudinary URL for media storage                 |
+| `RAZORPAY_KEY_ID`    | Razorpay Key ID for payments                     |
+| `RAZORPAY_KEY_SECRET`| Razorpay Secret Key                              |
 
 ### Render / Railway / Heroku
 
@@ -134,6 +141,16 @@ gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
 ```
 
 Configure Nginx to proxy to `127.0.0.1:8000` and serve `/static/` from the `staticfiles/` directory.
+
+---
+
+## 🤖 Management Commands
+
+To send automatic **24-hour event reminders** to all confirmed attendees, set up a cron job (or Render/Heroku Scheduler) to run:
+
+```bash
+python manage.py send_event_reminders
+```
 
 ---
 
