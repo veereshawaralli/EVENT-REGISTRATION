@@ -20,5 +20,18 @@ services:
         value: "3.12.3"
       - key: WEB_CONCURRENCY
         value: "4"
+      - key: EMAIL_BACKEND
+        value: "django.core.mail.backends.smtp.EmailBackend"
+      - key: EMAIL_HOST
+        value: "smtp.gmail.com"
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_USE_TLS
+        value: "True"
+      - key: EMAIL_HOST_USER
+        value: "veereshawaralli.work@gmail.com"
+      - key: EMAIL_HOST_PASSWORD
+        sync: false # Set this value manually in Render dashboard for security
+      - key: DEFAULT_FROM_EMAIL
+        value: "EventHub <veereshawaralli.work@gmail.com>"
       # Set DATABASE_URL manually in Render dashboard
-      # Get it from Neon: https://neon.tech
