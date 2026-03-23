@@ -263,6 +263,9 @@ MESSAGE_TAGS = {
 # Production security (activated when DEBUG=False)
 # ---------------------------------------------------------------------------
 if not DEBUG:
+    # Essential for Render/Heroku SSL redirection
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SESSION_COOKIE_SECURE = True
