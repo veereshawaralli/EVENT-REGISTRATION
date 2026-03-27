@@ -1,0 +1,22 @@
+{% extends "emails/base_email.html" %}
+
+{% block header %}
+<h1>Welcome to EventHub!</h1>
+{% endblock %}
+
+{% block content %}
+<p>Hi {{ user.first_name|default:user.username }},</p>
+
+<p>Thank you for joining EventHub! We're excited to have you as part of our community. To get started and gain full access to your account, please verify your email address by clicking the button below:</p>
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="{{ verify_url }}" class="btn">Verify My Email</a>
+</div>
+
+<p>If the button above doesn't work, copy and paste the following link into your browser:</p>
+<p style="word-break: break-all; font-size: 14px; color: #6c757d;">{{ verify_url }}</p>
+
+<p>Once verified, you'll be able to register for events, create your own as an organizer, and much more!</p>
+
+<p>Warmly,<br>The EventHub Team</p>
+{% endblock %}

@@ -178,3 +178,31 @@ class CustomField(models.Model):
             return []
         options = [opt.strip() for opt in self.choices.split(",")]
         return [(opt, opt) for opt in options]
+
+
+class EventCommission(models.Model):
+    """Tracks the 5% commission for an event."""
+    STATUS_CHOICES = [
+        ("unpaid", "Unpaid"),
+        ("pending", "Verification Pending"),
+        ("paid", "Paid"),
+    ]
+
+    event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name="commission")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="unpaid")
+    paid_at = models.DateTimeField(null=True, blank=True)
+    offline_payment_requested = models.BooleanField(default=False)
+    
+    @property
+    def earnings(self):
+        """Total earnings from confirmed registrations."""
+        return self.event.price * self.event.registered_count
+
+    @property
+    def commission_due(self):
+        """5% of total earnings."""
+        from decimal import Decimal
+        return (self.earnings * Decimal('0.05')).quantize(Decimal('0.01'))
+
+    def __str__(self):
+        return f"Commission for {self.event.title} - {self.status}"

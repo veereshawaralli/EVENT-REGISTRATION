@@ -9,7 +9,6 @@
         <h1 class="fw-bold">
             <i class="bi bi-bar-chart-line me-2"></i>Organizer Dashboard
         </h1>
-        {% if user.is_staff %}
         <div class="d-flex gap-2">
             <a href="{% url 'events:qr_scanner' %}" class="btn btn-dark shadow-sm">
                 <i class="bi bi-qr-code-scan me-1"></i>Scan Tickets
@@ -18,7 +17,6 @@
                 <i class="bi bi-plus-circle me-1"></i>Create Event
             </a>
         </div>
-        {% endif %}
     </div>
 
     <!-- Stats Cards -->
@@ -72,8 +70,8 @@
                             <th>Date</th>
                             <th>Category</th>
                             <th>Registrations</th>
-                            <th>Attendance</th>
-                            <th>Capacity</th>
+                            <th>Earnings</th>
+                            <th>Commission (5%)</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -99,20 +97,21 @@
                             <td>
                                 <span class="badge bg-primary">{{ event.confirmed_count }}</span>
                             </td>
-                            <td>
-                                {% if event.confirmed_count > 0 %}
-                                    {% widthratio event.attended_count event.confirmed_count 100 as att_pct %}
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="progress flex-grow-1" style="height:6px;">
-                                            <div class="progress-bar bg-success" style="width: {{ att_pct }}%"></div>
-                                        </div>
-                                        <small>{{ event.attended_count }}/{{ event.confirmed_count }}</small>
-                                    </div>
-                                {% else %}
-                                <span class="text-muted small">—</span>
-                                {% endif %}
+                            <td class="fw-bold text-success">
+                                ₹{{ event.commission.earnings|floatformat:0|intcomma }}
                             </td>
-                            <td class="text-muted small">{{ event.confirmed_count }}/{{ event.capacity }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-bold text-danger">₹{{ event.commission.commission_due|floatformat:0|intcomma }}</span>
+                                    {% if event.commission.status == 'paid' %}
+                                        <span class="badge bg-success">Paid</span>
+                                    {% elif event.commission.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% elif event.commission.commission_due > 0 %}
+                                        <a href="{% url 'events:commission_checkout' event.id %}" class="btn btn-sm btn-primary py-0 px-2 rounded-pill">Pay</a>
+                                    {% endif %}
+                                </div>
+                            </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     <a href="{% url 'events:export_attendees_csv' event.id %}" class="btn btn-outline-success" title="Download Attendee List">

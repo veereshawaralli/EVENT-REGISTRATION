@@ -13,6 +13,11 @@ urlpatterns = [
     path("dashboard/", views.organizer_dashboard, name="organizer_dashboard"),
     path("<int:event_id>/export-attendees/", views.export_attendees_csv, name="export_attendees_csv"),
     path("scanner/", views.qr_scanner, name="qr_scanner"),
+
+    # Commission Payments
+    path("commission/<int:event_id>/checkout/", views.event_commission_checkout, name="commission_checkout"),
+    path("commission/<int:event_id>/callback/", views.event_commission_callback, name="commission_callback"),
+    path("commission/<int:event_id>/offline/", views.event_commission_offline, name="commission_offline"),
     
     # Policy Pages
     path("about/", views.about_us, name="about"),

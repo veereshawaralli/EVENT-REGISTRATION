@@ -91,9 +91,47 @@ class ProfileUpdateForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ("bio", "phone", "avatar")
+        fields = ("bio", "phone", "avatar", "company_name", "website", "business_phone", "address")
         widgets = {
             "bio": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
             "phone": forms.TextInput(attrs={"class": "form-control"}),
             "avatar": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "company_name": forms.TextInput(attrs={"class": "form-control"}),
+            "website": forms.URLInput(attrs={"class": "form-control"}),
+            "business_phone": forms.TextInput(attrs={"class": "form-control"}),
+            "address": forms.Textarea(attrs={"class": "form-control", "rows": 2}),
         }
+
+
+class BecomeProviderForm(forms.ModelForm):
+    """Form for users to register as event organizers."""
+
+    class Meta:
+        model = UserProfile
+        fields = ("company_name", "website", "business_phone", "address")
+        widgets = {
+            "company_name": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Your Organization/Company Name",
+                "required": True,
+            }),
+            "website": forms.URLInput(attrs={
+                "class": "form-control",
+                "placeholder": "https://yourwebsite.com",
+            }),
+            "business_phone": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Contact Number for Business",
+                "required": True,
+            }),
+            "address": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Business Address",
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["company_name"].required = True
+        self.fields["business_phone"].required = True

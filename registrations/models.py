@@ -98,12 +98,16 @@ class Registration(models.Model):
         self.qr_code.save(filename, ContentFile(buffer.getvalue()), save=False)
 
     def save(self, *args, **kwargs):
+        # We need the ID for the QR code, so save first if it's new
+        is_new = self.pk is None
         super().save(*args, **kwargs)
-        # Generate QR code whenever it first becomes confirmed
+        
+        # Generate QR code whenever it becomes confirmed
         if self.status == "confirmed" and not self.qr_code:
             try:
                 self.generate_qr_code()
-                Registration.objects.filter(pk=self.pk).update(qr_code=self.qr_code)
+                # Use super().save to avoid recursion but persist the qr_code
+                super().save(update_fields=["qr_code"])
             except Exception as e:
                 import logging
                 logger = logging.getLogger(__name__)

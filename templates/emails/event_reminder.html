@@ -17,10 +17,10 @@
 
 <p>To enter the event, please have your ticket QR code ready below:</p>
 
-{% if qr_code_url %}
+{% if include_qr %}
 <div class="qr-section">
     <h3>Your Entry Ticket</h3>
-    <img src="{{ qr_code_url }}" alt="Your QR Code Ticket" class="qr-code">
+    <img src="cid:qrcode" alt="Your QR Code Ticket" class="qr-code">
 </div>
 {% endif %}
 

@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "registrations.apps.RegistrationsConfig",
     "reviews.apps.ReviewsConfig",
     "comments.apps.CommentsConfig",
+    "chatbot.apps.ChatbotConfig",
 ]
 
 # ---------------------------------------------------------------------------

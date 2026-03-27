@@ -1,0 +1,36 @@
+{% load static %}
+
+<div class="chatbot-wrapper">
+    <!-- Chat Button -->
+    <button id="chatbot-toggle" title="Chat with Assistant">
+        <i class="bi bi-chat-dots-fill"></i>
+    </button>
+
+    <!-- Chat Container -->
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            <img src="{% static 'images/logo.png' %}" alt="EventHub">
+            <div class="brand-info">
+                <h4>Assistant</h4>
+                <p>Online • Ask me anything</p>
+            </div>
+        </div>
+
+        <div class="chatbot-messages">
+            <div class="chat-message bot">
+                Hello! Welcome to EventHub. I'm your virtual assistant. How can I help you discover great events today?
+            </div>
+            <!-- Typing Indicator -->
+            <div class="typing-indicator chat-message bot">
+                Assistant is typing...
+            </div>
+        </div>
+
+        <form id="chatbot-form" class="chatbot-input">
+            <input type="text" id="chatbot-input-field" placeholder="Type your message..." autocomplete="off">
+            <button type="submit">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </form>
+    </div>
+</div>

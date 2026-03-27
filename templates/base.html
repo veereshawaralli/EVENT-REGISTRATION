@@ -26,6 +26,7 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -57,7 +58,7 @@
                             <i class="bi bi-grid me-1"></i>Dashboard
                         </a>
                     </li>
-                    {% if user.is_staff %}
+                    {% if user.is_staff or user.profile.is_provider %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'events:event_create' %}">
                             <i class="bi bi-plus-circle me-1"></i>Create Event
@@ -65,7 +66,13 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'events:organizer_dashboard' %}">
-                            <i class="bi bi-bar-chart me-1"></i>Analytics
+                            <i class="bi bi-bar-chart me-1"></i>Organizer Dashboard
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts:become_provider' %}">
+                            <i class="bi bi-award me-1"></i>Become Organizer
                         </a>
                     </li>
                     {% endif %}
@@ -262,6 +269,9 @@
 
     <!-- Custom JS -->
     <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/chatbot.js' %}"></script>
+
+    {% include 'chatbot/widget.html' %}
 
     {% block extra_js %}{% endblock %}
 </body>

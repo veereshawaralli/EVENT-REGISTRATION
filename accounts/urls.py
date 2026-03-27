@@ -10,6 +10,9 @@ urlpatterns = [
     path("login/", views.CustomLoginView.as_view(), name="login"),
     path("logout/", views.CustomLogoutView.as_view(), name="logout"),
     path("profile/", views.profile_view, name="profile"),
+    path("become-provider/", views.become_provider, name="become_provider"),
+    path("verify-email/<uuid:token>/", views.verify_email, name="verify_email"),
+    path("resend-verification/", views.resend_verification, name="resend_verification"),
     
     # Password Reset
     path("password-reset/", auth_views.PasswordResetView.as_view(

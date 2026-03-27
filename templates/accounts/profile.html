@@ -59,6 +59,52 @@
                             <i class="bi bi-check-lg me-1"></i>Update Profile
                         </button>
                     </form>
+
+                    <hr class="my-5">
+
+                    <div class="p-4 rounded-4 bg-light shadow-sm">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h5 class="fw-bold mb-1">
+                                    {% if user.profile.is_provider %}
+                                        <i class="bi bi-patch-check-fill text-primary me-2"></i>Active Event Organizer
+                                    {% elif user.profile.provider_status == 'pending' %}
+                                        <i class="bi bi-hourglass-split text-warning me-2"></i>Application Under Review
+                                    {% elif user.profile.provider_status == 'rejected' %}
+                                        <i class="bi bi-x-circle-fill text-danger me-2"></i>Application Rejected
+                                    {% else %}
+                                        <i class="bi bi-award me-2"></i>Event Organizer Program
+                                    {% endif %}
+                                </h5>
+                                <p class="text-muted small mb-3 mb-md-0">
+                                    {% if user.profile.is_provider %}
+                                        You are an authorized organizer. Manage your events and track performance from your dashboard.
+                                    {% elif user.profile.provider_status == 'pending' %}
+                                        Our team is reviewing your application. You'll be notified once it's approved.
+                                    {% elif user.profile.provider_status == 'rejected' %}
+                                        Unfortunately, your application was not approved at this time.
+                                    {% else %}
+                                        Register as an event organizer to create and manage your own events, track registrations, and access analytics.
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                {% if user.profile.is_provider %}
+                                    <a href="{% url 'events:organizer_dashboard' %}" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                                    </a>
+                                {% elif user.profile.provider_status == 'pending' %}
+                                    <button class="btn btn-secondary rounded-pill px-4" disabled>Pending Review</button>
+                                {% elif user.profile.provider_status == 'rejected' %}
+                                    <a href="{% url 'accounts:become_provider' %}" class="btn btn-outline-danger rounded-pill px-4">Re-apply</a>
+                                {% else %}
+                                    <a href="{% url 'accounts:become_provider' %}" class="btn btn-primary rounded-pill px-4">
+                                        Join Now
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,0 +1,19 @@
+{% extends "emails/base_email.html" %}
+
+{% block header %}
+<h1>Registration Cancelled</h1>
+{% endblock %}
+
+{% block content %}
+<p>Hi {{ user.first_name|default:user.username }},</p>
+
+<p>Your registration for <strong>{{ event.title }}</strong> has been cancelled.</p>
+
+<p>We're sorry to see you go! If this was a mistake, you can always visit our site to re-register if spots are still available.</p>
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="{{ dashboard_url }}" class="btn">View My Dashboard</a>
+</div>
+
+<p>Best regards,<br>The EventHub Team</p>
+{% endblock %}

@@ -13,10 +13,10 @@ urlpatterns = [
     path("accounts/", include("accounts.urls", namespace="accounts")),
     path("events/", include("events.urls", namespace="events")),
     path("registrations/", include("registrations.urls", namespace="registrations")),
+    path("chatbot/", include("chatbot.urls", namespace="chatbot")),
+    path("api/", include("api.urls")),
     path("reviews/", include("reviews.urls", namespace="reviews")),
     path("comments/", include("comments.urls", namespace="comments")),
-    path("api/", include("api.urls")),
-    # Serve event list directly on root to avoid redirect issues with crawlers
     path("", include("events.urls")), 
 ]
 

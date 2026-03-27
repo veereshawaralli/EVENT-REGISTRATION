@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -7,10 +8,15 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.generic import CreateView, DeleteView, UpdateView
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 import csv
+import logging
+
+logger = logging.getLogger(__name__)
 
 from .forms import EventForm, EventSearchForm
-from .models import Category, Event
+from .models import Category, Event, EventCommission
 
 
 def event_list(request):
@@ -109,7 +115,8 @@ def event_detail(request, pk):
 @login_required
 def organizer_dashboard(request):
     """Enhanced dashboard with revenue analytics and export options."""
-    if not (request.user.is_staff or request.user.organized_events.exists()):
+    is_provider = getattr(request.user, 'profile', None) and request.user.profile.is_provider
+    if not (request.user.is_staff or is_provider):
         messages.error(request, "This page is for event organizers only.")
         return redirect("events:event_list")
 
@@ -143,6 +150,10 @@ def organizer_dashboard(request):
     chart_attended = [e.attended_count for e in recent_events]
     chart_revenue = [float(e.confirmed_count * e.price) for e in recent_events]
 
+    # Ensure EventCommission exists for each event
+    for e in my_events:
+        EventCommission.objects.get_or_create(event=e)
+
     context = {
         "my_events": my_events,
         "total_events": total_events,
@@ -155,6 +166,106 @@ def organizer_dashboard(request):
         "chart_revenue": chart_revenue,
     }
     return render(request, "events/organizer_dashboard.html", context)
+
+
+@login_required
+def event_commission_checkout(request, event_id):
+    """Render checkout for per-event commission payment."""
+    event = get_object_or_404(Event, pk=event_id, organizer=request.user)
+    commission = get_object_or_404(EventCommission, event=event)
+    
+    if commission.status == 'paid':
+        messages.info(request, "Commission for this event is already paid.")
+        return redirect("events:organizer_dashboard")
+
+    amount_due = commission.commission_due
+    amount_in_paise = int(amount_due * 100)
+    
+    razorpay_configured = bool(settings.RAZORPAY_KEY_ID and settings.RAZORPAY_KEY_SECRET)
+    razorpay_order_id = None
+    
+    if razorpay_configured and amount_in_paise > 0:
+        try:
+            import razorpay
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            
+            order_data = {
+                "amount": amount_in_paise,
+                "currency": "INR",
+                "receipt": f"evt_comm_{event.id}",
+                "payment_capture": "1"
+            }
+            order = client.order.create(data=order_data)
+            razorpay_order_id = order['id']
+        except Exception as e:
+            logger.error(f"Razorpay integration failed for event commission {event.id}: {e}")
+            razorpay_configured = False
+
+    context = {
+        "event": event,
+        "commission": commission,
+        "amount": amount_in_paise,
+        "display_amount": amount_due,
+        "razorpay_order_id": razorpay_order_id,
+        "razorpay_key_id": settings.RAZORPAY_KEY_ID,
+        "razorpay_configured": razorpay_configured,
+    }
+    return render(request, "events/event_commission_checkout.html", context)
+
+
+@csrf_exempt
+def event_commission_callback(request, event_id):
+    """Callback for Razorpay to securely report event commission payment."""
+    event = get_object_or_404(Event, pk=event_id)
+    commission = get_object_or_404(EventCommission, event=event)
+
+    if request.method == "POST":
+        payment_id = request.POST.get('razorpay_payment_id', '')
+        razorpay_order_id = request.POST.get('razorpay_order_id', '')
+        signature = request.POST.get('razorpay_signature', '')
+
+        try:
+            import razorpay
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            client.utility.verify_payment_signature({
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': payment_id,
+                'razorpay_signature': signature
+            })
+
+            # Verification Successful
+            commission.status = 'paid'
+            commission.paid_at = timezone.now()
+            commission.offline_payment_requested = False
+            commission.save()
+
+            messages.success(request, f"Commission for '{event.title}' paid successfully!")
+            return redirect('events:organizer_dashboard')
+
+        except Exception as e:
+            logger.error(f"Event commission payment verification failed: {e}")
+            messages.error(request, "Payment verification failed. Please contact support.")
+            return redirect('events:organizer_dashboard')
+
+    return redirect('events:organizer_dashboard')
+
+
+@login_required
+@require_POST
+def event_commission_offline(request, event_id):
+    """Handle request for offline event commission payment."""
+    event = get_object_or_404(Event, pk=event_id, organizer=request.user)
+    commission = get_object_or_404(EventCommission, event=event)
+    
+    if commission.status == 'paid':
+        messages.info(request, "Commission already paid.")
+        return redirect("events:organizer_dashboard")
+        
+    commission.offline_payment_requested = True
+    commission.status = 'pending'
+    commission.save()
+    messages.success(request, f"Offline payment request sent for '{event.title}'. The admin will verify and update your status.")
+    return redirect("events:organizer_dashboard")
 
 
 @login_required
@@ -208,12 +319,17 @@ class EventCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     template_name = "events/event_form.html"
 
     def test_func(self):
-        return self.request.user.is_staff
+        user = self.request.user
+        is_provider = getattr(user, 'profile', None) and user.profile.is_provider
+        return user.is_staff or is_provider
 
     def form_valid(self, form):
         form.instance.organizer = self.request.user
+        response = super().form_valid(form)
+        # Create corresponding commission record
+        EventCommission.objects.get_or_create(event=self.object)
         messages.success(self.request, "Event created successfully!")
-        return super().form_valid(form)
+        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -232,7 +348,8 @@ class EventUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         event = self.get_object()
         user = self.request.user
-        return user.is_staff or event.organizer == user
+        is_provider = getattr(user, 'profile', None) and user.profile.is_provider
+        return user.is_staff or is_provider or event.organizer == user
 
     def form_valid(self, form):
         messages.success(self.request, "Event updated successfully!")
@@ -255,7 +372,8 @@ class EventDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         event = self.get_object()
         user = self.request.user
-        return user.is_staff or event.organizer == user
+        is_provider = getattr(user, 'profile', None) and user.profile.is_provider
+        return user.is_staff or is_provider or event.organizer == user
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, "Event deleted successfully.")
@@ -267,7 +385,8 @@ def qr_scanner(request):
     """
     Render the HTML5 QR Code Scanner page for organizers/staff to verify tickets.
     """
-    if not request.user.is_staff:
+    is_provider = getattr(request.user, 'profile', None) and request.user.profile.is_provider
+    if not (request.user.is_staff or is_provider):
         messages.error(request, "You do not have permission to access the scanner.")
         return redirect("events:event_list")
         

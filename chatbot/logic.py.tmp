@@ -1,0 +1,48 @@
+import re
+from django.utils import timezone
+from events.models import Event, Category
+
+def get_chatbot_response(message):
+    message = message.lower().strip()
+    
+    # Intent: Greeting
+    if any(word in message for word in ["hi", "hello", "hey", "greetings"]):
+        return {
+            "text": "Hello! I'm your EventHub assistant. How can I help you today? You can ask about upcoming events, how to register, or about our categories.",
+            "type": "text"
+        }
+
+    # Intent: List Events
+    if any(phrase in message for phrase in ["show events", "list events", "upcoming events", "what's happening"]):
+        events = Event.objects.filter(date__gte=timezone.now().date()).order_by('date')[:5]
+        if not events:
+            return {
+                "text": "There are no upcoming events at the moment. Check back later!",
+                "type": "text"
+            }
+        
+        response_text = "Here are some upcoming events I found:\n"
+        event_list = []
+        for event in events:
+            event_list.append({
+                "title": event.title,
+                "date": event.date.strftime("%b %d, %Y"),
+                "location": event.location,
+                "url": event.get_absolute_url()
+            })
+        
+        return {
+            "text": response_text,
+            "events": event_list,
+            "type": "event_list"
+        }
+
+    # Intent: Search by keyword (if no other intent found)
+    # Check if user is asking about a specific topic
+    events = Event.objects.filter(
+        (re.compile(r'\b' + re.escape(message) + r'\b', re.I).search(re.sub(r'[^a-zA-Z0-9\s]', '', message)) is not None) |
+        Q(title__icontains=message) | 
+        Q(description__icontains=message)
+    ).filter(date__gte=timezone.now().date())
+    
+    # Wait, Q is not imported. Let me refine this logic.

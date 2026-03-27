@@ -16,39 +16,27 @@ logger = logging.getLogger(__name__)
 
 from events.models import Event
 from .models import Registration, Waitlist, CustomFieldValue
-from .emails import send_registration_confirmation, send_waitlist_promotion
+from .emails import (
+    send_registration_confirmation, 
+    send_waitlist_promotion,
+    send_registration_cancellation,
+    send_waitlist_notification
+)
 from .forms import CustomRegistrationForm
 
 
 def _send_registration_email(user, event, action="registered", registration=None):
     """
-    Deprecated: Using rich HTML emails from .emails instead.
-    Refactored to call the new helpers for backward compatibility where possible.
+    Helper to dispatch email notifications based on user actions.
     """
     if action == "registered" and registration:
         send_registration_confirmation(registration)
     elif action == "promoted":
         send_waitlist_promotion(user, event)
-    else:
-        # Fallback for simple actions or missing registration object
-        subject_map = {
-            "cancelled": f"❌ Cancelled: {event.title}",
-            "waitlisted": f"⏳ Waitlisted: {event.title}",
-        }
-        body_map = {
-            "cancelled": f"Hi {user.first_name or user.username},\n\nYour registration for {event.title} has been cancelled.",
-            "waitlisted": f"Hi {user.first_name or user.username},\n\n{event.title} is full. You've been added to the waitlist.",
-        }
-        try:
-            send_mail(
-                subject=subject_map.get(action, "EventHub Notification"),
-                message=body_map.get(action, "Notification from EventHub"),
-                from_email=None,
-                recipient_list=[user.email],
-                fail_silently=True,
-            )
-        except Exception:
-            pass
+    elif action == "cancelled":
+        send_registration_cancellation(user, event)
+    elif action == "waitlisted":
+        send_waitlist_notification(user, event)
 
 
 @login_required
