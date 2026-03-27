@@ -24,3 +24,5 @@ django-debug-toolbar>=4.4,<5.0
 django-cloudinary-storage>=0.3.0,<1.0
 cloudinary>=1.40.0,<2.0
 razorpay
+google-generativeai
+
