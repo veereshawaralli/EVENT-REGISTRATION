@@ -173,14 +173,18 @@
                                     </td>
                                     <td>
                                         <div class="mb-1">
-                                            {% if reg.payment_method == 'razorpay' %}
+                                            {% if event.price == 0 %}
+                                                <span class="badge bg-success px-2 py-1"><i class="bi bi-gift me-1"></i>Free</span>
+                                            {% elif reg.payment_method == 'razorpay' or reg.razorpay_payment_id %}
                                                 <span class="badge bg-primary px-2 py-1"><i class="bi bi-credit-card me-1"></i>Online</span>
                                             {% else %}
                                                 <span class="badge bg-warning text-dark px-2 py-1"><i class="bi bi-cash me-1"></i>Venue</span>
                                             {% endif %}
                                         </div>
                                         <div>
-                                            {% if reg.payment_status == 'completed' %}
+                                            {% if event.price == 0 %}
+                                                <small class="text-success fw-bold"><i class="bi bi-check-circle me-1"></i>No Payment</small>
+                                            {% elif reg.payment_status == 'completed' %}
                                                 <small class="text-success fw-bold"><i class="bi bi-check-circle me-1"></i>Paid</small>
                                             {% elif reg.payment_status == 'pending' %}
                                                 <small class="text-danger fw-bold"><i class="bi bi-exclamation-circle me-1"></i>Due (₹{{ event.price }})</small>

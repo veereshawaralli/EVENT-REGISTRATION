@@ -386,6 +386,7 @@ def payment_callback(request):
 
             # Verification Successful
             registration.payment_status = "completed"
+            registration.payment_method = "razorpay"
             registration.status = "confirmed"
             registration.razorpay_payment_id = payment_id
             registration.save()

@@ -174,12 +174,11 @@ def get_chatbot_response(message_text, chat_history=None):
     if fallback_response:
         return fallback_response
 
-    # Optional: Include the last error if we failed on Gemini instead of silently failing
-    error_msg = f" (Error: {last_error})" if 'last_error' in locals() else ""
-    
+    # 5. Global Fallback (API is dead and local logic didn't match perfectly)
+    # Give a polite default instead of exposing raw backend server exceptions
     return {
-        "text": f"I'm having trouble connecting to my AI brain right now{error_msg}, but I can still help you find events! Try asking 'What's happening soon?' or click one of the suggestions below.",
-        "chips": ["Upcoming Events", "How to Register", "Contact Support"],
+        "text": "I'm having a little trouble connecting to my AI processor right now 🔌, but I'm still here to help! What would you like to know about? Try clicking one of the common topics below.",
+        "chips": ["Upcoming Events", "How to Register", "Contact Support", "Browse Categories"],
         "type": "text"
     }
 
@@ -261,6 +260,13 @@ def get_local_fallback(message_lower):
             "type": "text"
         }
     
+    if any(w in message_lower for w in ["login", "log in", "sign in", "signin"]):
+        return {
+            "text": "To log into EventHub, look for the 'Login' button at the top right of the page. If you've forgotten your password, there is a helpful reset link right there on the login form! 🔑",
+            "chips": ["Upcoming Events", "How to Register", "Contact Support"],
+            "type": "text"
+        }
+        
     return None
 
 
