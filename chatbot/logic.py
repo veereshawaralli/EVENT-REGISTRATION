@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Configure Gemini
-api_key = config("GEMINI_API_KEY", default="")
+api_key = config("GEMINI_API_KEY", default="").strip(' "\'')
 if api_key:
     genai.configure(api_key=api_key)
     # Model chain: try primary first, fall back to others if rate-limited
@@ -134,6 +134,7 @@ def get_chatbot_response(message_text, chat_history=None):
         # Inject facts into the context for this specific prompt
         full_prompt = f"{SYSTEM_PROMPT}\n\n[CURRENT PLATFORM CONTEXT]:\n{platform_facts}\n\n[USER MESSAGE]: {message_text}"
 
+        last_error = "No models available"
         # Try each model in the fallback chain
         for model_name in GEMINI_MODELS:
             try:
@@ -161,6 +162,7 @@ def get_chatbot_response(message_text, chat_history=None):
                 }
             except Exception as e:
                 logger.error(f"Gemini API error with {model_name}: {type(e).__name__}: {e}")
+                last_error = f"{type(e).__name__}: {e}"
                 continue  # Try next model in the chain
 
     # 3. Local Fallback (If Gemini is unavailable or failed)
@@ -172,8 +174,11 @@ def get_chatbot_response(message_text, chat_history=None):
     if fallback_response:
         return fallback_response
 
+    # Optional: Include the last error if we failed on Gemini instead of silently failing
+    error_msg = f" (Error: {last_error})" if 'last_error' in locals() else ""
+    
     return {
-        "text": "I'm having trouble connecting to my AI brain right now, but I can still help you find events! Try asking 'What's happening soon?' or click one of the suggestions below.",
+        "text": f"I'm having trouble connecting to my AI brain right now{error_msg}, but I can still help you find events! Try asking 'What's happening soon?' or click one of the suggestions below.",
         "chips": ["Upcoming Events", "How to Register", "Contact Support"],
         "type": "text"
     }

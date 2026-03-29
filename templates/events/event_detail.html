@@ -152,7 +152,7 @@
                     <div class="table-responsive">
                         <table class="table table-sm align-middle">
                             <thead class="table-light">
-                                <tr><th>Name</th><th>Email</th><th>Attended</th><th>Action</th></tr>
+                                <tr><th>Name / Info</th><th>Payment</th><th>Attended</th><th>Action</th></tr>
                             </thead>
                             <tbody>
                                 {% for reg in attendee_list %}
@@ -170,6 +170,24 @@
                                             {% endfor %}
                                         </div>
                                         {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="mb-1">
+                                            {% if reg.payment_method == 'razorpay' %}
+                                                <span class="badge bg-primary px-2 py-1"><i class="bi bi-credit-card me-1"></i>Online</span>
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark px-2 py-1"><i class="bi bi-cash me-1"></i>Venue</span>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            {% if reg.payment_status == 'completed' %}
+                                                <small class="text-success fw-bold"><i class="bi bi-check-circle me-1"></i>Paid</small>
+                                            {% elif reg.payment_status == 'pending' %}
+                                                <small class="text-danger fw-bold"><i class="bi bi-exclamation-circle me-1"></i>Due (₹{{ event.price }})</small>
+                                            {% else %}
+                                                <small class="text-muted">{{ reg.get_payment_status_display }}</small>
+                                            {% endif %}
+                                        </div>
                                     </td>
                                     <td>
                                         {% if reg.attended %}

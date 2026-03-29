@@ -38,6 +38,33 @@
                         </p>
                     </div>
 
+                    <!-- Payment Information for Organizer -->
+                    <div class="card bg-light border-0 mb-4 p-3 shadow-sm text-start">
+                        <h6 class="fw-bold mb-2">Payment Verification</h6>
+                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                            <span>Method:</span>
+                            <span class="fw-semibold">
+                                {% if registration.payment_method == 'razorpay' %}
+                                    <i class="bi bi-credit-card text-primary me-1"></i>Online (Razorpay)
+                                {% else %}
+                                    <i class="bi bi-cash-coin text-warning me-1"></i>Pay at Venue
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Payment Status:</span>
+                            <span>
+                                {% if registration.payment_status == 'completed' %}
+                                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Paid Successfully</span>
+                                {% elif registration.payment_status == 'pending' %}
+                                    <span class="badge bg-danger fs-6"><i class="bi bi-exclamation-circle me-1"></i>Payment Due (₹{{ event.price }})</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ registration.get_payment_status_display }}</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
                     {% if registration.status == "confirmed" %}
                         <form action="{% url 'registrations:mark_attended' registration.id %}" method="post">
                             {% csrf_token %}

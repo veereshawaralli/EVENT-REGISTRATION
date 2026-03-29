@@ -4,8 +4,41 @@
    matching the public-facing EventHub website aesthetics.
    ========================================================================== */
 
-/* Design Tokens */
-:root {
+/* Design Tokens and Django Overrides */
+:root, [data-theme="light"], [data-theme="dark"] {
+    /* Override Native Django Admin Variables */
+    --primary: #4f46e5;
+    --primary-fg: #ffffff;
+    --body-fg: #1e293b;
+    --body-bg: #f8f9fb;
+    --body-quiet-color: #64748b;
+    --body-loud-color: #0f172a;
+    --header-color: #ffffff;
+    --header-branding-color: #ffffff;
+    --header-bg: #4f46e5;
+    --header-link-color: #e0e7ff;
+    --breadcrumbs-fg: #64748b;
+    --breadcrumbs-link-fg: #4f46e5;
+    --breadcrumbs-bg: #ffffff;
+    --link-fg: #4f46e5;
+    --link-hover-color: #4338ca;
+    --link-selected-fg: #4338ca;
+    --hairline-color: #e2e8f0;
+    --border-color: #e2e8f0;
+    --error-fg: #ef4444;
+    --message-success-bg: #22c55e;
+    --message-warning-bg: #f59e0b;
+    --message-error-bg: #ef4444;
+    --darkened-bg: #f1f5f9;
+    --selected-bg: #eef2ff;
+    --selected-row: #eef2ff;
+    --button-fg: #ffffff;
+    --button-bg: #4f46e5;
+    --button-hover-bg: #4338ca;
+    --default-button-bg: #4f46e5;
+    --default-button-hover-bg: #4338ca;
+
+    /* Custom EventHub Tokens */
     --eh-primary: #4f46e5;
     --eh-primary-dark: #4338ca;
     --eh-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
@@ -16,6 +49,19 @@
     --eh-text-muted: #64748b;
     --eh-border-radius: 12px;
     --eh-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --body-fg: #1e293b;
+        --body-bg: #f8f9fb;
+        --body-quiet-color: #64748b;
+        --body-loud-color: #0f172a;
+        --border-color: #e2e8f0;
+        --darkened-bg: #f1f5f9;
+        --selected-bg: #eef2ff;
+        --selected-row: #eef2ff;
+    }
 }
 
 /* Global resets for Admin */
@@ -86,13 +132,23 @@ body {
 /* Card Headers */
 .module h2, .module caption {
     background: #ffffff !important;
-    color: var(--eh-primary) !important;
+    color: #0f172a !important; /* Very dark slate/black for sharp headings */
     padding: 1.25rem 1.5rem !important;
-    font-weight: 700 !important;
-    font-size: 1rem !important;
+    font-weight: 800 !important;
+    font-size: 1.05rem !important;
     border-bottom: 1px solid var(--eh-border-color) !important;
     text-transform: capitalize !important;
     letter-spacing: normal !important;
+}
+
+.module caption a {
+    color: #0f172a !important;
+    text-decoration: none;
+    font-weight: 800 !important;
+}
+
+.module caption a:hover {
+    color: var(--eh-primary) !important;
 }
 
 .module table {
@@ -179,10 +235,10 @@ body {
 
 #nav-sidebar .module caption {
     background: #ffffff !important;
-    color: var(--eh-text-muted) !important;
-    font-weight: 700 !important;
+    color: #0f172a !important; /* Sidebar headers in black as well */
+    font-weight: 800 !important;
     text-transform: uppercase !important;
-    font-size: 0.75rem !important;
+    font-size: 0.8rem !important;
     letter-spacing: 0.5px !important;
     border-bottom: none !important;
     padding-bottom: 0.5rem !important;
