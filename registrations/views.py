@@ -339,6 +339,7 @@ def payment_checkout(request, registration_id):
                 registration.save(update_fields=['razorpay_order_id'])
         except Exception as e:
             logger.error(f"Razorpay integration failed: {e}")
+            messages.error(request, f"DEBUG - Razorpay Error: {str(e)}") # Added for debugging
             razorpay_configured = False
 
     context = {
@@ -367,6 +368,12 @@ def payment_callback(request):
         # Payment must be pending
         if registration.status == "confirmed":
             return redirect('registrations:dashboard')
+
+        try:
+            import razorpay
+        except ImportError:
+            messages.error(request, "Payment gateway library not installed.")
+            return redirect('events:event_list')
 
         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
         try:

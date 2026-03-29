@@ -15,8 +15,23 @@ class ChatView(View):
             if not message:
                 return JsonResponse({"error": "Message is required"}, status=400)
             
-            response = get_chatbot_response(message)
-            return JsonResponse(response)
+            # Get existing history from session or initialize new
+            chat_history = request.session.get('chat_history', [])
+            
+            # Get response from AI with history context
+            response_data = get_chatbot_response(message, chat_history)
+            
+            # Update history with user message
+            chat_history.append({"role": "user", "content": message})
+            
+            # Update history with bot response (text only)
+            chat_history.append({"role": "assistant", "content": response_data.get('text', '')})
+            
+            # Keep only the last 10 messages to prevent session bloat
+            request.session['chat_history'] = chat_history[-10:]
+            request.session.modified = True
+            
+            return JsonResponse(response_data)
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON"}, status=400)
         except Exception as e:

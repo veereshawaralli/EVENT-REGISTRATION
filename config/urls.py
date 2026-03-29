@@ -8,6 +8,13 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
 
+# ---------------------------------------------------------------------------
+# Admin Site Branding
+# ---------------------------------------------------------------------------
+admin.site.site_header = "EventHub Administration"
+admin.site.site_title = "EventHub Admin Portal"
+admin.site.index_title = "Welcome to EventHub Management"
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls", namespace="accounts")),

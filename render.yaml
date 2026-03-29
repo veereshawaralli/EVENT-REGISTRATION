@@ -34,4 +34,10 @@ services:
         sync: false
       - key: DEFAULT_FROM_EMAIL
         value: "EventHub <veeawaralli@gmail.com>"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
       # Set DATABASE_URL manually in Render dashboard

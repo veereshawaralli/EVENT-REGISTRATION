@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('EventHub Admin Portal') }}{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <!-- Premium EventHub Admin Theme -->
+    <link rel="stylesheet" href="{% static 'css/admin_theme.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block branding %}
+<div id="branding">
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}">
+            <span style="font-weight: 800; letter-spacing: -1px;">EVENT</span><span style="font-weight: 300;">HUB</span>
+            <span style="font-size: 0.7rem; vertical-align: middle; margin-left: 5px; opacity: 0.8; font-weight: 400;">ADMINISTRATION</span>
+        </a>
+    </h1>
+</div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

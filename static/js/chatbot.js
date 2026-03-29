@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const toggleBtn = document.getElementById('chatbot-toggle');
     const chatContainer = document.querySelector('.chatbot-container');
     const messageForm = document.getElementById('chatbot-form');
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const data = await response.json();
             showTyping(false);
-            
+
             if (data.error) {
                 addMessage("Sorry, I encountered an error. Please try again.", 'bot');
             } else {
@@ -75,14 +75,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const div = document.createElement('div');
         div.className = `chat-message ${side}`;
-        
-        // Handle newlines in text
-        div.innerHTML = text.replace(/\n/g, '<br>');
+
+        // Basic markdown formatting for bold text and newlines
+        let formattedText = text
+            .replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+
+        div.innerHTML = formattedText;
 
         if (events && events.length > 0) {
             const eventListDiv = document.createElement('div');
             eventListDiv.className = 'chat-event-list';
-            
+
             events.forEach(event => {
                 const a = document.createElement('a');
                 a.className = 'chat-event-card';

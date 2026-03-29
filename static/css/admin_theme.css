@@ -1,0 +1,282 @@
+/* ==========================================================================
+   EventHub — Premium Clean Modern Admin Theme
+   A professional, card-based light theme with indigo branding perfectly
+   matching the public-facing EventHub website aesthetics.
+   ========================================================================== */
+
+/* Design Tokens */
+:root {
+    --eh-primary: #4f46e5;
+    --eh-primary-dark: #4338ca;
+    --eh-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
+    --eh-bg-light: #f8f9fb;
+    --eh-card-bg: #ffffff;
+    --eh-border-color: #e2e8f0;
+    --eh-text-main: #1e293b;
+    --eh-text-muted: #64748b;
+    --eh-border-radius: 12px;
+    --eh-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Global resets for Admin */
+body {
+    background-color: var(--eh-bg-light) !important;
+    font-family: "Inter", sans-serif !important;
+    color: var(--eh-text-main) !important;
+}
+
+#container {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   1. Header & Branding
+   -------------------------------------------------------------------------- */
+#header {
+    background: var(--eh-gradient) !important;
+    padding: 1rem 2rem !important;
+    border-bottom: none !important;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3) !important;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+#branding h1 {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    font-size: 1.5rem;
+    color: #fff !important;
+}
+
+#branding h1 a {
+    color: #fff !important;
+}
+
+#user-tools {
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 0.9rem !important;
+}
+
+#user-tools a {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid transparent;
+    transition: 0.2s ease;
+}
+
+#user-tools a:hover {
+    border-bottom: 2px solid white;
+}
+
+/* --------------------------------------------------------------------------
+   2. The Modern Cards
+   -------------------------------------------------------------------------- */
+.module {
+    background: var(--eh-card-bg) !important;
+    border-radius: var(--eh-border-radius) !important;
+    border: 1px solid var(--eh-border-color) !important;
+    box-shadow: var(--eh-shadow) !important;
+    margin-bottom: 2rem !important;
+    overflow: hidden !important;
+}
+
+/* Card Headers */
+.module h2, .module caption {
+    background: #ffffff !important;
+    color: var(--eh-primary) !important;
+    padding: 1.25rem 1.5rem !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    border-bottom: 1px solid var(--eh-border-color) !important;
+    text-transform: capitalize !important;
+    letter-spacing: normal !important;
+}
+
+.module table {
+    width: 100% !important;
+    background: transparent !important;
+}
+
+.module table th {
+    background: #f8fafc !important;
+    color: var(--eh-text-muted) !important;
+    font-weight: 600 !important;
+    padding: 12px 1.5rem !important;
+    border-bottom: 1px solid var(--eh-border-color) !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.module table td {
+    padding: 16px 1.5rem !important;
+    color: var(--eh-text-main) !important;
+    border-bottom: 1px solid var(--eh-border-color) !important;
+    font-weight: 500;
+}
+
+.module table tr:last-child td {
+    border-bottom: none !important;
+}
+
+.module table tr:hover td {
+    background-color: #f1f5f9 !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. Buttons 
+   -------------------------------------------------------------------------- */
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: var(--eh-primary) !important;
+    border-radius: 8px !important; 
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2) !important;
+    transition: 0.2s ease !important;
+    text-transform: none !important;
+}
+
+.button:hover, input[type=submit]:hover {
+    background: var(--eh-primary-dark) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3) !important;
+}
+
+.button.default, input[type=submit].default {
+    background: var(--eh-gradient) !important;
+}
+
+/* Dashboard Add/Change links */
+.addlink, .changelink {
+    color: var(--eh-primary) !important;
+    font-weight: 600 !important;
+    background: #eef2ff !important;
+    padding: 6px 14px !important;
+    border-radius: 6px !important;
+    font-size: 0.8rem !important;
+    border: none !important;
+    transition: 0.2s ease;
+}
+
+.addlink:hover, .changelink:hover {
+    background: #e0e7ff !important;
+    color: var(--eh-primary-dark) !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. Sidebar
+   -------------------------------------------------------------------------- */
+#nav-sidebar {
+    background: #ffffff !important;
+    border-right: 1px solid var(--eh-border-color) !important;
+    padding-top: 1rem;
+}
+
+#nav-sidebar .module caption {
+    background: #ffffff !important;
+    color: var(--eh-text-muted) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.5px !important;
+    border-bottom: none !important;
+    padding-bottom: 0.5rem !important;
+}
+
+#nav-sidebar table td a {
+    color: var(--eh-text-main) !important;
+    font-weight: 500;
+    padding: 8px 15px !important;
+    display: block;
+    border-radius: 6px;
+    margin: 2px 10px;
+}
+
+#nav-sidebar table td a:hover {
+    background-color: #f1f5f9 !important;
+    color: var(--eh-primary) !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. Selection & Forms
+   -------------------------------------------------------------------------- */
+::selection {
+    background: rgba(79, 70, 229, 0.2) !important;
+    color: var(--eh-text-main) !important;
+}
+
+input, select, textarea {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    color: var(--eh-text-main) !important;
+    padding: 10px 12px !important;
+    font-family: inherit !important;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--eh-primary) !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+    outline: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   6. Breadcrumbs
+   -------------------------------------------------------------------------- */
+.breadcrumbs {
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--eh-border-color) !important;
+    padding: 1rem 2rem !important;
+    font-weight: 500;
+    color: var(--eh-text-muted) !important;
+}
+
+.breadcrumbs a {
+    color: var(--eh-primary) !important;
+    text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   7. Login Page
+   -------------------------------------------------------------------------- */
+body.login {
+    background: var(--eh-bg-light) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login #container {
+    background: var(--eh-card-bg) !important;
+    border: 1px solid var(--eh-border-color) !important;
+    border-radius: var(--eh-border-radius) !important;
+    box-shadow: var(--eh-shadow-lg) !important;
+    margin-top: 10vh !important;
+}
+
+.login #header {
+    border-radius: var(--eh-border-radius) var(--eh-border-radius) 0 0 !important;
+}
+
+#content-main {
+    padding: 2.5rem !important;
+}
+
+/* Actions in lists */
+.actionlist li {
+    padding: 0.5rem 0;
+}
+
+/* Recent Actions Box */
+#recent-actions-module h2 {
+    color: var(--eh-primary) !important;
+}
