@@ -140,9 +140,7 @@ if DATABASE_URL:
     DATABASES["default"] = dj_database_url.parse(DATABASE_URL, conn_max_age=0)
     
     # Disable server side cursors to prevent transaction pooler conflicts
-    if "OPTIONS" not in DATABASES["default"]:
-        DATABASES["default"]["OPTIONS"] = {}
-    DATABASES["default"]["OPTIONS"]["DISABLE_SERVER_SIDE_CURSORS"] = True
+    DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
 
 # ---------------------------------------------------------------------------
 # Password validation
