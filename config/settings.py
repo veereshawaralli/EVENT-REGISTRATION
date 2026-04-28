@@ -136,11 +136,7 @@ DATABASE_URL = config("DATABASE_URL", default=None)
 if DATABASE_URL:
     import dj_database_url
 
-    # Set conn_max_age=0 when using a connection pooler like Supabase PgBouncer to prevent hanging
-    DATABASES["default"] = dj_database_url.parse(DATABASE_URL, conn_max_age=0)
-    
-    # Disable server side cursors to prevent transaction pooler conflicts
-    DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
+    DATABASES["default"] = dj_database_url.parse(DATABASE_URL, conn_max_age=600)
 
 # ---------------------------------------------------------------------------
 # Password validation
