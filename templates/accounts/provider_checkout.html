@@ -4,93 +4,82 @@
 {% block title %}Provider Account Activation{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4 p-md-5">
-                    <div class="text-center mb-4">
-                        <div class="feature-icon-small d-inline-flex align-items-center justify-content-center bg-success bg-gradient text-white fs-4 rounded-3 mb-3" style="width: 3rem; height: 3rem;">
-                            <i class="bi bi-shield-check"></i>
-                        </div>
-                        <h2 class="fw-bold">Account Approved!</h2>
-                        <p class="text-muted">Your application has been approved by the admin. To activate your organizer account, please pay the one-time activation commission.</p>
-                    </div>
+<div class="eh-page">
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-lg-5 col-md-7 col-sm-10">
 
-                    <div class="bg-light p-4 rounded-4 mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted">Activation Fee</span>
-                            <span class="fw-bold fs-5">₹{{ display_amount }}</span>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold">Total Amount</span>
-                            <span class="fw-bold fs-4 text-primary">₹{{ display_amount }}</span>
-                        </div>
-                    </div>
+<div class="eh-glass">
+    <div class="eh-hdr">
+        <div class="eh-hdr-icon"><i class="bi bi-shield-check"></i></div>
+        <h4>Account Approved!</h4>
+        <p>Pay the activation commission to get started</p>
+    </div>
+    <div class="eh-body">
 
-                    {% if razorpay_configured and razorpay_order_id %}
-                    <div class="d-grid gap-2">
-                        <button id="pay-btn" class="btn btn-primary btn-lg rounded-pill fw-bold">
-                            <i class="bi bi-credit-card me-2"></i>Pay commission and Activate
-                        </button>
-                        <div class="text-center my-2">
-                            <span class="text-muted small">OR</span>
-                        </div>
-                        <form action="{% url 'accounts:provider_offline_payment' %}" method="POST">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-secondary w-100 rounded-pill">
-                                <i class="bi bi-cash me-2"></i>Request Offline Activation
-                            </button>
-                        </form>
-                    </div>
-
-                    <form action="{% url 'accounts:provider_callback' %}" method="POST" style="display: none;">
-                        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
-                        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
-                        <input type="hidden" name="razorpay_signature" id="razorpay_signature">
-                    </form>
-
-                    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-                    <script>
-                        var options = {
-                            "key": "{{ razorpay_key_id }}",
-                            "amount": "{{ amount }}",
-                            "currency": "INR",
-                            "name": "EventHub",
-                            "description": "Provider Account Activation Commission",
-                            "image": "{% static 'images/logo.png' %}",
-                            "order_id": "{{ razorpay_order_id }}",
-                            "handler": function (response) {
-                                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
-                                document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
-                                document.getElementById('razorpay_signature').value = response.razorpay_signature;
-                                document.forms[0].submit();
-                            },
-                            "prefill": {
-                                "name": "{{ user.get_full_name }}",
-                                "email": "{{ user.email }}",
-                                "contact": "{{ user.profile.phone }}"
-                            },
-                            "theme": {
-                                "color": "#0d6efd"
-                            }
-                        };
-                        var rzp1 = new Razorpay(options);
-                        document.getElementById('pay-btn').onclick = function (e) {
-                            rzp1.open();
-                            e.preventDefault();
-                        }
-                    </script>
-                    {% else %}
-                    <div class="alert alert-warning border-0 shadow-sm">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        Payment gateway is not configured. Please contact the administrator.
-                    </div>
-                    {% endif %}
-                </div>
+        <div class="eh-breakdown">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span style="color:#64748b;font-weight:500">Activation Fee</span>
+                <span class="fw-bold">₹{{ display_amount }}</span>
+            </div>
+            <hr style="border-top:1px dashed #e2e8f0;margin:.25rem 0">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Total Amount</span>
+                <span class="eh-gradient-text" style="font-size:1.5rem;font-weight:800">₹{{ display_amount }}</span>
             </div>
         </div>
+
+        {% if razorpay_configured and razorpay_order_id %}
+        <button id="pay-btn" class="eh-btn eh-btn-primary"><i class="bi bi-credit-card-2-front-fill"></i> Pay & Activate</button>
+        <div class="eh-divider"><span>or</span></div>
+        <form action="{% url 'accounts:provider_offline_payment' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="eh-btn eh-btn-outline"><i class="bi bi-cash"></i> Request Offline Activation</button>
+        </form>
+
+        <form action="{% url 'accounts:provider_callback' %}" method="POST" style="display:none">
+            <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+            <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+            <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+        </form>
+
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script>
+        var options = {
+            "key": "{{ razorpay_key_id }}",
+            "amount": "{{ amount }}",
+            "currency": "INR",
+            "name": "EventHub",
+            "description": "Provider Account Activation Commission",
+            "image": "{% static 'images/logo.png' %}",
+            "order_id": "{{ razorpay_order_id }}",
+            "handler": function (response) {
+                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+                document.getElementById('razorpay_signature').value = response.razorpay_signature;
+                document.forms[0].submit();
+            },
+            "prefill": {"name": "{{ user.get_full_name }}", "email": "{{ user.email }}", "contact": "{{ user.profile.phone }}"},
+            "theme": {"color": "#4f46e5"}
+        };
+        var rzp1 = new Razorpay(options);
+        document.getElementById('pay-btn').onclick = function(e){rzp1.open();e.preventDefault();}
+        </script>
+        {% else %}
+        <div class="eh-alert eh-alert-warning">
+            <i class="bi bi-exclamation-triangle-fill"></i> Payment gateway is not configured. Please contact the administrator.
+        </div>
+        {% endif %}
+
+        <div class="eh-trust">
+            <div class="eh-trust-badge"><i class="bi bi-shield-check"></i> Secure</div>
+            <div class="eh-trust-badge"><i class="bi bi-lock-fill"></i> Encrypted</div>
+        </div>
     </div>
+</div>
+
+</div>
+</div>
+</div>
 </div>
 {% endblock %}

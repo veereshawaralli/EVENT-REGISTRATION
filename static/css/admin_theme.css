@@ -1,6 +1,6 @@
 /* ==========================================================================
-   EventHub — Premium Clean Modern Admin Theme
-   A professional, card-based light theme with indigo branding perfectly
+   EventHub — Premium Dark Modern Admin Theme
+   A professional, glassmorphism dark theme with purple gradient branding perfectly
    matching the public-facing EventHub website aesthetics.
    ========================================================================== */
 
@@ -9,66 +9,75 @@
     /* Override Native Django Admin Variables */
     --primary: #4f46e5;
     --primary-fg: #ffffff;
-    --body-fg: #1e293b;
-    --body-bg: #f8f9fb;
-    --body-quiet-color: #64748b;
-    --body-loud-color: #0f172a;
+    --body-fg: #f8fafc;
+    --body-bg: #0f172a;
+    --body-quiet-color: #94a3b8;
+    --body-loud-color: #ffffff;
     --header-color: #ffffff;
     --header-branding-color: #ffffff;
-    --header-bg: #4f46e5;
+    --header-bg: transparent;
     --header-link-color: #e0e7ff;
-    --breadcrumbs-fg: #64748b;
-    --breadcrumbs-link-fg: #4f46e5;
-    --breadcrumbs-bg: #ffffff;
-    --link-fg: #4f46e5;
-    --link-hover-color: #4338ca;
-    --link-selected-fg: #4338ca;
-    --hairline-color: #e2e8f0;
-    --border-color: #e2e8f0;
+    --breadcrumbs-fg: #94a3b8;
+    --breadcrumbs-link-fg: #c4b5fd;
+    --breadcrumbs-bg: rgba(15,23,42,.6);
+    --link-fg: #818cf8;
+    --link-hover-color: #a78bfa;
+    --link-selected-fg: #a78bfa;
+    --hairline-color: rgba(255,255,255,.1);
+    --border-color: rgba(255,255,255,.15);
     --error-fg: #ef4444;
-    --message-success-bg: #22c55e;
+    --message-success-bg: #10b981;
     --message-warning-bg: #f59e0b;
     --message-error-bg: #ef4444;
-    --darkened-bg: #f1f5f9;
-    --selected-bg: #eef2ff;
-    --selected-row: #eef2ff;
+    --darkened-bg: rgba(0,0,0,.2);
+    --selected-bg: rgba(79,70,229,.15);
+    --selected-row: rgba(79,70,229,.15);
     --button-fg: #ffffff;
     --button-bg: #4f46e5;
-    --button-hover-bg: #4338ca;
+    --button-hover-bg: #6366f1;
     --default-button-bg: #4f46e5;
-    --default-button-hover-bg: #4338ca;
+    --default-button-hover-bg: #6366f1;
 
     /* Custom EventHub Tokens */
     --eh-primary: #4f46e5;
-    --eh-primary-dark: #4338ca;
-    --eh-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
-    --eh-bg-light: #f8f9fb;
-    --eh-card-bg: #ffffff;
-    --eh-border-color: #e2e8f0;
-    --eh-text-main: #1e293b;
-    --eh-text-muted: #64748b;
-    --eh-border-radius: 12px;
-    --eh-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --body-fg: #1e293b;
-        --body-bg: #f8f9fb;
-        --body-quiet-color: #64748b;
-        --body-loud-color: #0f172a;
-        --border-color: #e2e8f0;
-        --darkened-bg: #f1f5f9;
-        --selected-bg: #eef2ff;
-        --selected-row: #eef2ff;
-    }
+    --eh-gradient-start: #4f46e5;
+    --eh-gradient-end: #7c3aed;
+    --eh-card-bg: rgba(255, 255, 255, .05);
+    --eh-border-color: rgba(255, 255, 255, .1);
+    --eh-text-main: #f8fafc;
+    --eh-text-muted: #94a3b8;
+    --eh-border-radius: 1rem;
+    --eh-shadow: 0 8px 30px rgba(0, 0, 0, .2);
 }
 
 /* Global resets for Admin */
 body {
-    background-color: var(--eh-bg-light) !important;
+    background: #0f172a !important;
     font-family: "Inter", sans-serif !important;
     color: var(--eh-text-main) !important;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 40%, rgba(79,70,229,.15), transparent),
+      radial-gradient(ellipse 60% 50% at 80% 50%, rgba(124,58,237,.15), transparent),
+      radial-gradient(ellipse 50% 60% at 50% 80%, rgba(59,130,246,.1), transparent);
+    pointer-events: none;
+    z-index: -1;
+}
+
+body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: -1;
 }
 
 #container {
@@ -80,10 +89,11 @@ body {
    1. Header & Branding
    -------------------------------------------------------------------------- */
 #header {
-    background: var(--eh-gradient) !important;
+    background: rgba(15,23,42,.8) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     padding: 1rem 2rem !important;
-    border-bottom: none !important;
-    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3) !important;
+    border-bottom: 1px solid rgba(255,255,255,.1) !important;
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -93,35 +103,46 @@ body {
     font-weight: 800;
     letter-spacing: -0.5px;
     font-size: 1.5rem;
-    color: #fff !important;
 }
 
 #branding h1 a {
     color: #fff !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#branding h1 a span:first-child {
+    background: linear-gradient(135deg, #a78bfa, #c4b5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 #user-tools {
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
     font-size: 0.9rem !important;
 }
 
 #user-tools a {
     color: #ffffff !important;
-    font-weight: 700 !important;
-    border-bottom: 2px solid transparent;
+    font-weight: 600 !important;
+    padding: 4px 8px;
+    border-radius: 6px;
     transition: 0.2s ease;
 }
 
 #user-tools a:hover {
-    border-bottom: 2px solid white;
+    background: rgba(255,255,255,.1);
 }
 
 /* --------------------------------------------------------------------------
-   2. The Modern Cards
+   2. The Modern Cards (Glassmorphism)
    -------------------------------------------------------------------------- */
 .module {
     background: var(--eh-card-bg) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-radius: var(--eh-border-radius) !important;
     border: 1px solid var(--eh-border-color) !important;
     box-shadow: var(--eh-shadow) !important;
@@ -131,10 +152,10 @@ body {
 
 /* Card Headers */
 .module h2, .module caption {
-    background: #ffffff !important;
-    color: #0f172a !important; /* Very dark slate/black for sharp headings */
+    background: rgba(255,255,255,.03) !important;
+    color: #fff !important;
     padding: 1.25rem 1.5rem !important;
-    font-weight: 800 !important;
+    font-weight: 700 !important;
     font-size: 1.05rem !important;
     border-bottom: 1px solid var(--eh-border-color) !important;
     text-transform: capitalize !important;
@@ -142,13 +163,13 @@ body {
 }
 
 .module caption a {
-    color: #0f172a !important;
+    color: #fff !important;
     text-decoration: none;
-    font-weight: 800 !important;
+    font-weight: 700 !important;
 }
 
 .module caption a:hover {
-    color: var(--eh-primary) !important;
+    color: #a78bfa !important;
 }
 
 .module table {
@@ -157,7 +178,7 @@ body {
 }
 
 .module table th {
-    background: #f8fafc !important;
+    background: rgba(0,0,0,.2) !important;
     color: var(--eh-text-muted) !important;
     font-weight: 600 !important;
     padding: 12px 1.5rem !important;
@@ -179,67 +200,66 @@ body {
 }
 
 .module table tr:hover td {
-    background-color: #f1f5f9 !important;
+    background-color: rgba(255,255,255,.05) !important;
 }
 
 /* --------------------------------------------------------------------------
-   3. Buttons 
+   3. Buttons
    -------------------------------------------------------------------------- */
 .button, input[type=submit], input[type=button], .submit-row input, a.button {
-    background: var(--eh-primary) !important;
+    background: linear-gradient(135deg, var(--eh-gradient-start), var(--eh-gradient-end)) !important;
     border-radius: 8px !important; 
     padding: 10px 20px !important;
     font-weight: 600 !important;
     color: #fff !important;
     border: none !important;
-    box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2) !important;
-    transition: 0.2s ease !important;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3) !important;
+    transition: transform 0.25s, box-shadow 0.25s !important;
     text-transform: none !important;
 }
 
 .button:hover, input[type=submit]:hover {
-    background: var(--eh-primary-dark) !important;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45) !important;
 }
 
 .button.default, input[type=submit].default {
-    background: var(--eh-gradient) !important;
+    background: linear-gradient(135deg, var(--eh-gradient-start), var(--eh-gradient-end)) !important;
 }
 
 /* Dashboard Add/Change links */
 .addlink, .changelink {
-    color: var(--eh-primary) !important;
+    color: #fff !important;
     font-weight: 600 !important;
-    background: #eef2ff !important;
+    background: rgba(79,70,229,.2) !important;
     padding: 6px 14px !important;
     border-radius: 6px !important;
     font-size: 0.8rem !important;
-    border: none !important;
+    border: 1px solid rgba(79,70,229,.3) !important;
     transition: 0.2s ease;
 }
 
 .addlink:hover, .changelink:hover {
-    background: #e0e7ff !important;
-    color: var(--eh-primary-dark) !important;
+    background: rgba(79,70,229,.4) !important;
+    color: #fff !important;
 }
 
 /* --------------------------------------------------------------------------
    4. Sidebar
    -------------------------------------------------------------------------- */
 #nav-sidebar {
-    background: #ffffff !important;
+    background: transparent !important;
     border-right: 1px solid var(--eh-border-color) !important;
     padding-top: 1rem;
 }
 
 #nav-sidebar .module caption {
-    background: #ffffff !important;
-    color: #0f172a !important; /* Sidebar headers in black as well */
-    font-weight: 800 !important;
+    background: transparent !important;
+    color: rgba(255,255,255,.5) !important;
+    font-weight: 700 !important;
     text-transform: uppercase !important;
-    font-size: 0.8rem !important;
-    letter-spacing: 0.5px !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 1px !important;
     border-bottom: none !important;
     padding-bottom: 0.5rem !important;
 }
@@ -251,41 +271,43 @@ body {
     display: block;
     border-radius: 6px;
     margin: 2px 10px;
+    transition: all .2s;
 }
 
 #nav-sidebar table td a:hover {
-    background-color: #f1f5f9 !important;
-    color: var(--eh-primary) !important;
+    background-color: rgba(255,255,255,.05) !important;
+    color: #c4b5fd !important;
 }
 
 /* --------------------------------------------------------------------------
    5. Selection & Forms
    -------------------------------------------------------------------------- */
 ::selection {
-    background: rgba(79, 70, 229, 0.2) !important;
-    color: var(--eh-text-main) !important;
+    background: rgba(167, 139, 250, 0.3) !important;
+    color: #fff !important;
 }
 
 input, select, textarea {
-    background: #ffffff !important;
-    border: 1px solid #cbd5e1 !important;
+    background: rgba(0,0,0,.2) !important;
+    border: 1px solid var(--eh-border-color) !important;
     border-radius: 6px !important;
-    color: var(--eh-text-main) !important;
+    color: #fff !important;
     padding: 10px 12px !important;
     font-family: inherit !important;
 }
 
 input:focus, select:focus, textarea:focus {
-    border-color: var(--eh-primary) !important;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+    border-color: #818cf8 !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2) !important;
     outline: none !important;
+    background: rgba(0,0,0,.4) !important;
 }
 
 /* --------------------------------------------------------------------------
    6. Breadcrumbs
    -------------------------------------------------------------------------- */
 .breadcrumbs {
-    background: #ffffff !important;
+    background: rgba(255,255,255,.02) !important;
     border-bottom: 1px solid var(--eh-border-color) !important;
     padding: 1rem 2rem !important;
     font-weight: 500;
@@ -293,34 +315,39 @@ input:focus, select:focus, textarea:focus {
 }
 
 .breadcrumbs a {
-    color: var(--eh-primary) !important;
+    color: #818cf8 !important;
     text-decoration: none;
 }
 
 .breadcrumbs a:hover {
-    text-decoration: underline;
+    color: #a78bfa !important;
 }
 
 /* --------------------------------------------------------------------------
    7. Login Page
    -------------------------------------------------------------------------- */
 body.login {
-    background: var(--eh-bg-light) !important;
+    background: #0f172a !important;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .login #container {
-    background: var(--eh-card-bg) !important;
-    border: 1px solid var(--eh-border-color) !important;
-    border-radius: var(--eh-border-radius) !important;
-    box-shadow: var(--eh-shadow-lg) !important;
+    background: rgba(255,255,255,.05) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,.1) !important;
+    border-radius: 1.5rem !important;
+    box-shadow: 0 25px 80px rgba(0,0,0,.3) !important;
     margin-top: 10vh !important;
 }
 
 .login #header {
-    border-radius: var(--eh-border-radius) var(--eh-border-radius) 0 0 !important;
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255,255,255,.1) !important;
+    border-radius: 1.5rem 1.5rem 0 0 !important;
+    justify-content: center;
 }
 
 #content-main {
@@ -334,5 +361,5 @@ body.login {
 
 /* Recent Actions Box */
 #recent-actions-module h2 {
-    color: var(--eh-primary) !important;
+    color: #fff !important;
 }

@@ -3,147 +3,82 @@
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card border-0 shadow">
-                <div class="card-body p-4 p-md-5">
-                    <div class="text-center mb-4">
-                        <i class="bi bi-person-plus display-4 text-primary"></i>
-                        <h2 class="fw-bold mt-2">Create Account</h2>
-                        <p class="text-muted">Join EventHub to discover and register for events</p>
-                    </div>
+<div class="eh-page">
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-md-6 col-sm-10">
 
-                    <form method="post" novalidate>
-                        {% csrf_token %}
+<div class="eh-glass">
+    <div class="eh-hdr">
+        <div class="eh-hdr-icon"><i class="bi bi-person-plus"></i></div>
+        <h4>Create Account</h4>
+        <p>Join EventHub to discover and register for events</p>
+    </div>
+    <div class="eh-body eh-form">
+        <form method="post" novalidate>
+            {% csrf_token %}
 
-                        {% if form.non_field_errors %}
-                        <div class="alert alert-danger py-2">
-                            {% for error in form.non_field_errors %}
-                            <p class="mb-0">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
+            {% if form.non_field_errors %}
+            <div class="eh-alert eh-alert-danger">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
 
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="{{ form.first_name.id_for_label }}" class="form-label fw-semibold">
-                                    First Name <span class="text-danger">*</span>
-                                </label>
-                                {{ form.first_name }}
-                                {% if form.first_name.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.first_name.errors %}{{ error }}{% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label for="{{ form.last_name.id_for_label }}" class="form-label fw-semibold">
-                                    Last Name <span class="text-danger">*</span>
-                                </label>
-                                {{ form.last_name }}
-                                {% if form.last_name.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.last_name.errors %}{{ error }}{% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="mb-3 mt-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">
-                                Username <span class="text-danger">*</span>
-                            </label>
-                            {{ form.username }}
-                            {% if form.username.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.username.errors %}{{ error }}{% endfor %}
-                            </div>
-                            {% endif %}
-                            {% if form.username.help_text %}
-                            <div class="form-text">{{ form.username.help_text }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">
-                                Email <span class="text-danger">*</span>
-                            </label>
-                            {{ form.email }}
-                            {% if form.email.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.email.errors %}{{ error }}{% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.password1.id_for_label }}" class="form-label fw-semibold">
-                                Password <span class="text-danger">*</span>
-                            </label>
-                            {{ form.password1 }}
-                            {% if form.password1.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.password1.errors %}{{ error }}{% endfor %}
-                            </div>
-                            {% endif %}
-                            {% if form.password1.help_text %}
-                            <div class="form-text">{{ form.password1.help_text }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.password2.id_for_label }}" class="form-label fw-semibold">
-                                Confirm Password <span class="text-danger">*</span>
-                            </label>
-                            {{ form.password2 }}
-                            {% if form.password2.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.password2.errors %}{{ error }}{% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
-                            <i class="bi bi-person-plus me-1"></i>Create Account
-                        </button>
-                    </form>
-
-                    <hr class="my-4">
-                    <p class="text-center text-muted mb-0">
-                        Already have an account?
-                        <a href="{% url 'accounts:login' %}" class="text-primary fw-semibold">Login</a>
-                    </p>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name <span class="text-danger">*</span></label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}<div class="text-danger small mt-1">{% for error in form.first_name.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name <span class="text-danger">*</span></label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}<div class="text-danger small mt-1">{% for error in form.last_name.errors %}{{ error }}{% endfor %}</div>{% endif %}
                 </div>
             </div>
-        </div>
+
+            <div class="mb-3 mt-3">
+                <label for="{{ form.username.id_for_label }}" class="form-label">Username <span class="text-danger">*</span></label>
+                {{ form.username }}
+                {% if form.username.errors %}<div class="text-danger small mt-1">{% for error in form.username.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                {% if form.username.help_text %}<div class="form-text" style="font-size:.78rem;color:#94a3b8">{{ form.username.help_text }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.email.id_for_label }}" class="form-label">Email <span class="text-danger">*</span></label>
+                {{ form.email }}
+                {% if form.email.errors %}<div class="text-danger small mt-1">{% for error in form.email.errors %}{{ error }}{% endfor %}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.password1.id_for_label }}" class="form-label">Password <span class="text-danger">*</span></label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}<div class="text-danger small mt-1">{% for error in form.password1.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                {% if form.password1.help_text %}<div class="form-text" style="font-size:.78rem;color:#94a3b8">{{ form.password1.help_text }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}<div class="text-danger small mt-1">{% for error in form.password2.errors %}{{ error }}{% endfor %}</div>{% endif %}
+            </div>
+
+            <button type="submit" class="eh-btn eh-btn-primary mt-2">
+                <i class="bi bi-person-plus"></i> Create Account
+            </button>
+        </form>
+
+        <div class="eh-divider mt-4"><span>or</span></div>
+        <p class="text-center text-muted mb-0 mt-3">
+            Already have an account?
+            <a href="{% url 'accounts:login' %}" class="fw-semibold" style="color:var(--eh-primary)">Login</a>
+        </p>
     </div>
 </div>
-{% block extra_css %}
-<style>
-    form input[type="email"], 
-    form input[type="text"], 
-    form input[type="password"] {
-        display: block;
-        width: 100%;
-        padding: 0.5rem 1rem;
-        font-size: 1rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: #212529;
-        background-color: #fff;
-        background-clip: padding-box;
-        border: 1px solid #dee2e6;
-        border-radius: 0.5rem;
-        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-    }
-    form input:focus {
-        color: #212529;
-        background-color: #fff;
-        border-color: #0d6efd;
-        outline: 0;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    }
-</style>
-{% endblock %}
+
+</div>
+</div>
+</div>
+</div>
 {% endblock %}

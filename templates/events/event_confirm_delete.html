@@ -3,31 +3,38 @@
 {% block title %}Delete {{ event.title }}{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card border-0 shadow">
-                <div class="card-body p-4 p-md-5 text-center">
-                    <i class="bi bi-exclamation-triangle-fill text-danger display-3 mb-3"></i>
-                    <h3 class="fw-bold mb-3">Delete Event</h3>
-                    <p class="text-muted mb-4">
-                        Are you sure you want to delete
-                        <strong>"{{ event.title }}"</strong>?
-                        This action cannot be undone. All registrations for this event will also be removed.
-                    </p>
+<div class="eh-page">
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-md-5 col-sm-10">
 
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="d-flex justify-content-center gap-3">
-                            <a href="{{ event.get_absolute_url }}" class="btn btn-outline-secondary px-4">Cancel</a>
-                            <button type="submit" class="btn btn-danger px-4">
-                                <i class="bi bi-trash me-1"></i>Delete
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+<div class="eh-glass">
+    <div class="eh-hdr" style="background:linear-gradient(135deg,#ef4444,#dc2626)">
+        <div class="eh-hdr-icon" style="background:rgba(255,255,255,.15)"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <h4>Delete Event</h4>
+        <p>This action cannot be undone</p>
     </div>
+    <div class="eh-body text-center">
+        <p class="text-muted mb-4">
+            Are you sure you want to delete
+            <strong>"{{ event.title }}"</strong>?
+            All registrations for this event will also be removed.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ event.get_absolute_url }}" class="eh-btn eh-btn-outline" style="max-width:150px">Cancel</a>
+                <button type="submit" class="eh-btn eh-btn-danger" style="max-width:150px">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</div>
+</div>
+</div>
 </div>
 {% endblock %}

@@ -3,23 +3,29 @@
 {% block title %}{% block policy_title %}{% endblock %} | EventHub{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <nav aria-label="breadcrumb" class="mb-4">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'events:event_list' %}">Home</a></li>
-                    <li class="breadcrumb-item active">{% block breadcrumb %}{% endblock %}</li>
-                </ol>
-            </nav>
-            
-            <div class="card border-0 shadow-sm p-4 p-md-5">
-                <h1 class="fw-bold mb-4">{% block page_header %}{% endblock %}</h1>
-                <div class="policy-content">
-                    {% block policy_content %}{% endblock %}
-                </div>
+<div class="eh-page">
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-lg-8 col-md-10">
+
+    <nav aria-label="breadcrumb" class="mb-4" style="position:relative;z-index:1">
+        <ol class="breadcrumb" style="background:rgba(255,255,255,.7);backdrop-filter:blur(10px);padding:.6rem 1.25rem;border-radius:.75rem;font-size:.85rem;border:1px solid rgba(255,255,255,.5)">
+            <li class="breadcrumb-item"><a href="{% url 'events:event_list' %}" style="color:var(--eh-primary);text-decoration:none">Home</a></li>
+            <li class="breadcrumb-item active">{% block breadcrumb %}{% endblock %}</li>
+        </ol>
+    </nav>
+
+    <div class="eh-glass">
+        <div class="eh-body" style="padding:2.5rem">
+            <h1 class="fw-bold mb-4 eh-gradient-text">{% block page_header %}{% endblock %}</h1>
+            <div class="policy-content" style="color:#475569;line-height:1.8;font-size:.95rem">
+                {% block policy_content %}{% endblock %}
             </div>
         </div>
     </div>
+
+</div>
+</div>
+</div>
 </div>
 {% endblock %}

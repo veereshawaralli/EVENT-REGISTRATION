@@ -152,3 +152,34 @@ def send_event_reminder(registration):
         [user.email],
         inline_images=inline_images
     )
+
+def send_certificate_email(registration, pdf_buffer):
+    """
+    Send the user their certificate of participation after checking in.
+    """
+    event = registration.event
+    user = registration.user
+    
+    site_url = _get_site_url()
+    context = {
+        'user': user,
+        'event': event,
+        'site_url': site_url,
+        'dashboard_url': f"{site_url}{reverse('registrations:dashboard')}"
+    }
+    
+    html_content = render_to_string('emails/certificate_email.html', context)
+    text_content = strip_tags(html_content)
+    
+    email = EmailMultiAlternatives(
+        subject=f"🎓 Your Certificate for {event.title}",
+        body=text_content,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[user.email]
+    )
+    email.attach_alternative(html_content, "text/html")
+    
+    if pdf_buffer:
+        email.attach(f"Certificate_{event.title.replace(' ', '_')}.pdf", pdf_buffer, 'application/pdf')
+        
+    return email.send(fail_silently=False)

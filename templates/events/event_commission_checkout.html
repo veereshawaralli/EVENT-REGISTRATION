@@ -3,110 +3,150 @@
 
 {% block title %}Event Commission Payment - {{ event.title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+.ck-wrap{min-height:80vh;background:linear-gradient(135deg,#f0f0ff 0%,#e8e0ff 50%,#f5f0ff 100%);position:relative;overflow:hidden;padding:3rem 0 4rem}
+.ck-wrap::before,.ck-wrap::after{content:'';position:absolute;border-radius:50%;pointer-events:none;animation:ckF 12s ease-in-out infinite}
+.ck-wrap::before{width:500px;height:500px;background:radial-gradient(circle,rgba(79,70,229,.08) 0%,transparent 70%);top:-15%;right:-10%}
+.ck-wrap::after{width:350px;height:350px;background:radial-gradient(circle,rgba(124,58,237,.06) 0%,transparent 70%);bottom:-10%;left:-5%;animation-delay:3s}
+@keyframes ckF{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-30px) scale(1.05)}}
+.ck-card{background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.6);border-radius:1.5rem;box-shadow:0 20px 60px rgba(79,70,229,.08),0 4px 20px rgba(0,0,0,.04);overflow:hidden;animation:ckUp .6s cubic-bezier(.16,1,.3,1) forwards;opacity:0;transform:translateY(30px)}
+@keyframes ckUp{to{opacity:1;transform:translateY(0)}}
+.ck-hdr{background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));padding:2rem 2rem 2.5rem;position:relative;overflow:hidden;text-align:center}
+.ck-hdr::before{content:'';position:absolute;top:-50%;right:-30%;width:300px;height:300px;background:rgba(255,255,255,.08);border-radius:50%}
+.ck-hdr *{position:relative;z-index:1}
+.ck-hdr-icon{width:56px;height:56px;background:rgba(255,255,255,.2);border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;margin:0 auto 1rem;border:1px solid rgba(255,255,255,.25)}
+.ck-hdr h4{color:#fff;font-weight:700;font-size:1.5rem;margin-bottom:.25rem}
+.ck-hdr p{color:rgba(255,255,255,.8);font-size:.875rem;margin:0}
+.ck-body{padding:1.75rem 2rem 2rem}
+.ck-event-label{font-size:.85rem;color:#64748b;margin-bottom:.25rem}
+.ck-event-label strong{color:#1e293b}
+.ck-breakdown{background:#fff;border:1.5px solid #e2e8f0;border-radius:1rem;padding:1.25rem;margin-bottom:1.75rem;animation:ckFi .5s .3s cubic-bezier(.16,1,.3,1) forwards;opacity:0}
+@keyframes ckFi{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.ck-row{display:flex;justify-content:space-between;align-items:center;padding:.65rem 0;font-size:.9rem}
+.ck-row-label{color:#64748b;font-weight:500}
+.ck-row-val{font-weight:600;color:#1e293b}
+.ck-row-val.danger{color:#ef4444}
+.ck-row-divider{border:none;border-top:1px dashed #e2e8f0;margin:.25rem 0}
+.ck-row-total .ck-row-label{font-weight:700;color:#1e293b;font-size:.95rem}
+.ck-row-total .ck-row-val{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.btn-ck{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.9rem 1.5rem;font-size:1rem;font-weight:700;color:#fff;border:none;border-radius:.875rem;cursor:pointer;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.btn-ck:hover{transform:translateY(-2px);color:#fff}
+.btn-ck::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);animation:ckSh 3s ease-in-out infinite}
+@keyframes ckSh{0%{left:-100%}50%{left:120%}100%{left:120%}}
+.btn-ck-pay{background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));box-shadow:0 6px 20px rgba(79,70,229,.3)}
+.btn-ck-pay:hover{box-shadow:0 8px 30px rgba(79,70,229,.4)}
+.btn-ck-venue{background:#fff;color:#475569;border:1.5px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.btn-ck-venue:hover{border-color:#c4b5fd;color:var(--eh-primary);box-shadow:0 4px 16px rgba(79,70,229,.1)}
+.btn-ck-venue::after{display:none}
+.ck-divider{display:flex;align-items:center;gap:1rem;margin:1.25rem 0}
+.ck-divider::before,.ck-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent)}
+.ck-divider span{font-size:.75rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px}
+.ck-trust{display:flex;align-items:center;justify-content:center;gap:1.5rem;padding-top:1.5rem;margin-top:1.5rem;border-top:1px solid #f1f5f9;animation:ckFi .5s .6s cubic-bezier(.16,1,.3,1) forwards;opacity:0}
+.ck-trust-badge{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:#94a3b8;font-weight:500}
+.ck-trust-badge i{font-size:1rem;color:#10b981}
+.ck-back{display:inline-flex;align-items:center;gap:.4rem;color:#64748b;text-decoration:none;font-size:.875rem;font-weight:500;transition:all .25s;margin-top:1.25rem}
+.ck-back:hover{color:var(--eh-primary);gap:.6rem}
+@media(max-width:576px){.ck-wrap{padding:1.5rem 0 2.5rem}.ck-body{padding:1.25rem}.ck-hdr{padding:1.5rem 1.25rem 2rem}.ck-row-total .ck-row-val{font-size:1.25rem}.ck-trust{flex-direction:column;gap:.5rem}}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4 p-md-5">
-                    <div class="text-center mb-4">
-                        <div class="feature-icon-small d-inline-flex align-items-center justify-content-center bg-primary bg-gradient text-white fs-4 rounded-3 mb-3" style="width: 3rem; height: 3rem;">
-                            <i class="bi bi-percent"></i>
-                        </div>
-                        <h2 class="fw-bold">Event Commission</h2>
-                        <p class="text-muted small">Event: <strong>{{ event.title }}</strong></p>
-                        <p class="text-muted">Please pay the 5% platform commission to settle your earnings for this event.</p>
-                    </div>
+<div class="ck-wrap">
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-lg-5 col-md-7 col-sm-10">
 
-                    <div class="bg-light p-4 rounded-4 mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted">Total Earnings</span>
-                            <span class="fw-bold">₹{{ commission.earnings }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted">Commission (5%)</span>
-                            <span class="fw-bold text-danger">₹{{ display_amount }}</span>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold">Amount to Pay</span>
-                            <span class="fw-bold fs-4 text-primary">₹{{ display_amount }}</span>
-                        </div>
-                    </div>
+<div class="ck-card">
+<!-- Header -->
+<div class="ck-hdr">
+    <div class="ck-hdr-icon"><i class="bi bi-percent"></i></div>
+    <h4>Commission Payment</h4>
+    <p>Settle your platform earnings</p>
+</div>
 
-                    {% if razorpay_configured and amount > 0 %}
-                    <div class="d-grid gap-2">
-                        <button id="pay-btn" class="btn btn-primary btn-lg rounded-pill fw-bold">
-                            <i class="bi bi-credit-card me-2"></i>Pay via Razorpay
-                        </button>
-                        
-                        <div class="text-center my-2">
-                            <span class="text-muted small">OR</span>
-                        </div>
-                        
-                        <form action="{% url 'events:commission_offline' event.id %}" method="POST">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-secondary w-100 rounded-pill">
-                                <i class="bi bi-cash me-2"></i>Request Offline Verification
-                            </button>
-                        </form>
-                    </div>
+<!-- Body -->
+<div class="ck-body">
 
-                    <form action="{% url 'events:commission_callback' event.id %}" method="POST" style="display: none;">
-                        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
-                        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
-                        <input type="hidden" name="razorpay_signature" id="razorpay_signature">
-                    </form>
+    <p class="ck-event-label">Event: <strong>{{ event.title }}</strong></p>
+    <p class="ck-event-label mb-3" style="font-size:.8rem;color:#94a3b8">Please pay the 5% platform commission to settle your earnings for this event.</p>
 
-                    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-                    <script>
-                        var options = {
-                            "key": "{{ razorpay_key_id }}",
-                            "amount": "{{ amount }}",
-                            "currency": "INR",
-                            "name": "EventHub",
-                            "description": "Commission for {{ event.title }}",
-                            "image": "{% static 'images/logo.png' %}",
-                            "order_id": "{{ razorpay_order_id }}",
-                            "handler": function (response) {
-                                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
-                                document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
-                                document.getElementById('razorpay_signature').value = response.razorpay_signature;
-                                document.forms[0].submit();
-                            },
-                            "prefill": {
-                                "name": "{{ user.get_full_name }}",
-                                "email": "{{ user.email }}"
-                            },
-                            "theme": {
-                                "color": "#0d6efd"
-                            }
-                        };
-                        var rzp1 = new Razorpay(options);
-                        document.getElementById('pay-btn').onclick = function (e) {
-                            rzp1.open();
-                            e.preventDefault();
-                        }
-                    </script>
-                    {% else %}
-                    <div class="d-grid gap-2">
-                        <form action="{% url 'events:commission_offline' event.id %}" method="POST">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold">
-                                <i class="bi bi-cash me-2"></i>Request Offline Verification
-                            </button>
-                        </form>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="text-center mt-4">
-                        <a href="{% url 'events:organizer_dashboard' %}" class="text-decoration-none small">
-                            <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
-                        </a>
-                    </div>
-                </div>
-            </div>
+    <!-- Breakdown -->
+    <div class="ck-breakdown">
+        <div class="ck-row">
+            <span class="ck-row-label">Total Earnings</span>
+            <span class="ck-row-val">₹{{ commission.earnings }}</span>
+        </div>
+        <div class="ck-row">
+            <span class="ck-row-label">Commission (5%)</span>
+            <span class="ck-row-val danger">- ₹{{ display_amount }}</span>
+        </div>
+        <hr class="ck-row-divider">
+        <div class="ck-row ck-row-total">
+            <span class="ck-row-label">Amount to Pay</span>
+            <span class="ck-row-val">₹{{ display_amount }}</span>
         </div>
     </div>
+
+    {% if razorpay_configured and amount > 0 %}
+    <button id="pay-btn" class="btn-ck btn-ck-pay"><i class="bi bi-credit-card-2-front-fill"></i> Pay via Razorpay</button>
+    <div class="ck-divider"><span>or</span></div>
+    <form action="{% url 'events:commission_offline' event.id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn-ck btn-ck-venue"><i class="bi bi-cash"></i> Request Offline Verification</button>
+    </form>
+
+    <form action="{% url 'events:commission_callback' event.id %}" method="POST" style="display:none">
+        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+        <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+    </form>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+    var options = {
+        "key": "{{ razorpay_key_id }}",
+        "amount": "{{ amount }}",
+        "currency": "INR",
+        "name": "EventHub",
+        "description": "Commission for {{ event.title }}",
+        "image": "{% static 'images/logo.png' %}",
+        "order_id": "{{ razorpay_order_id }}",
+        "handler": function (response) {
+            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+            document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+            document.forms[0].submit();
+        },
+        "prefill": {"name": "{{ user.get_full_name }}", "email": "{{ user.email }}"},
+        "theme": {"color": "#4f46e5"}
+    };
+    var rzp1 = new Razorpay(options);
+    document.getElementById('pay-btn').onclick = function(e){rzp1.open();e.preventDefault();}
+    </script>
+    {% else %}
+    <form action="{% url 'events:commission_offline' event.id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn-ck btn-ck-pay"><i class="bi bi-cash"></i> Request Offline Verification</button>
+    </form>
+    {% endif %}
+
+    <!-- Trust -->
+    <div class="ck-trust">
+        <div class="ck-trust-badge"><i class="bi bi-shield-check"></i> Secure</div>
+        <div class="ck-trust-badge"><i class="bi bi-lock-fill"></i> Encrypted</div>
+        <div class="ck-trust-badge"><i class="bi bi-receipt"></i> Receipted</div>
+    </div>
+</div>
+</div>
+
+<!-- Back -->
+<div class="text-center">
+    <a href="{% url 'events:organizer_dashboard' %}" class="ck-back"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+</div>
+
+</div>
+</div>
+</div>
 </div>
 {% endblock %}

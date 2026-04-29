@@ -5,13 +5,15 @@
 {% block meta_description %}{{ event.description|truncatewords:30 }}{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div style="background:#0f172a;position:relative;min-height:50vh">
+<div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 40%,rgba(79,70,229,.2),transparent),radial-gradient(ellipse 60% 50% at 80% 50%,rgba(124,58,237,.15),transparent);pointer-events:none"></div>
+<div class="container py-5" style="position:relative;z-index:1">
     <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'events:event_list' %}">Events</a></li>
+        <ol class="breadcrumb" style="background:rgba(255,255,255,.7);backdrop-filter:blur(10px);padding:.6rem 1.25rem;border-radius:.75rem;font-size:.85rem;border:1px solid rgba(255,255,255,.6)">
+            <li class="breadcrumb-item"><a href="{% url 'events:event_list' %}" style="color:var(--eh-primary);text-decoration:none">Events</a></li>
             {% if event.category %}
             <li class="breadcrumb-item">
-                <a href="{% url 'events:event_list' %}?category={{ event.category.slug }}">{{ event.category.name }}</a>
+                <a href="{% url 'events:event_list' %}?category={{ event.category.slug }}" style="color:var(--eh-primary);text-decoration:none">{{ event.category.name }}</a>
             </li>
             {% endif %}
             <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
@@ -21,7 +23,7 @@
     <div class="row g-4">
         <!-- Event Banner & Info -->
         <div class="col-lg-8">
-            <div class="card border-0 shadow">
+            <div class="card border-0 shadow" style="background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-radius:1.25rem;overflow:hidden">
                 {% if event.banner %}
                 <img src="{{ event.banner.url }}" class="card-img-top event-detail-banner" alt="{{ event.title }}">
                 {% else %}
@@ -86,7 +88,7 @@
                     </div>
 
                     <!-- Social share -->
-                    <div class="mb-4 p-3 bg-light rounded">
+                    <div class="mb-4 p-3 rounded" style="background:linear-gradient(135deg,#faf5ff,#f0f0ff);border:1px solid #ede9fe;border-radius:1rem">
                         <small class="fw-semibold text-muted d-block mb-2">Share this event:</small>
                         <div class="d-flex gap-2 flex-wrap">
                             <a href="https://twitter.com/intent/tweet?text={{ event.title|urlencode }}&url={{ request.build_absolute_uri }}"
@@ -146,11 +148,11 @@
 
             <!-- Organizer Attendee Management -->
             {% if attendee_list %}
-            <div class="card border-0 shadow mt-4">
+            <div class="card border-0 shadow mt-4" style="background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-radius:1.25rem;overflow:hidden">
                 <div class="card-body">
-                    <h5 class="fw-bold mb-3"><i class="bi bi-person-check me-2"></i>Attendee Management</h5>
+                    <h5 class="fw-bold mb-3"><i class="bi bi-person-check me-2" style="color:var(--eh-primary)"></i>Attendee Management</h5>
                     <div class="table-responsive">
-                        <table class="table table-sm align-middle">
+                        <table class="table eh-table table-sm align-middle">
                             <thead class="table-light">
                                 <tr><th>Name / Info</th><th>Payment</th><th>Attended</th><th>Action</th></tr>
                             </thead>
@@ -218,7 +220,7 @@
             {% endif %}
 
             <!-- Comments Section -->
-            <div class="card border-0 shadow mt-4">
+            <div class="card border-0 shadow mt-4" style="background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-radius:1.25rem;overflow:hidden">
                 <div class="card-body p-4">
                     <h5 class="fw-bold mb-3">
                         <i class="bi bi-chat-dots me-2"></i>Discussion
@@ -245,8 +247,8 @@
                     {% for comment in comments %}
                     <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
                         <div class="flex-shrink-0">
-                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold"
-                                 style="width:40px;height:40px;font-size:1rem;">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                                 style="width:40px;height:40px;font-size:1rem;background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end))">
                                 {{ comment.user.username|first|upper }}
                             </div>
                         </div>
@@ -274,7 +276,7 @@
             </div>
 
             <!-- Reviews Section -->
-            <div class="card border-0 shadow mt-4">
+            <div class="card border-0 shadow mt-4" style="background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-radius:1.25rem;overflow:hidden">
                 <div class="card-body p-4">
                     <h5 class="fw-bold mb-3">
                         <i class="bi bi-star me-2"></i>Reviews
@@ -346,7 +348,7 @@
         <!-- Sidebar -->
         <div class="col-lg-4">
             <!-- Event Details Card -->
-            <div class="card border-0 shadow mb-4">
+            <div class="card border-0 shadow mb-4" style="background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-radius:1.25rem;overflow:hidden">
                 <div class="card-body p-4">
                     <h5 class="fw-bold mb-3">Event Details</h5>
                     <ul class="list-unstyled">
@@ -421,7 +423,7 @@
             </div>
 
             <!-- Seats & Registration Card -->
-            <div class="card border-0 shadow mb-4">
+            <div class="card border-0 shadow mb-4" style="background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-radius:1.25rem;overflow:hidden">
                 <div class="card-body p-4 text-center">
                     <!-- Seats Remaining -->
                     <div class="mb-3">
@@ -483,14 +485,14 @@
                         {% else %}
                         <form method="post" action="{% url 'registrations:register' event.pk %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-primary btn-lg w-100" id="register-btn">
-                                <i class="bi bi-check2-circle me-1"></i>Register Now
+                            <button type="submit" class="eh-btn eh-btn-primary" id="register-btn">
+                                <i class="bi bi-check2-circle"></i> Register Now
                             </button>
                         </form>
                         {% endif %}
                     {% else %}
-                    <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary btn-lg w-100">
-                        <i class="bi bi-check2-circle me-1"></i>Register
+                    <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="eh-btn eh-btn-primary">
+                        <i class="bi bi-check2-circle"></i> Register
                     </a>
                     {% endif %}
                 </div>
@@ -498,7 +500,7 @@
 
             <!-- Calendar & Download (for registered users) -->
             {% if user_registered %}
-            <div class="card border-0 shadow mb-4">
+            <div class="card border-0 shadow mb-4" style="background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-radius:1.25rem;overflow:hidden">
                 <div class="card-body p-4">
                     <h6 class="fw-bold mb-3"><i class="bi bi-calendar-check me-2"></i>Your Ticket</h6>
 
@@ -524,6 +526,7 @@
             {% endif %}
         </div>
     </div>
+</div>
 </div>
 
 {% block extra_css %}

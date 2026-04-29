@@ -3,111 +3,105 @@
 {% block title %}My Profile{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow">
-                <div class="card-body p-4 p-md-5">
-                    <div class="d-flex align-items-center mb-4">
-                        {% if user.profile.avatar %}
-                        <img src="{{ user.profile.avatar.url }}" alt="Avatar"
-                             class="rounded-circle me-3" width="64" height="64"
-                             style="object-fit: cover;">
-                        {% else %}
-                        <div class="avatar-placeholder me-3">
-                            <i class="bi bi-person-fill"></i>
-                        </div>
-                        {% endif %}
-                        <div>
-                            <h2 class="fw-bold mb-0">{{ user.get_full_name|default:user.username }}</h2>
-                            <p class="text-muted mb-0">{{ user.email }}</p>
-                        </div>
-                    </div>
+<div class="eh-page">
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-lg-8 col-md-10">
 
-                    <form method="post" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
+<div class="eh-glass">
+    <!-- Profile Header -->
+    <div class="eh-hdr" style="text-align:left;display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap">
+        {% if user.profile.avatar %}
+        <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="rounded-circle" width="72" height="72" style="object-fit:cover;border:3px solid rgba(255,255,255,.3)">
+        {% else %}
+        <div style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;border:3px solid rgba(255,255,255,.3);flex-shrink:0">
+            <i class="bi bi-person-fill"></i>
+        </div>
+        {% endif %}
+        <div>
+            <h4 style="margin-bottom:0">{{ user.get_full_name|default:user.username }}</h4>
+            <p style="margin:0">{{ user.email }}</p>
+        </div>
+    </div>
 
-                        <h5 class="fw-semibold mb-3 mt-4">Account Information</h5>
-                        <div class="row g-3 mb-4">
-                            {% for field in user_form %}
-                            <div class="col-md-6">
-                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in field.errors %}{{ error }}{% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                            {% endfor %}
-                        </div>
+    <div class="eh-body eh-form">
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
 
-                        <h5 class="fw-semibold mb-3">Profile Details</h5>
-                        {% for field in profile_form %}
-                        <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in field.errors %}{{ error }}{% endfor %}
-                            </div>
+            <h6 class="fw-bold mb-3" style="color:#334155"><i class="bi bi-person-badge me-2" style="color:var(--eh-primary)"></i>Account Information</h6>
+            <div class="row g-3 mb-4">
+                {% for field in user_form %}
+                <div class="col-md-6">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<div class="text-danger small mt-1">{% for error in field.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <h6 class="fw-bold mb-3" style="color:#334155"><i class="bi bi-card-text me-2" style="color:var(--eh-primary)"></i>Profile Details</h6>
+            {% for field in profile_form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<div class="text-danger small mt-1">{% for error in field.errors %}{{ error }}{% endfor %}</div>{% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="eh-btn eh-btn-primary mt-3" style="max-width:250px">
+                <i class="bi bi-check-lg"></i> Update Profile
+            </button>
+        </form>
+
+        <!-- Provider Status Block -->
+        <div style="margin-top:2rem;padding-top:2rem;border-top:1px solid #f1f5f9">
+            <div class="eh-info" style="animation-delay:0s;opacity:1">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div>
+                        <h6 class="fw-bold mb-1">
+                            {% if user.profile.is_provider %}
+                                <i class="bi bi-patch-check-fill me-2" style="color:var(--eh-primary)"></i>Active Event Organizer
+                            {% elif user.profile.provider_status == 'pending' %}
+                                <i class="bi bi-hourglass-split text-warning me-2"></i>Application Under Review
+                            {% elif user.profile.provider_status == 'rejected' %}
+                                <i class="bi bi-x-circle-fill text-danger me-2"></i>Application Rejected
+                            {% else %}
+                                <i class="bi bi-award me-2" style="color:var(--eh-primary)"></i>Event Organizer Program
                             {% endif %}
-                        </div>
-                        {% endfor %}
-
-                        <button type="submit" class="btn btn-primary px-4 mt-3">
-                            <i class="bi bi-check-lg me-1"></i>Update Profile
-                        </button>
-                    </form>
-
-                    <hr class="my-5">
-
-                    <div class="p-4 rounded-4 bg-light shadow-sm">
-                        <div class="row align-items-center">
-                            <div class="col-md-8">
-                                <h5 class="fw-bold mb-1">
-                                    {% if user.profile.is_provider %}
-                                        <i class="bi bi-patch-check-fill text-primary me-2"></i>Active Event Organizer
-                                    {% elif user.profile.provider_status == 'pending' %}
-                                        <i class="bi bi-hourglass-split text-warning me-2"></i>Application Under Review
-                                    {% elif user.profile.provider_status == 'rejected' %}
-                                        <i class="bi bi-x-circle-fill text-danger me-2"></i>Application Rejected
-                                    {% else %}
-                                        <i class="bi bi-award me-2"></i>Event Organizer Program
-                                    {% endif %}
-                                </h5>
-                                <p class="text-muted small mb-3 mb-md-0">
-                                    {% if user.profile.is_provider %}
-                                        You are an authorized organizer. Manage your events and track performance from your dashboard.
-                                    {% elif user.profile.provider_status == 'pending' %}
-                                        Our team is reviewing your application. You'll be notified once it's approved.
-                                    {% elif user.profile.provider_status == 'rejected' %}
-                                        Unfortunately, your application was not approved at this time.
-                                    {% else %}
-                                        Register as an event organizer to create and manage your own events, track registrations, and access analytics.
-                                    {% endif %}
-                                </p>
-                            </div>
-                            <div class="col-md-4 text-md-end">
-                                {% if user.profile.is_provider %}
-                                    <a href="{% url 'events:organizer_dashboard' %}" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
-                                    </a>
-                                {% elif user.profile.provider_status == 'pending' %}
-                                    <button class="btn btn-secondary rounded-pill px-4" disabled>Pending Review</button>
-                                {% elif user.profile.provider_status == 'rejected' %}
-                                    <a href="{% url 'accounts:become_provider' %}" class="btn btn-outline-danger rounded-pill px-4">Re-apply</a>
-                                {% else %}
-                                    <a href="{% url 'accounts:become_provider' %}" class="btn btn-primary rounded-pill px-4">
-                                        Join Now
-                                    </a>
-                                {% endif %}
-                            </div>
-                        </div>
+                        </h6>
+                        <p class="text-muted small mb-0">
+                            {% if user.profile.is_provider %}
+                                You are an authorized organizer. Manage your events and track performance from your dashboard.
+                            {% elif user.profile.provider_status == 'pending' %}
+                                Our team is reviewing your application. You'll be notified once it's approved.
+                            {% elif user.profile.provider_status == 'rejected' %}
+                                Unfortunately, your application was not approved at this time.
+                            {% else %}
+                                Register as an event organizer to create and manage your own events.
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        {% if user.profile.is_provider %}
+                            <a href="{% url 'events:organizer_dashboard' %}" class="eh-btn eh-btn-primary" style="width:auto;padding:.6rem 1.5rem;font-size:.875rem">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        {% elif user.profile.provider_status == 'pending' %}
+                            <button class="eh-btn eh-btn-outline" style="width:auto;padding:.6rem 1.5rem;font-size:.875rem" disabled>Pending Review</button>
+                        {% elif user.profile.provider_status == 'rejected' %}
+                            <a href="{% url 'accounts:become_provider' %}" class="eh-btn eh-btn-danger" style="width:auto;padding:.6rem 1.5rem;font-size:.875rem">Re-apply</a>
+                        {% else %}
+                            <a href="{% url 'accounts:become_provider' %}" class="eh-btn eh-btn-primary" style="width:auto;padding:.6rem 1.5rem;font-size:.875rem">Join Now</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+</div>
+</div>
+</div>
 </div>
 {% endblock %}

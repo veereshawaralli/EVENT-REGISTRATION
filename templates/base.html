@@ -25,7 +25,7 @@
         rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2.0">
     <link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
 
     {% block extra_css %}{% endblock %}
@@ -33,45 +33,48 @@
 
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+    <!-- Premium Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top" id="ehMainNav" style="padding:.65rem 0;transition:all .4s;background:rgba(15,23,42,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,.06);z-index:1040">
         <div class="container">
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'events:event_list' %}">
-                <img src="{% static 'images/logo.png' %}" alt="EventHub Logo" height="32" class="me-2 rounded">
-                EventHub
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="{% url 'events:event_list' %}" style="font-size:1.3rem;color:#fff;text-decoration:none">
+                <div style="width:38px;height:38px;background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));border-radius:.75rem;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(79,70,229,.35)">
+                    <img src="{% static 'images/logo.png' %}" alt="EventHub Logo" height="24" style="border-radius:.25rem;filter:brightness(1.2)">
+                </div>
+                <span>Event<span style="background:linear-gradient(135deg,#a78bfa,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Hub</span></span>
             </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation" style="color:#fff;font-size:1.3rem">
+                <i class="bi bi-list"></i>
             </button>
 
             <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'events:event_list' %}">
+                        <a class="nav-link px-3 py-2" href="{% url 'events:event_list' %}" style="color:rgba(255,255,255,.8);font-weight:500;font-size:.9rem;border-radius:2rem;transition:all .3s">
                             <i class="bi bi-house-door me-1"></i>Home
                         </a>
                     </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'registrations:dashboard' %}">
+                        <a class="nav-link px-3 py-2" href="{% url 'registrations:dashboard' %}" style="color:rgba(255,255,255,.8);font-weight:500;font-size:.9rem;border-radius:2rem;transition:all .3s">
                             <i class="bi bi-grid me-1"></i>Dashboard
                         </a>
                     </li>
                     {% if user.is_staff or user.profile.is_provider %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'events:event_create' %}">
-                            <i class="bi bi-plus-circle me-1"></i>Create Event
+                        <a class="nav-link px-3 py-2" href="{% url 'events:event_create' %}" style="color:rgba(255,255,255,.8);font-weight:500;font-size:.9rem;border-radius:2rem;transition:all .3s">
+                            <i class="bi bi-plus-circle me-1"></i>Create
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'events:organizer_dashboard' %}">
-                            <i class="bi bi-bar-chart me-1"></i>Organizer Dashboard
+                        <a class="nav-link px-3 py-2" href="{% url 'events:organizer_dashboard' %}" style="color:rgba(255,255,255,.8);font-weight:500;font-size:.9rem;border-radius:2rem;transition:all .3s">
+                            <i class="bi bi-bar-chart me-1"></i>Organizer
                         </a>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'accounts:become_provider' %}">
+                        <a class="nav-link px-3 py-2" href="{% url 'accounts:become_provider' %}" style="color:rgba(255,255,255,.8);font-weight:500;font-size:.9rem;border-radius:2rem;transition:all .3s">
                             <i class="bi bi-award me-1"></i>Become Organizer
                         </a>
                     </li>
@@ -79,42 +82,39 @@
                     {% endif %}
                 </ul>
 
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto gap-2 align-items-lg-center">
                     {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            <i class="bi bi-person-circle me-1"></i>{{ user.get_short_name|default:user.username }}
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 px-3 py-2" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false" style="color:#fff;font-weight:500;font-size:.9rem;border-radius:2rem;transition:all .3s">
+                            <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#fff;font-weight:700">{{ user.username|first|upper }}</div>
+                            {{ user.get_short_name|default:user.username }}
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end" style="background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border:1px solid rgba(0,0,0,.05);border-radius:1rem;box-shadow:0 20px 60px rgba(0,0,0,.12);padding:.5rem;margin-top:.5rem;min-width:220px">
                             <li>
-                                <a class="dropdown-item" href="{% url 'accounts:profile' %}">
-                                    <i class="bi bi-person me-2"></i>Profile
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2 px-3" href="{% url 'accounts:profile' %}" style="border-radius:.75rem;font-size:.875rem;font-weight:500;transition:all .2s">
+                                    <i class="bi bi-person" style="color:var(--eh-primary)"></i>Profile
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="{% url 'registrations:dashboard' %}">
-                                    <i class="bi bi-grid me-2"></i>Dashboard
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2 px-3" href="{% url 'registrations:dashboard' %}" style="border-radius:.75rem;font-size:.875rem;font-weight:500;transition:all .2s">
+                                    <i class="bi bi-grid" style="color:var(--eh-primary)"></i>Dashboard
                                 </a>
                             </li>
                             {% if user.is_staff %}
+                            <li><hr class="dropdown-divider" style="margin:.25rem .75rem;border-color:#f1f5f9"></li>
                             <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'admin:index' %}">
-                                    <i class="bi bi-gear me-2"></i>Admin Panel
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2 px-3" href="{% url 'admin:index' %}" style="border-radius:.75rem;font-size:.875rem;font-weight:500;transition:all .2s">
+                                    <i class="bi bi-gear" style="color:var(--eh-primary)"></i>Admin Panel
                                 </a>
                             </li>
                             {% endif %}
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                            <li><hr class="dropdown-divider" style="margin:.25rem .75rem;border-color:#f1f5f9"></li>
                             <li>
                                 <form method="post" action="{% url 'accounts:logout' %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="dropdown-item text-danger">
-                                        <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                    <button type="submit" class="dropdown-item d-flex align-items-center gap-2 py-2 px-3" style="border-radius:.75rem;font-size:.875rem;font-weight:500;color:#ef4444;transition:all .2s">
+                                        <i class="bi bi-box-arrow-right"></i>Logout
                                     </button>
                                 </form>
                             </li>
@@ -122,13 +122,13 @@
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'accounts:login' %}">
+                        <a class="nav-link px-3 py-2" href="{% url 'accounts:login' %}" style="color:rgba(255,255,255,.8);font-weight:500;font-size:.9rem;border-radius:2rem;transition:all .3s">
                             <i class="bi bi-box-arrow-in-right me-1"></i>Login
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-primary btn-sm ms-2 mt-1" href="{% url 'accounts:signup' %}">
-                            Sign Up
+                        <a class="px-4 py-2 d-inline-flex align-items-center gap-1" href="{% url 'accounts:signup' %}" style="background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));color:#fff;border-radius:2rem;font-weight:600;font-size:.875rem;text-decoration:none;box-shadow:0 4px 14px rgba(79,70,229,.3);transition:all .3s">
+                            <i class="bi bi-person-plus"></i> Sign Up
                         </a>
                     </li>
                     {% endif %}
@@ -156,22 +156,20 @@
 
     <!-- Footer -->
     <footer class="mt-auto">
-        <!-- Newsletter CTA Strip -->
-        <div class="py-4"
-            style="background: linear-gradient(135deg, var(--eh-gradient-start), var(--eh-gradient-end));">
-            <div class="container">
+        <!-- Newsletter Strip -->
+        <div class="py-4" style="background:#0f172a;position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 30% 50%,rgba(79,70,229,.2),transparent),radial-gradient(ellipse 60% 80% at 70% 50%,rgba(124,58,237,.15),transparent);pointer-events:none"></div>
+            <div class="container position-relative" style="z-index:1">
                 <div class="row align-items-center">
                     <div class="col-md-6 text-white mb-3 mb-md-0">
                         <h5 class="fw-bold mb-1"><i class="bi bi-envelope-heart me-2"></i>Stay Updated</h5>
-                        <p class="mb-0 opacity-75 small">Get notified about the latest events in your area.</p>
+                        <p class="mb-0 small" style="color:rgba(255,255,255,.5)">Get notified about the latest events in your area.</p>
                     </div>
                     <div class="col-md-6">
-                        <form
-                            onsubmit="event.preventDefault(); alert('Newsletter coming soon! Thank you for subscribing.');"
-                            class="d-flex gap-2">
-                            <input type="email" class="form-control rounded-pill border-0 shadow-sm"
-                                placeholder="Enter your email address">
-                            <button type="submit" class="btn btn-light rounded-pill px-4 fw-semibold text-nowrap">
+                        <form onsubmit="event.preventDefault(); alert('Newsletter coming soon! Thank you for subscribing.');" class="d-flex gap-2">
+                            <input type="email" class="form-control border-0" placeholder="Enter your email address"
+                                style="background:rgba(255,255,255,.08);color:#fff;border-radius:.75rem;border:1px solid rgba(255,255,255,.1) !important;padding:.65rem 1rem">
+                            <button type="submit" class="btn text-nowrap" style="background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));color:#fff;border-radius:.75rem;padding:.65rem 1.5rem;font-weight:600;font-size:.875rem">
                                 <i class="bi bi-send me-1"></i>Subscribe
                             </button>
                         </form>
@@ -179,86 +177,55 @@
                 </div>
             </div>
         </div>
-
         <!-- Main Footer -->
-        <div class="bg-dark text-light pt-5 pb-4">
+        <div class="pt-5 pb-4" style="background:#080e1e">
             <div class="container">
                 <div class="row g-4 mb-4">
-                    <!-- Brand Column -->
                     <div class="col-lg-4 col-md-6">
-                        <h4 class="fw-bold mb-3 d-flex align-items-center">
-                            <img src="{% static 'images/logo.png' %}" alt="EventHub" height="36" class="me-2 rounded">
-                            EventHub
+                        <h4 class="fw-bold mb-3 d-flex align-items-center" style="color:#fff">
+                            <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));border-radius:.6rem;display:flex;align-items:center;justify-content:center;margin-right:.6rem">
+                                <img src="{% static 'images/logo.png' %}" alt="EventHub" height="22" style="border-radius:.2rem;filter:brightness(1.2)">
+                            </div>
+                            Event<span style="background:linear-gradient(135deg,#a78bfa,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Hub</span>
                         </h4>
-                        <p class="text-secondary small lh-lg mb-4">
-                            Your one-stop platform for discovering, organizing, and attending amazing events.
-                            From workshops to hackathons, we connect communities through shared experiences.
-                        </p>
-                        <!-- Social Icons -->
-                        <div class="d-flex gap-3">
-                            <a href="#" class="footer-social-icon" title="Twitter"><i class="bi bi-twitter-x"></i></a>
-                            <a href="https://www.instagram.com/veereshawaralli" class="footer-social-icon"
-                                title="Instagram"><i class="bi bi-instagram"></i></a>
-                            <a href="https://www.linkedin.com/in/veereshawaralli" class="footer-social-icon" title="LinkedIn"><i
-                                    class="bi bi-linkedin"></i></a>
-                            <a href="https://github.com/veereshawaralli" class="footer-social-icon" title="GitHub"><i
-                                    class="bi bi-github"></i></a>
+                        <p class="small lh-lg mb-4" style="color:rgba(255,255,255,.35)">Your one-stop platform for discovering, organizing, and attending amazing events.</p>
+                        <div class="d-flex gap-2">
+                            <a href="#" style="width:36px;height:36px;border-radius:.6rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);text-decoration:none"><i class="bi bi-twitter-x"></i></a>
+                            <a href="https://www.instagram.com/veereshawaralli" style="width:36px;height:36px;border-radius:.6rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);text-decoration:none"><i class="bi bi-instagram"></i></a>
+                            <a href="https://www.linkedin.com/in/veereshawaralli" style="width:36px;height:36px;border-radius:.6rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);text-decoration:none"><i class="bi bi-linkedin"></i></a>
+                            <a href="https://github.com/veereshawaralli" style="width:36px;height:36px;border-radius:.6rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);text-decoration:none"><i class="bi bi-github"></i></a>
                         </div>
                     </div>
-
-                    <!-- Quick Links -->
                     <div class="col-lg-2 col-md-6 col-6">
-                        <h6 class="text-uppercase fw-bold mb-3 text-white">Explore</h6>
-                        <ul class="list-unstyled footer-links">
-                            <li><a href="{% url 'events:event_list' %}">Browse Events</a></li>
-                            <li><a href="{% url 'accounts:signup' %}">Create Account</a></li>
-                            <li><a href="{% url 'events:about' %}">About Us</a></li>
-                            <li><a href="{% url 'events:contact' %}">Contact Us</a></li>
+                        <h6 class="text-uppercase fw-bold mb-3" style="color:rgba(255,255,255,.6);font-size:.75rem;letter-spacing:1px">Explore</h6>
+                        <ul class="list-unstyled" style="font-size:.875rem">
+                            <li class="mb-2"><a href="{% url 'events:event_list' %}" style="color:rgba(255,255,255,.35);text-decoration:none">Browse Events</a></li>
+                            <li class="mb-2"><a href="{% url 'accounts:signup' %}" style="color:rgba(255,255,255,.35);text-decoration:none">Create Account</a></li>
+                            <li class="mb-2"><a href="{% url 'events:about' %}" style="color:rgba(255,255,255,.35);text-decoration:none">About Us</a></li>
+                            <li class="mb-2"><a href="{% url 'events:contact' %}" style="color:rgba(255,255,255,.35);text-decoration:none">Contact Us</a></li>
                         </ul>
                     </div>
-
-                    <!-- Legal Links -->
                     <div class="col-lg-3 col-md-6 col-6">
-                        <h6 class="text-uppercase fw-bold mb-3 text-white">Legal</h6>
-                        <ul class="list-unstyled footer-links">
-                            <li><a href="{% url 'events:privacy' %}">Privacy Policy</a></li>
-                            <li><a href="{% url 'events:terms' %}">Terms & Conditions</a></li>
-                            <li><a href="{% url 'events:refund' %}">Refund Policy</a></li>
+                        <h6 class="text-uppercase fw-bold mb-3" style="color:rgba(255,255,255,.6);font-size:.75rem;letter-spacing:1px">Legal</h6>
+                        <ul class="list-unstyled" style="font-size:.875rem">
+                            <li class="mb-2"><a href="{% url 'events:privacy' %}" style="color:rgba(255,255,255,.35);text-decoration:none">Privacy Policy</a></li>
+                            <li class="mb-2"><a href="{% url 'events:terms' %}" style="color:rgba(255,255,255,.35);text-decoration:none">Terms & Conditions</a></li>
+                            <li class="mb-2"><a href="{% url 'events:refund' %}" style="color:rgba(255,255,255,.35);text-decoration:none">Refund Policy</a></li>
                         </ul>
                     </div>
-
-                    <!-- Contact Info -->
                     <div class="col-lg-3 col-md-6">
-                        <h6 class="text-uppercase fw-bold mb-3 text-white">Get in Touch</h6>
-                        <ul class="list-unstyled footer-links">
-                            <li class="d-flex align-items-start mb-3">
-                                <i class="bi bi-envelope text-primary me-3 mt-1"></i>
-                                <span>veeawaralli@gmail.com</span>
-                            </li>
-                            <li class="d-flex align-items-start mb-3">
-                                <i class="bi bi-geo-alt text-primary me-3 mt-1"></i>
-                                <span>Sharnbasva University,<br>Kalaburagi, Karnataka, India</span>
-                            </li>
-                            <li class="d-flex align-items-start">
-                                <i class="bi bi-clock text-primary me-3 mt-1"></i>
-                                <span>Mon - Fri: 9 AM - 6 PM IST</span>
-                            </li>
+                        <h6 class="text-uppercase fw-bold mb-3" style="color:rgba(255,255,255,.6);font-size:.75rem;letter-spacing:1px">Get in Touch</h6>
+                        <ul class="list-unstyled" style="font-size:.875rem;color:rgba(255,255,255,.35)">
+                            <li class="d-flex align-items-start mb-3"><i class="bi bi-envelope me-3 mt-1" style="color:#818cf8"></i><span>veeawaralli@gmail.com</span></li>
+                            <li class="d-flex align-items-start mb-3"><i class="bi bi-geo-alt me-3 mt-1" style="color:#818cf8"></i><span>Sharnbasva University,<br>Kalaburagi, Karnataka, India</span></li>
+                            <li class="d-flex align-items-start"><i class="bi bi-clock me-3 mt-1" style="color:#818cf8"></i><span>Mon - Fri: 9 AM - 6 PM IST</span></li>
                         </ul>
                     </div>
                 </div>
-
-                <!-- Bottom Bar -->
-                <hr class="border-secondary opacity-25 mb-4">
+                <hr style="border-color:rgba(255,255,255,.06);margin-bottom:1.5rem">
                 <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <p class="text-secondary small mb-0">
-                            &copy; 2026 EventHub. All rights reserved.
-                        </p>
-                    </div>
-                    <div class="col-md-6 text-md-end">
-                        <img src="https://badges.razorpay.com/badge-light.png" alt="Razorpay Secure"
-                            style="max-height: 28px; opacity: 0.7;" class="mt-2 mt-md-0">
-                    </div>
+                    <div class="col-md-6"><p class="small mb-0" style="color:rgba(255,255,255,.25)">&copy; 2026 EventHub. All rights reserved.</p></div>
+                    <div class="col-md-6 text-md-end"><img src="https://badges.razorpay.com/badge-light.png" alt="Razorpay Secure" style="max-height:28px;opacity:.4" class="mt-2 mt-md-0"></div>
                 </div>
             </div>
         </div>

@@ -4,57 +4,145 @@
 {% block title %}Discover Events{% endblock %}
 {% block meta_description %}Browse and register for upcoming events. Find conferences, workshops, meetups, and more.{% endblock %}
 
+{% block extra_css %}
+<style>
+/* ── Dark Mesh Hero ── */
+.hp-hero{position:relative;overflow:hidden;padding:6rem 0 5rem;background:#0f172a}
+.hp-hero::before{content:'';position:absolute;inset:0;background:
+  radial-gradient(ellipse 80% 50% at 20% 40%,rgba(79,70,229,.35),transparent),
+  radial-gradient(ellipse 60% 50% at 80% 50%,rgba(124,58,237,.3),transparent),
+  radial-gradient(ellipse 50% 60% at 50% 80%,rgba(59,130,246,.2),transparent);
+  z-index:1}
+.hp-hero>*{position:relative;z-index:2}
+
+/* Grid overlay */
+.hp-grid{position:absolute;inset:0;background-image:
+  linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:60px 60px;z-index:1}
+
+/* Glow orbs */
+.hp-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:1}
+.hp-orb-1{width:400px;height:400px;background:rgba(79,70,229,.25);top:-10%;left:10%;animation:orbMove 10s ease-in-out infinite}
+.hp-orb-2{width:300px;height:300px;background:rgba(124,58,237,.2);bottom:0;right:5%;animation:orbMove 12s ease-in-out infinite reverse}
+@keyframes orbMove{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-40px)}}
+
+/* Tag line */
+.hp-tag{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1.25rem;border-radius:3rem;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);
+  font-size:.8rem;font-weight:600;letter-spacing:.5px;backdrop-filter:blur(10px)}
+.hp-tag .dot{width:6px;height:6px;border-radius:50%;background:#10b981;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Hero title */
+.hp-title{font-size:clamp(2.2rem,5vw,4rem);font-weight:800;color:#fff;line-height:1.1;margin:1.5rem 0 1rem}
+.hp-title span{background:linear-gradient(135deg,#a78bfa,#818cf8,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* Search */
+.hp-search{max-width:600px;margin:0 auto;position:relative}
+.hp-search input{width:100%;padding:1rem 1.25rem 1rem 3.25rem;border-radius:1rem;border:1.5px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.07);backdrop-filter:blur(16px);color:#fff;font-size:1rem;transition:all .3s;outline:none}
+.hp-search input::placeholder{color:rgba(255,255,255,.4)}
+.hp-search input:focus{border-color:rgba(167,139,250,.5);box-shadow:0 0 0 4px rgba(79,70,229,.15);background:rgba(255,255,255,.1)}
+.hp-search .icon{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.4);font-size:1.1rem}
+.hp-search button{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);padding:.6rem 1.5rem;border:none;border-radius:.7rem;
+  background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));color:#fff;font-weight:700;font-size:.875rem;cursor:pointer;
+  transition:all .25s;box-shadow:0 4px 14px rgba(79,70,229,.35)}
+.hp-search button:hover{transform:translateY(-50%) translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,.45)}
+
+/* Stat pills */
+.hp-stats{display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-top:2.5rem}
+.hp-pill{display:flex;align-items:center;gap:.6rem;padding:.6rem 1.25rem;border-radius:3rem;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px)}
+.hp-pill .val{font-size:1.1rem;font-weight:800;color:#fff}
+.hp-pill .lbl{font-size:.78rem;color:rgba(255,255,255,.5);font-weight:500}
+.hp-pill i{font-size:1rem}
+
+/* Section headers */
+.sec-hdr{display:flex;align-items:center;gap:1rem;margin-bottom:1.75rem}
+.sec-icon{width:44px;height:44px;border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.sec-hdr h2{font-size:1.4rem;font-weight:800;margin:0}
+.sec-hdr p{font-size:.85rem;color:#64748b;margin:0}
+
+/* Premium event cards */
+.ev-card{background:#fff;border-radius:1.25rem;border:1px solid #f1f5f9;overflow:hidden;transition:all .35s cubic-bezier(.16,1,.3,1)}
+.ev-card:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(79,70,229,.1);border-color:#e0e7ff}
+.ev-card .ev-img{height:200px;object-fit:cover;width:100%;transition:transform .5s}
+.ev-card:hover .ev-img{transform:scale(1.04)}
+.ev-ph{height:200px;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center}
+.ev-body{padding:1.25rem}
+.ev-tag{font-size:.7rem;font-weight:700;padding:.25rem .7rem;border-radius:2rem;display:inline-flex;align-items:center;gap:.3rem}
+.ev-meta{display:flex;flex-direction:column;gap:.3rem;margin:.75rem 0}
+.ev-meta span{font-size:.8rem;color:#64748b;display:flex;align-items:center;gap:.4rem}
+.ev-meta i{font-size:.85rem;width:16px;text-align:center}
+.ev-cta{display:block;text-align:center;padding:.7rem;border-radius:.75rem;font-weight:700;font-size:.85rem;
+  background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));color:#fff;text-decoration:none;
+  transition:all .3s;box-shadow:0 4px 14px rgba(79,70,229,.2)}
+.ev-cta:hover{box-shadow:0 6px 24px rgba(79,70,229,.3);transform:translateY(-1px);color:#fff}
+.ev-badge{position:absolute;top:.75rem;z-index:2;font-size:.7rem;font-weight:700;padding:.3rem .75rem;border-radius:2rem}
+
+/* How it works */
+.hiw{text-align:center;padding:1.5rem;border-radius:1.25rem;background:#fff;border:1px solid #f1f5f9;transition:all .3s}
+.hiw:hover{border-color:#e0e7ff;box-shadow:0 8px 30px rgba(79,70,229,.06)}
+.hiw-num{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));
+  color:#fff;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center;margin:0 auto .75rem}
+.hiw-icon{width:56px;height:56px;border-radius:1rem;display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;margin:0 auto .75rem}
+
+/* CTA */
+.hp-cta{position:relative;overflow:hidden;border-radius:2rem;padding:4rem 2rem;
+  background:linear-gradient(135deg,#1e1b4b,#312e81,#4c1d95);text-align:center}
+.hp-cta::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 30% 50%,rgba(79,70,229,.3),transparent 60%),
+  radial-gradient(circle at 70% 50%,rgba(124,58,237,.3),transparent 60%)}
+.hp-cta>*{position:relative;z-index:1}
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- Hero Section — Enhanced -->
-<section class="hero-section text-white text-center position-relative">
-    <!-- Animated floating shapes -->
-    <div class="hero-shape hero-shape-1"></div>
-    <div class="hero-shape hero-shape-2"></div>
-    <div class="hero-shape hero-shape-3"></div>
+<!-- ═══════ HERO ═══════ -->
+<section class="hp-hero">
+    <div class="hp-grid"></div>
+    <div class="hp-orb hp-orb-1"></div>
+    <div class="hp-orb hp-orb-2"></div>
 
-    <div class="container py-5 position-relative" style="z-index: 2;">
-        <span class="badge bg-white bg-opacity-25 text-white px-3 py-2 mb-3 rounded-pill animate-fade-down" style="animation-delay: 0.1s;">
-            <i class="bi bi-lightning-charge-fill me-1"></i> Your gateway to amazing experiences
-        </span>
-        <h1 class="display-3 fw-bold mb-3 animate-fade-down" style="animation-delay: 0.2s;">
-            Discover <span class="text-decoration-underline" style="text-decoration-color: rgba(255,255,255,0.4) !important; text-underline-offset: 8px;">Amazing</span> Events
-        </h1>
-        <p class="lead mb-4 opacity-75 animate-fade-down" style="animation-delay: 0.3s;">
-            Find conferences, workshops, meetups, hackathons, and more happening near you.
-        </p>
-
-        <!-- Search Bar -->
-        <div class="row justify-content-center animate-fade-down" style="animation-delay: 0.4s;">
-            <div class="col-md-8 col-lg-6">
-                <form method="get" action="{% url 'events:event_list' %}" class="d-flex" id="search-form">
-                    <div class="input-group input-group-lg shadow-lg rounded-pill overflow-hidden">
-                        <span class="input-group-text bg-white border-0 ps-4">
-                            <i class="bi bi-search text-muted"></i>
-                        </span>
-                        {{ search_form.q }}
-                        <button type="submit" class="btn btn-primary px-4 fw-semibold">Search</button>
-                    </div>
-                </form>
-            </div>
+    <div class="container text-center">
+        <div class="hp-tag animate-fade-down" style="animation-delay:.1s">
+            <span class="dot"></span> Your gateway to amazing experiences
         </div>
 
-        <!-- Stats Bar -->
-        <div class="row justify-content-center mt-5 animate-fade-down" style="animation-delay: 0.5s;">
-            <div class="col-md-8">
-                <div class="d-flex justify-content-center gap-5 flex-wrap">
-                    <div class="text-center">
-                        <div class="fs-2 fw-bold counter" data-target="{{ page_obj.paginator.count }}">0</div>
-                        <div class="small opacity-75">Total Events</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="fs-2 fw-bold counter" data-target="{{ categories.count }}">0</div>
-                        <div class="small opacity-75">Categories</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="fs-2 fw-bold"><i class="bi bi-shield-check"></i></div>
-                        <div class="small opacity-75">Secure Payments</div>
-                    </div>
-                </div>
+        <h1 class="hp-title animate-fade-down" style="animation-delay:.2s">
+            Discover <span>Amazing</span><br>Events Near You
+        </h1>
+        <p class="animate-fade-down" style="animation-delay:.3s;color:rgba(255,255,255,.5);font-size:1.1rem;max-width:550px;margin:0 auto 2rem">
+            Find conferences, workshops, meetups, hackathons, and more — all in one place.
+        </p>
+
+        <!-- Search -->
+        <div class="hp-search animate-fade-down" style="animation-delay:.4s">
+            <form method="get" action="{% url 'events:event_list' %}" id="search-form">
+                <i class="bi bi-search icon"></i>
+                {{ search_form.q }}
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        <!-- Stats -->
+        <div class="hp-stats animate-fade-down" style="animation-delay:.5s">
+            <div class="hp-pill">
+                <i class="bi bi-calendar-event" style="color:#818cf8"></i>
+                <span class="val counter" data-target="{{ page_obj.paginator.count }}">0</span>
+                <span class="lbl">Events</span>
+            </div>
+            <div class="hp-pill">
+                <i class="bi bi-grid" style="color:#a78bfa"></i>
+                <span class="val counter" data-target="{{ categories.count }}">0</span>
+                <span class="lbl">Categories</span>
+            </div>
+            <div class="hp-pill">
+                <i class="bi bi-shield-check" style="color:#34d399"></i>
+                <span class="val">Razorpay</span>
+                <span class="lbl">Secure Pay</span>
             </div>
         </div>
     </div>
@@ -62,280 +150,177 @@
 
 <div class="container py-5">
 
-    <!-- Category Filter Pills -->
-    {% if categories %}
-    <div class="mb-4 animate-on-scroll">
-        <div class="d-flex flex-wrap gap-2 align-items-center p-3 bg-white rounded-3 shadow-sm">
-            <span class="text-muted small fw-semibold me-2"><i class="bi bi-funnel me-1"></i>Filter:</span>
-            <a href="{% url 'events:event_list' %}{% if query %}?q={{ query }}{% endif %}"
-               class="btn btn-sm {% if not active_category %}btn-dark{% else %}btn-outline-secondary{% endif %} rounded-pill px-3">
-                All
-            </a>
-            {% for cat in categories %}
-            <a href="{% url 'events:event_list' %}?category={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}"
-               class="btn btn-sm {% if active_category == cat %}btn-dark{% else %}btn-outline-secondary{% endif %} rounded-pill px-3">
-                <i class="{{ cat.icon }} me-1"></i>{{ cat.name }}
-            </a>
-            {% endfor %}
+<!-- ═══════ CATEGORY FILTERS ═══════ -->
+{% if categories %}
+<div class="mb-4 animate-on-scroll">
+    <div class="d-flex flex-wrap gap-2 align-items-center p-3" style="background:#fff;border-radius:1rem;border:1px solid #f1f5f9">
+        <span style="font-size:.8rem;font-weight:700;color:#94a3b8;margin-right:.25rem"><i class="bi bi-funnel me-1"></i>Filter:</span>
+        <a href="{% url 'events:event_list' %}{% if query %}?q={{ query }}{% endif %}"
+           class="btn btn-sm rounded-pill px-3" style="{% if not active_category %}background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));color:#fff;border:none{% else %}border:1.5px solid #e2e8f0;color:#475569{% endif %}">All</a>
+        {% for cat in categories %}
+        <a href="{% url 'events:event_list' %}?category={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}"
+           class="btn btn-sm rounded-pill px-3" style="{% if active_category == cat %}background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));color:#fff;border:none{% else %}border:1.5px solid #e2e8f0;color:#475569{% endif %}">
+            <i class="{{ cat.icon }} me-1"></i>{{ cat.name }}</a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- ═══════ FEATURED ═══════ -->
+{% if featured_events %}
+<section class="mb-5">
+    <div class="sec-hdr animate-on-scroll">
+        <div class="sec-icon" style="background:#fef3c7;color:#d97706"><i class="bi bi-star-fill"></i></div>
+        <div><h2>Featured Events</h2><p>Handpicked events you don't want to miss</p></div>
+    </div>
+    <div class="row g-4">
+        {% for event in featured_events %}
+        <div class="col-md-4 animate-on-scroll" style="animation-delay:{{ forloop.counter0 }}00ms">
+            <div class="ev-card h-100 position-relative" style="border:2px solid transparent;background-image:linear-gradient(#fff,#fff),linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));background-origin:border-box;background-clip:padding-box,border-box">
+                <div style="overflow:hidden;position:relative">
+                {% if event.banner %}
+                    <img src="{{ event.banner.url }}" class="ev-img" alt="{{ event.title }}">
+                {% else %}
+                    <div class="ev-ph"><i class="bi bi-calendar-event display-1 text-white opacity-50"></i></div>
+                {% endif %}
+                </div>
+                <span class="ev-badge end-0" style="background:#fef3c7;color:#92400e"><i class="bi bi-star-fill me-1"></i>Featured</span>
+                {% if event.is_free %}<span class="ev-badge start-0" style="background:#d1fae5;color:#065f46">Free</span>{% endif %}
+                <div class="ev-body d-flex flex-column" style="flex:1">
+                    {% if event.category %}<small style="color:#64748b"><i class="{{ event.category.icon }} me-1"></i>{{ event.category.name }}</small>{% endif %}
+                    <h5 class="fw-bold mt-1 mb-2">{{ event.title }}</h5>
+                    <p class="text-muted small mb-3">{{ event.description|truncatewords:18 }}</p>
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span style="font-size:.8rem;color:#64748b"><i class="bi bi-calendar3 me-1"></i>{{ event.date|date:"M d, Y" }}</span>
+                            <span class="ev-tag" style="{% if event.seats_remaining > 0 %}background:#d1fae5;color:#065f46{% else %}background:#fee2e2;color:#991b1b{% endif %}">
+                                {% if event.is_full %}Full{% else %}{{ event.seats_remaining }} left{% endif %}</span>
+                        </div>
+                        <a href="{{ event.get_absolute_url }}" class="ev-cta"><i class="bi bi-arrow-right-circle me-1"></i>View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- ═══════ ALL EVENTS ═══════ -->
+<section>
+    <div class="sec-hdr animate-on-scroll">
+        <div class="sec-icon" style="background:#e0e7ff;color:var(--eh-primary)"><i class="bi bi-grid-3x3-gap-fill"></i></div>
+        <div>
+            <h2>{% if active_category %}<i class="{{ active_category.icon }} me-2"></i>{{ active_category.name }} Events{% elif query %}Results for "{{ query }}"{% else %}Upcoming Events{% endif %}</h2>
+            <p>{{ page_obj.paginator.count }} event{{ page_obj.paginator.count|pluralize }} found</p>
         </div>
     </div>
-    {% endif %}
 
-    <!-- Featured Events -->
-    {% if featured_events %}
-    <section class="mb-5">
-        <div class="d-flex align-items-center mb-4 animate-on-scroll">
-            <div class="icon-circle bg-warning bg-opacity-10 text-warning me-3">
-                <i class="bi bi-star-fill"></i>
-            </div>
-            <div>
-                <h2 class="fw-bold mb-0">Featured Events</h2>
-                <p class="text-muted mb-0 small">Handpicked events you don't want to miss</p>
-            </div>
-        </div>
-        <div class="row g-4">
-            {% for event in featured_events %}
-            <div class="col-md-4 animate-on-scroll" style="animation-delay: {{ forloop.counter0 }}00ms;">
-                <div class="card event-card featured-card h-100 border-0 shadow position-relative overflow-hidden">
-                    {% if event.banner %}
-                    <div class="card-img-wrapper">
-                        <img src="{{ event.banner.url }}" class="card-img-top event-card-img" alt="{{ event.title }}">
-                        <div class="card-img-overlay-gradient"></div>
-                    </div>
-                    {% else %}
-                    <div class="card-img-top event-card-img-placeholder d-flex align-items-center justify-content-center position-relative">
-                        <i class="bi bi-calendar-event display-1 text-white opacity-50"></i>
-                        <div class="card-img-overlay-gradient"></div>
-                    </div>
-                    {% endif %}
-                    <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 shadow-sm">
-                        <i class="bi bi-star-fill me-1"></i>Featured
-                    </span>
-                    {% if event.is_free %}
-                    <span class="badge bg-success position-absolute top-0 start-0 m-3 shadow-sm">Free</span>
-                    {% endif %}
-                    <div class="card-body d-flex flex-column">
-                        {% if event.category %}
-                        <small class="text-muted mb-1"><i class="{{ event.category.icon }} me-1"></i>{{ event.category.name }}</small>
-                        {% endif %}
-                        <h5 class="card-title fw-bold">{{ event.title }}</h5>
-                        <p class="card-text text-muted small">{{ event.description|truncatewords:20 }}</p>
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="text-muted small">
-                                    <i class="bi bi-calendar3 me-1"></i>{{ event.date|date:"M d, Y" }}
-                                </span>
-                                <span class="badge {% if event.seats_remaining > 0 %}bg-success{% else %}bg-danger{% endif %} rounded-pill">
-                                    {% if event.is_full %}Full{% else %}{{ event.seats_remaining }} left{% endif %}
-                                </span>
-                            </div>
-                            <a href="{{ event.get_absolute_url }}" class="btn btn-primary w-100 rounded-pill fw-semibold">
-                                <i class="bi bi-arrow-right-circle me-1"></i>View Details
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-    {% endif %}
-
-    <!-- All Events -->
-    <section>
-        <div class="d-flex justify-content-between align-items-center mb-4 animate-on-scroll">
-            <div class="d-flex align-items-center">
-                <div class="icon-circle bg-primary bg-opacity-10 text-primary me-3">
-                    <i class="bi bi-grid-3x3-gap-fill"></i>
-                </div>
-                <div>
-                    <h2 class="fw-bold mb-0">
-                        {% if active_category %}
-                            <i class="{{ active_category.icon }} me-2"></i>{{ active_category.name }} Events
-                        {% elif query %}
-                            Results for "{{ query }}"
-                        {% else %}
-                            Upcoming Events
-                        {% endif %}
-                    </h2>
-                    <p class="text-muted mb-0 small">{{ page_obj.paginator.count }} event{{ page_obj.paginator.count|pluralize }} found</p>
-                </div>
-            </div>
-        </div>
-
-        {% if page_obj.object_list %}
-        <div class="row g-4">
-            {% for event in page_obj %}
-            <div class="col-md-6 col-lg-4 animate-on-scroll" style="animation-delay: {{ forloop.counter0 }}50ms;">
-                <div class="card event-card h-100 border-0 shadow-sm position-relative overflow-hidden">
-                    {% if event.banner %}
-                    <div class="card-img-wrapper">
-                        <img src="{{ event.banner.url }}" class="card-img-top event-card-img" alt="{{ event.title }}">
-                    </div>
-                    {% else %}
-                    <div class="card-img-top event-card-img-placeholder-sm d-flex align-items-center justify-content-center">
-                        <i class="bi bi-calendar-event display-4 text-white opacity-50"></i>
-                    </div>
-                    {% endif %}
-
-                    {% if event.is_free %}
-                    <span class="badge bg-success position-absolute top-0 start-0 m-2 shadow-sm rounded-pill px-3">Free</span>
-                    {% else %}
-                    <span class="badge bg-primary position-absolute top-0 start-0 m-2 shadow-sm rounded-pill px-3">₹{{ event.price }}</span>
-                    {% endif %}
-
-                    <div class="card-body d-flex flex-column">
-                        {% if event.category %}
-                        <small class="text-muted mb-1">
-                            <i class="{{ event.category.icon }} me-1"></i>{{ event.category.name }}
-                        </small>
-                        {% endif %}
-                        <h5 class="card-title fw-semibold">{{ event.title }}</h5>
-                        <p class="card-text text-muted small mb-3">{{ event.description|truncatewords:15 }}</p>
-                        <div class="mt-auto">
-                            <div class="event-meta mb-3">
-                                <div class="event-meta-item">
-                                    <i class="bi bi-calendar3 text-primary me-2"></i>
-                                    <span>{{ event.date|date:"M d, Y" }} at {{ event.time|time:"g:i A" }}</span>
-                                </div>
-                                <div class="event-meta-item">
-                                    <i class="bi bi-geo-alt text-danger me-2"></i>
-                                    <span>{{ event.location }}</span>
-                                </div>
-                                <div class="event-meta-item">
-                                    <i class="bi bi-people text-success me-2"></i>
-                                    <span class="{% if event.seats_remaining == 0 %}text-danger fw-bold{% elif event.seats_remaining <= 5 %}text-warning{% endif %}">
-                                        {% if event.is_full %}Full{% else %}{{ event.seats_remaining }}/{{ event.capacity }} seats{% endif %}
-                                    </span>
-                                </div>
-                            </div>
-                            <a href="{{ event.get_absolute_url }}" class="btn btn-outline-primary w-100 rounded-pill fw-semibold">
-                                View Details <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- Pagination -->
-        {% if page_obj.has_other_pages %}
-        <nav aria-label="Event pagination" class="mt-5">
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link rounded-pill me-1" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ page_obj.previous_page_number }}">
-                        <i class="bi bi-chevron-left"></i> Previous
-                    </a>
-                </li>
+    {% if page_obj.object_list %}
+    <div class="row g-4">
+        {% for event in page_obj %}
+        <div class="col-md-6 col-lg-4 animate-on-scroll" style="animation-delay:{{ forloop.counter0 }}50ms">
+            <div class="ev-card h-100 position-relative">
+                <div style="overflow:hidden">
+                {% if event.banner %}
+                    <img src="{{ event.banner.url }}" class="ev-img" alt="{{ event.title }}">
+                {% else %}
+                    <div class="ev-ph" style="height:180px"><i class="bi bi-calendar-event display-4 text-white opacity-50"></i></div>
                 {% endif %}
-
-                {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                    <li class="page-item active"><span class="page-link rounded-pill mx-1">{{ num }}</span></li>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <li class="page-item">
-                        <a class="page-link rounded-pill mx-1" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ num }}">{{ num }}</a>
-                    </li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link rounded-pill ms-1" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ page_obj.next_page_number }}">
-                        Next <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
+                </div>
+                {% if event.is_free %}
+                <span class="ev-badge start-0" style="background:#d1fae5;color:#065f46">Free</span>
+                {% else %}
+                <span class="ev-badge start-0" style="background:#e0e7ff;color:var(--eh-primary)">₹{{ event.price }}</span>
                 {% endif %}
-            </ul>
-        </nav>
-        {% endif %}
-
-        {% else %}
-        <div class="text-center py-5 animate-on-scroll">
-            <div class="mb-4">
-                <div class="icon-circle bg-light mx-auto" style="width: 80px; height: 80px; font-size: 2rem;">
-                    <i class="bi bi-calendar-x text-muted"></i>
+                <div class="ev-body d-flex flex-column">
+                    {% if event.category %}<small style="color:#64748b"><i class="{{ event.category.icon }} me-1"></i>{{ event.category.name }}</small>{% endif %}
+                    <h5 class="fw-semibold mt-1 mb-1" style="font-size:1.05rem">{{ event.title }}</h5>
+                    <p class="text-muted small mb-2">{{ event.description|truncatewords:14 }}</p>
+                    <div class="ev-meta">
+                        <span><i class="bi bi-calendar3" style="color:var(--eh-primary)"></i>{{ event.date|date:"M d, Y" }} at {{ event.time|time:"g:i A" }}</span>
+                        <span><i class="bi bi-geo-alt" style="color:#ef4444"></i>{{ event.location }}</span>
+                        <span><i class="bi bi-people" style="color:#10b981"></i>
+                            <span class="{% if event.seats_remaining == 0 %}fw-bold{% endif %}" style="{% if event.seats_remaining == 0 %}color:#ef4444{% elif event.seats_remaining <= 5 %}color:#f59e0b{% endif %}">
+                                {% if event.is_full %}Full{% else %}{{ event.seats_remaining }}/{{ event.capacity }} seats{% endif %}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="mt-auto pt-2">
+                        <a href="{{ event.get_absolute_url }}" class="ev-cta">View Details <i class="bi bi-arrow-right ms-1"></i></a>
+                    </div>
                 </div>
             </div>
-            <h4 class="mt-3 text-muted">No events found</h4>
-            {% if query or active_category %}
-            <p class="text-muted">Try a different search term or remove filters.</p>
-            <a href="{% url 'events:event_list' %}" class="btn btn-outline-primary rounded-pill px-4">Clear Filters</a>
-            {% else %}
-            <p class="text-muted">Check back later for upcoming events.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Event pagination" class="mt-5">
+        <ul class="pagination justify-content-center gap-1">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ page_obj.previous_page_number }}" style="border-radius:.75rem;border:1.5px solid #e2e8f0;color:var(--eh-primary);font-weight:600;font-size:.85rem"><i class="bi bi-chevron-left"></i> Prev</a></li>
             {% endif %}
-        </div>
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link" style="border-radius:.75rem;background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));border:none;font-weight:700;font-size:.85rem">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item"><a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ num }}" style="border-radius:.75rem;border:1.5px solid #e2e8f0;color:#475569;font-weight:600;font-size:.85rem">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if active_category %}category={{ active_category.slug }}&{% endif %}page={{ page_obj.next_page_number }}" style="border-radius:.75rem;border:1.5px solid #e2e8f0;color:var(--eh-primary);font-weight:600;font-size:.85rem">Next <i class="bi bi-chevron-right"></i></a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5 animate-on-scroll">
+        <div style="width:80px;height:80px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem"><i class="bi bi-calendar-x" style="font-size:2rem;color:#94a3b8"></i></div>
+        <h4 class="text-muted mt-2">No events found</h4>
+        {% if query or active_category %}
+        <p class="text-muted">Try a different search term or remove filters.</p>
+        <a href="{% url 'events:event_list' %}" class="ev-cta" style="display:inline-block;width:auto;padding:.7rem 2rem">Clear Filters</a>
+        {% else %}
+        <p class="text-muted">Check back later for upcoming events.</p>
         {% endif %}
-    </section>
+    </div>
+    {% endif %}
+</section>
 </div>
 
-<!-- How It Works Section -->
-<section class="py-5 bg-white animate-on-scroll">
+<!-- ═══════ HOW IT WORKS ═══════ -->
+<section class="py-5 animate-on-scroll" style="background:#fafbff">
     <div class="container">
         <div class="text-center mb-5">
-            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3">Simple Process</span>
+            <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.4rem 1rem;border-radius:2rem;background:#e0e7ff;color:var(--eh-primary);font-size:.78rem;font-weight:700;margin-bottom:.75rem">Simple Process</span>
             <h2 class="fw-bold">How It Works</h2>
             <p class="text-muted col-md-6 mx-auto">Getting started with EventHub is easy. Browse, register, pay, and attend — all in just a few clicks.</p>
         </div>
         <div class="row g-4">
-            <div class="col-md-3 col-6">
-                <div class="how-it-works-step animate-on-scroll" style="animation-delay: 100ms;">
-                    <div class="step-number">1</div>
-                    <div class="step-icon bg-primary bg-opacity-10 text-primary">
-                        <i class="bi bi-search"></i>
-                    </div>
-                    <h6 class="fw-bold">Discover</h6>
-                    <p class="text-muted small mb-0">Browse events by category, date, or keyword.</p>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="how-it-works-step animate-on-scroll" style="animation-delay: 200ms;">
-                    <div class="step-number">2</div>
-                    <div class="step-icon bg-success bg-opacity-10 text-success">
-                        <i class="bi bi-person-plus"></i>
-                    </div>
-                    <h6 class="fw-bold">Register</h6>
-                    <p class="text-muted small mb-0">Sign up and reserve your spot instantly.</p>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="how-it-works-step animate-on-scroll" style="animation-delay: 300ms;">
-                    <div class="step-number">3</div>
-                    <div class="step-icon bg-warning bg-opacity-10 text-warning">
-                        <i class="bi bi-credit-card"></i>
-                    </div>
-                    <h6 class="fw-bold">Pay Securely</h6>
-                    <p class="text-muted small mb-0">Complete payment via Razorpay (UPI, Cards & more).</p>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="how-it-works-step animate-on-scroll" style="animation-delay: 400ms;">
-                    <div class="step-number">4</div>
-                    <div class="step-icon bg-info bg-opacity-10 text-info">
-                        <i class="bi bi-qr-code"></i>
-                    </div>
-                    <h6 class="fw-bold">Get QR Ticket</h6>
-                    <p class="text-muted small mb-0">Receive your unique QR code ticket via email.</p>
-                </div>
-            </div>
+            <div class="col-md-3 col-6"><div class="hiw animate-on-scroll" style="animation-delay:100ms"><div class="hiw-num">1</div><div class="hiw-icon" style="background:#e0e7ff;color:var(--eh-primary)"><i class="bi bi-search"></i></div><h6 class="fw-bold">Discover</h6><p class="text-muted small mb-0">Browse events by category, date, or keyword.</p></div></div>
+            <div class="col-md-3 col-6"><div class="hiw animate-on-scroll" style="animation-delay:200ms"><div class="hiw-num">2</div><div class="hiw-icon" style="background:#d1fae5;color:#059669"><i class="bi bi-person-plus"></i></div><h6 class="fw-bold">Register</h6><p class="text-muted small mb-0">Sign up and reserve your spot instantly.</p></div></div>
+            <div class="col-md-3 col-6"><div class="hiw animate-on-scroll" style="animation-delay:300ms"><div class="hiw-num">3</div><div class="hiw-icon" style="background:#fef3c7;color:#d97706"><i class="bi bi-credit-card"></i></div><h6 class="fw-bold">Pay Securely</h6><p class="text-muted small mb-0">Complete payment via Razorpay (UPI, Cards & more).</p></div></div>
+            <div class="col-md-3 col-6"><div class="hiw animate-on-scroll" style="animation-delay:400ms"><div class="hiw-num">4</div><div class="hiw-icon" style="background:#e0f2fe;color:#0284c7"><i class="bi bi-qr-code"></i></div><h6 class="fw-bold">Get QR Ticket</h6><p class="text-muted small mb-0">Receive your unique QR code ticket via email.</p></div></div>
         </div>
     </div>
 </section>
 
-<!-- CTA Banner -->
-<section class="py-5 animate-on-scroll" style="background: linear-gradient(135deg, var(--eh-gradient-start), var(--eh-gradient-end));">
-    <div class="container text-center text-white">
-        <h2 class="fw-bold mb-3">Ready to Explore Events?</h2>
-        <p class="lead opacity-75 mb-4 col-md-8 mx-auto">Join thousands of attendees discovering amazing experiences. Create your free account today!</p>
-        <div class="d-flex gap-3 justify-content-center flex-wrap">
-            <a href="{% url 'accounts:signup' %}" class="btn btn-light btn-lg rounded-pill px-5 fw-semibold shadow">
-                <i class="bi bi-rocket-takeoff me-2"></i>Get Started Free
-            </a>
-            <a href="{% url 'events:about' %}" class="btn btn-outline-light btn-lg rounded-pill px-5 fw-semibold">
-                Learn More
-            </a>
+<!-- ═══════ CTA ═══════ -->
+<section class="py-5 animate-on-scroll">
+    <div class="container">
+        <div class="hp-cta">
+            <h2 class="fw-bold mb-3 text-white" style="font-size:2rem">Ready to Explore Events?</h2>
+            <p style="color:rgba(255,255,255,.6);max-width:500px;margin:0 auto 2rem;font-size:1.05rem">Join thousands of attendees discovering amazing experiences. Create your free account today!</p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="{% url 'accounts:signup' %}" style="display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 2.5rem;border-radius:2rem;background:#fff;color:#1e1b4b;font-weight:700;font-size:.95rem;text-decoration:none;box-shadow:0 8px 30px rgba(0,0,0,.2);transition:all .3s">
+                    <i class="bi bi-rocket-takeoff"></i>Get Started Free
+                </a>
+                <a href="{% url 'events:about' %}" style="display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 2.5rem;border-radius:2rem;background:transparent;color:rgba(255,255,255,.8);font-weight:600;font-size:.95rem;text-decoration:none;border:1.5px solid rgba(255,255,255,.2);transition:all .3s">
+                    Learn More
+                </a>
+            </div>
         </div>
     </div>
 </section>
@@ -343,37 +328,18 @@
 
 {% block extra_js %}
 <script>
-// Counter animation for stats
 document.addEventListener('DOMContentLoaded', () => {
-    const counters = document.querySelectorAll('.counter');
-    counters.forEach(counter => {
-        const target = +counter.getAttribute('data-target');
-        const duration = 1500;
-        const start = performance.now();
-
-        function update(now) {
-            const elapsed = now - start;
-            const progress = Math.min(elapsed / duration, 1);
-            // Ease out cubic
-            const ease = 1 - Math.pow(1 - progress, 3);
-            counter.textContent = Math.floor(ease * target);
-            if (progress < 1) requestAnimationFrame(update);
-            else counter.textContent = target;
-        }
-        requestAnimationFrame(update);
+    // Counter animation
+    document.querySelectorAll('.counter').forEach(c => {
+        const t = +c.dataset.target, d = 1500, s = performance.now();
+        (function u(n){const p = Math.min((n-s)/d,1);c.textContent=Math.floor((1-Math.pow(1-p,3))*t);p<1?requestAnimationFrame(u):c.textContent=t;})(s);
     });
-
-    // Scroll-triggered animations
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate-visible');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    // Scroll animations
+    const o = new IntersectionObserver(e => e.forEach(x => {if(x.isIntersecting){x.target.classList.add('animate-visible');o.unobserve(x.target)}}),{threshold:.1});
+    document.querySelectorAll('.animate-on-scroll').forEach(el => o.observe(el));
+    // Navbar scroll effect
+    const nav = document.getElementById('ehMainNav');
+    if(nav) window.addEventListener('scroll',()=>{nav.style.background=window.scrollY>50?'rgba(15,23,42,.98)':'rgba(15,23,42,.92)'});
 });
 </script>
 {% endblock %}

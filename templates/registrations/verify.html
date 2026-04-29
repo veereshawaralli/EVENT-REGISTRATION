@@ -4,86 +4,98 @@
 {% block title %}Verify Ticket - {{ event.title }} | EventHub{% endblock title %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white text-center py-3">
-                    <h4 class="mb-0">Ticket Verification</h4>
-                </div>
-                <div class="card-body text-center p-4">
-                    {% if registration.status == "confirmed" %}
-                        <div class="mb-4">
-                            <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
-                            <h2 class="text-success mt-2">Valid Ticket</h2>
-                        </div>
+<div class="eh-page">
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-md-6 col-sm-10">
+
+<div class="eh-glass">
+    <div class="eh-hdr">
+        <div class="eh-hdr-icon"><i class="bi bi-qr-code-scan"></i></div>
+        <h4>Ticket Verification</h4>
+        <p>{{ event.title }}</p>
+    </div>
+    <div class="eh-body text-center">
+
+        {% if registration.status == "confirmed" %}
+        <div class="mb-4">
+            <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#d1fae5,#a7f3d0);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
+                <i class="bi bi-check-circle-fill" style="font-size:2.5rem;color:#10b981"></i>
+            </div>
+            <h3 class="fw-bold" style="color:#10b981">Valid Ticket</h3>
+        </div>
+        {% else %}
+        <div class="mb-4">
+            <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#fee2e2,#fecaca);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
+                <i class="bi bi-x-circle-fill" style="font-size:2.5rem;color:#ef4444"></i>
+            </div>
+            <h3 class="fw-bold" style="color:#ef4444">Invalid Ticket</h3>
+            <p class="text-muted small">Status: {{ registration.get_status_display }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Attendee Info -->
+        <div class="eh-info text-start" style="animation-delay:0s;opacity:1">
+            <p class="mb-1 small"><strong>Attendee:</strong> {{ registration.user.get_full_name|default:registration.user.username }}</p>
+            <p class="mb-1 small"><strong>Email:</strong> {{ registration.user.email }}</p>
+            <p class="mb-1 small"><strong>Event:</strong> {{ event.title }}</p>
+            <p class="mb-0 small"><strong>Check-in:</strong>
+                {% if registration.attended %}
+                    <span class="badge-eh" style="background:#d1fae5;color:#065f46;font-size:.7rem;padding:.25rem .6rem;border-radius:2rem">Already Checked In</span>
+                {% else %}
+                    <span class="badge-eh" style="background:#f1f5f9;color:#64748b;font-size:.7rem;padding:.25rem .6rem;border-radius:2rem">Not Checked In</span>
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Payment Info -->
+        <div class="eh-breakdown text-start" style="animation-delay:0s;opacity:1">
+            <h6 class="fw-bold mb-2" style="font-size:.85rem;color:#334155">Payment Verification</h6>
+            <div class="d-flex justify-content-between align-items-center pb-2 mb-2" style="border-bottom:1px dashed #e2e8f0">
+                <span class="small text-muted">Method:</span>
+                <span class="small fw-semibold">
+                    {% if event.price == 0 %}
+                        <i class="bi bi-gift" style="color:#10b981"></i> Free Ticket
+                    {% elif registration.payment_method == 'razorpay' or registration.razorpay_payment_id %}
+                        <i class="bi bi-credit-card" style="color:var(--eh-primary)"></i> Online (Razorpay)
                     {% else %}
-                        <div class="mb-4">
-                            <i class="bi bi-x-circle-fill text-danger" style="font-size: 4rem;"></i>
-                            <h2 class="text-danger mt-2">Invalid Ticket</h2>
-                            <p class="text-muted">Status: {{ registration.get_status_display }}</p>
-                        </div>
+                        <i class="bi bi-cash-coin" style="color:#f59e0b"></i> Pay at Venue
                     {% endif %}
-
-                    <div class="bg-light p-3 rounded mb-4 text-start">
-                        <p class="mb-1"><strong>Attendee:</strong> {{ registration.user.get_full_name|default:registration.user.username }}</p>
-                        <p class="mb-1"><strong>Email:</strong> {{ registration.user.email }}</p>
-                        <p class="mb-1"><strong>Event:</strong> {{ event.title }}</p>
-                        <p class="mb-0"><strong>Status:</strong> 
-                            {% if registration.attended %}
-                                <span class="badge bg-success">Already Checked In</span>
-                            {% else %}
-                                <span class="badge bg-secondary">Not Checked In</span>
-                            {% endif %}
-                        </p>
-                    </div>
-
-                    <!-- Payment Information for Organizer -->
-                    <div class="card bg-light border-0 mb-4 p-3 shadow-sm text-start">
-                        <h6 class="fw-bold mb-2">Payment Verification</h6>
-                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
-                            <span>Method:</span>
-                            <span class="fw-semibold">
-                                {% if event.price == 0 %}
-                                    <i class="bi bi-gift text-success me-1"></i>Free Ticket
-                                {% elif registration.payment_method == 'razorpay' or registration.razorpay_payment_id %}
-                                    <i class="bi bi-credit-card text-primary me-1"></i>Online (Razorpay)
-                                {% else %}
-                                    <i class="bi bi-cash-coin text-warning me-1"></i>Pay at Venue
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span>Payment Status:</span>
-                            <span>
-                                {% if event.price == 0 %}
-                                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>No Payment Required</span>
-                                {% elif registration.payment_status == 'completed' %}
-                                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Paid Successfully</span>
-                                {% elif registration.payment_status == 'pending' %}
-                                    <span class="badge bg-danger fs-6"><i class="bi bi-exclamation-circle me-1"></i>Payment Due (₹{{ event.price }})</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">{{ registration.get_payment_status_display }}</span>
-                                {% endif %}
-                            </span>
-                        </div>
-                    </div>
-
-                    {% if registration.status == "confirmed" %}
-                        <form action="{% url 'registrations:mark_attended' registration.id %}" method="post">
-                            {% csrf_token %}
-                            {% if registration.attended %}
-                                <button type="submit" class="btn btn-warning btn-lg w-100 mb-2">Undo Check-In</button>
-                            {% else %}
-                                <button type="submit" class="btn btn-success btn-lg w-100 mb-2">Admit Attendee</button>
-                            {% endif %}
-                        </form>
+                </span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="small text-muted">Payment Status:</span>
+                <span>
+                    {% if event.price == 0 %}
+                        <span class="badge-eh" style="background:#d1fae5;color:#065f46"><i class="bi bi-check-circle me-1"></i>No Payment Required</span>
+                    {% elif registration.payment_status == 'completed' %}
+                        <span class="badge-eh" style="background:#d1fae5;color:#065f46"><i class="bi bi-check-circle me-1"></i>Paid</span>
+                    {% elif registration.payment_status == 'pending' %}
+                        <span class="badge-eh" style="background:#fee2e2;color:#991b1b"><i class="bi bi-exclamation-circle me-1"></i>Due (₹{{ event.price }})</span>
+                    {% else %}
+                        <span class="badge-eh" style="background:#f1f5f9;color:#64748b">{{ registration.get_payment_status_display }}</span>
                     {% endif %}
-                    
-                    <a href="{% url 'events:organizer_dashboard' %}" class="btn btn-outline-secondary w-100 mt-2">Back to Dashboard</a>
-                </div>
+                </span>
             </div>
         </div>
+
+        {% if registration.status == "confirmed" %}
+        <form action="{% url 'registrations:mark_attended' registration.id %}" method="post">
+            {% csrf_token %}
+            {% if registration.attended %}
+                <button type="submit" class="eh-btn eh-btn-warning mb-2"><i class="bi bi-arrow-counterclockwise"></i> Undo Check-In</button>
+            {% else %}
+                <button type="submit" class="eh-btn eh-btn-success mb-2"><i class="bi bi-check2-all"></i> Admit Attendee</button>
+            {% endif %}
+        </form>
+        {% endif %}
+
+        <a href="{% url 'events:organizer_dashboard' %}" class="eh-btn eh-btn-outline mt-1"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
     </div>
+</div>
+
+</div>
+</div>
+</div>
 </div>
 {% endblock content %}

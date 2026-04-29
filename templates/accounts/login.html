@@ -3,85 +3,60 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card border-0 shadow">
-                <div class="card-body p-4 p-md-5">
-                    <div class="text-center mb-4">
-                        <i class="bi bi-person-circle display-4 text-primary"></i>
-                        <h2 class="fw-bold mt-2">Welcome Back</h2>
-                        <p class="text-muted">Sign in to your account</p>
-                    </div>
+<div class="eh-page">
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-md-5 col-sm-10">
 
-                    <form method="post" novalidate>
-                        {% csrf_token %}
+<div class="eh-glass">
+    <div class="eh-hdr">
+        <div class="eh-hdr-icon"><i class="bi bi-person-circle"></i></div>
+        <h4>Welcome Back</h4>
+        <p>Sign in to your account</p>
+    </div>
+    <div class="eh-body eh-form">
+        <form method="post" novalidate>
+            {% csrf_token %}
 
-                        {% if form.non_field_errors %}
-                        <div class="alert alert-danger py-2">
-                            {% for error in form.non_field_errors %}
-                            <p class="mb-0">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-
-                        {% for field in form %}
-                        <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in field.errors %}{{ error }}{% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-
-                        <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
-                            <i class="bi bi-box-arrow-in-right me-1"></i>Login
-                        </button>
-                        <div class="text-center mt-3">
-                            <a href="{% url 'accounts:password_reset' %}" class="text-muted small text-decoration-none">
-                                Forgot password?
-                            </a>
-                        </div>
-                    </form>
-
-                    <hr class="my-4">
-                    <p class="text-center text-muted mb-0">
-                        Don't have an account?
-                        <a href="{% url 'accounts:signup' %}" class="text-primary fw-semibold">Sign up</a>
-                    </p>
-                </div>
+            {% if form.non_field_errors %}
+            <div class="eh-alert eh-alert-danger">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
             </div>
-        </div>
+            {% endif %}
+
+            {% for field in form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in field.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="eh-btn eh-btn-primary mt-2">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+            </button>
+            <div class="text-center mt-3">
+                <a href="{% url 'accounts:password_reset' %}" class="eh-back" style="margin-top:0">
+                    Forgot password?
+                </a>
+            </div>
+        </form>
+
+        <div class="eh-divider mt-4"><span>or</span></div>
+        <p class="text-center text-muted mb-0 mt-3">
+            Don't have an account?
+            <a href="{% url 'accounts:signup' %}" class="fw-semibold" style="color:var(--eh-primary)">Sign up</a>
+        </p>
     </div>
 </div>
-{% block extra_css %}
-<style>
-    form input[type="email"], 
-    form input[type="text"], 
-    form input[type="password"] {
-        display: block;
-        width: 100%;
-        padding: 0.5rem 1rem;
-        font-size: 1rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: #212529;
-        background-color: #fff;
-        background-clip: padding-box;
-        border: 1px solid #dee2e6;
-        border-radius: 0.5rem;
-        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-    }
-    form input:focus {
-        color: #212529;
-        background-color: #fff;
-        border-color: #0d6efd;
-        outline: 0;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    }
-</style>
-{% endblock %}
+
+</div>
+</div>
+</div>
+</div>
 {% endblock %}

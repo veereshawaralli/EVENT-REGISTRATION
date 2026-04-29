@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+    @page {
+        size: A4 landscape;
+        margin: 0;
+        padding: 0;
+        background-image: url("{{ BG_PATH }}");
+    }
+    body {
+        font-family: Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+    .bg-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 297mm;
+        height: 210mm;
+        z-index: -10;
+    }
+    .title-cert {
+        font-family: "Times-Roman", serif;
+        font-size: 80pt;
+        color: #1a2f4c;
+        font-weight: bold;
+        letter-spacing: 5px;
+        margin-bottom: 5px;
+    }
+    .title-sub {
+        font-size: 24pt;
+        color: #d4af37;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-top: 0;
+        margin-bottom: 35px;
+    }
+    .line-top {
+        border-top: 1px solid #cccccc;
+        width: 100%;
+        margin-bottom: 35px;
+    }
+    .name {
+        font-family: "Times-Roman", serif;
+        font-style: italic;
+        font-size: 70pt;
+        color: #1a2f4c;
+        margin-bottom: 5px;
+    }
+    .line-name {
+        border-bottom: 1px solid #cccccc;
+        width: 100%;
+        margin-bottom: 30px;
+    }
+    .description {
+        font-size: 20pt;
+        color: #555555;
+        line-height: 1.6;
+        width: 100%;
+        margin: 0 auto;
+        margin-bottom: 50px;
+    }
+    .sig-table {
+        width: 100%;
+        margin-top: 30px;
+    }
+    .sig-cell {
+        width: 45%;
+        text-align: center;
+    }
+    .sig-text {
+        font-family: "Times-Roman", serif;
+        font-style: italic;
+        font-size: 28pt;
+        color: #1a2f4c;
+        margin-bottom: 5px;
+    }
+    .sig-line {
+        border-top: 1px solid #cccccc;
+        padding-top: 5px;
+    }
+    .sig-label {
+        font-size: 16pt;
+        color: #777777;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+</style>
+</head>
+<body>
+    <table style="width: 297mm;" cellpadding="0" cellspacing="0">
+        <tr>
+            <!-- Left spacer for the wave -->
+            <td style="width: 140mm;"></td>
+            
+            <!-- Center content area -->
+            <td style="width: 137mm; padding-top: 30mm; text-align: center; vertical-align: top;">
+                
+                <div class="title-cert">CERTIFICATE</div>
+                <div class="title-sub">Of Achievement</div>
+                <div class="line-top"></div>
+                
+                <div class="name">
+                    {{ registration.user.get_full_name|default:registration.user.username }}
+                </div>
+                <div class="line-name"></div>
+                
+                <div class="description">
+                    This certificate is proudly presented for honorable attendance<br>
+                    and active participation in the event:<br>
+                    <b style="font-size: 22pt; color: #1a2f4c;">{{ registration.event.title }}</b><br>
+                    held on {{ registration.event.date|date:"F j, Y" }} at {{ registration.event.location }}.
+                </div>
+                
+                <table class="sig-table" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td class="sig-cell" style="vertical-align: bottom;">
+                            <div class="sig-text">{{ registration.event.date|date:"Y/m/d" }}</div>
+                            <div class="sig-line">
+                                <div class="sig-label">Date</div>
+                            </div>
+                        </td>
+                        <td style="width: 10%;"></td>
+                        <td class="sig-cell" style="vertical-align: bottom;">
+                            <div class="sig-text">{{ registration.event.organizer.get_full_name|default:registration.event.organizer.username }}</div>
+                            <div class="sig-line">
+                                <div class="sig-label">Signature</div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                
+                <div style="text-align: right; margin-top: 20px;">
+                    <!-- Logo is actually 640x640 (square), preserving aspect ratio -->
+                    <img src="{{ LOGO_PATH }}" alt="EventHub Logo" width="90" height="90">
+                </div>
+
+            </td>
+            
+            <!-- Right margin spacer -->
+            <td style="width: 20mm;"></td>
+        </tr>
+    </table>
+</body>
+</html>

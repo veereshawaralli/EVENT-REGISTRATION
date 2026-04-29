@@ -88,6 +88,7 @@ class Event(models.Model):
     # Optional coordinates for map embed
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
+    views = models.PositiveIntegerField(default=0, help_text="Number of times the event page was viewed.")
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

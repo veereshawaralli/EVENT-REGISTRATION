@@ -98,6 +98,10 @@ def event_detail(request, pk):
         request.user.is_staff or event.organizer == request.user
     ):
         attendee_list = event.registrations.filter(status="confirmed").select_related("user").prefetch_related("custom_values__field")
+    else:
+        # Increment view count for regular users/guests
+        event.views += 1
+        event.save(update_fields=['views'])
 
     context = {
         "event": event,
@@ -114,7 +118,7 @@ def event_detail(request, pk):
 
 @login_required
 def organizer_dashboard(request):
-    """Enhanced dashboard with revenue analytics and export options."""
+    """Enhanced dashboard with advanced analytics and charts."""
     is_provider = getattr(request.user, 'profile', None) and request.user.profile.is_provider
     if not (request.user.is_staff or is_provider):
         messages.error(request, "This page is for event organizers only.")
@@ -129,29 +133,52 @@ def organizer_dashboard(request):
     my_events = my_events.annotate(
         confirmed_count=Count("registrations", filter=Q(registrations__status="confirmed")),
         attended_count=Count("registrations", filter=Q(registrations__attended=True)),
-        # Total revenue = sum of prices of all confirmed registrations
-        # Note: Event.price is the unit price. Revenue = confirmed_count * price.
     ).order_by("-date")
 
     total_events = my_events.count()
     total_regs = 0
     total_attended = 0
     total_revenue = 0
+    total_views = 0
 
     for e in my_events:
         total_regs += e.confirmed_count
         total_attended += e.attended_count
         total_revenue += e.confirmed_count * e.price
+        total_views += e.views
 
-    # Chart.js data (last 10 events)
+    # Chart 1: Event Comparison (Registrations vs Attended vs Revenue)
     recent_events = my_events[:10]
     chart_labels = [e.title[:15] for e in recent_events]
     chart_regs = [e.confirmed_count for e in recent_events]
     chart_attended = [e.attended_count for e in recent_events]
     chart_revenue = [float(e.confirmed_count * e.price) for e in recent_events]
+    
+    # Chart 2: Conversion Rate (Views vs Registrations)
+    conversion_rate = 0
+    if total_views > 0:
+        conversion_rate = round((total_regs / total_views) * 100, 1)
+
+    # Chart 3: Sales Velocity (Registrations over time for all organizer events)
+    from django.db.models.functions import TruncDate
+    from registrations.models import Registration
+    
+    # Get registrations for the organizer's events
+    sales_velocity_query = Registration.objects.filter(
+        event__in=my_events, status="confirmed"
+    ).annotate(
+        day=TruncDate('registration_date')
+    ).values('day').annotate(
+        count=Count('id')
+    ).order_by('day')
+    
+    # Format for Chart.js
+    sales_velocity_labels = [entry['day'].strftime('%b %d') for entry in sales_velocity_query if entry['day']]
+    sales_velocity_data = [entry['count'] for entry in sales_velocity_query]
 
     # Ensure EventCommission exists for each event
     for e in my_events:
+        from .models import EventCommission
         EventCommission.objects.get_or_create(event=e)
 
     context = {
@@ -160,10 +187,14 @@ def organizer_dashboard(request):
         "total_regs": total_regs,
         "total_attended": total_attended,
         "total_revenue": total_revenue,
+        "total_views": total_views,
+        "conversion_rate": conversion_rate,
         "chart_labels": chart_labels,
         "chart_regs": chart_regs,
         "chart_attended": chart_attended,
         "chart_revenue": chart_revenue,
+        "sales_velocity_labels": sales_velocity_labels,
+        "sales_velocity_data": sales_velocity_data,
     }
     return render(request, "events/organizer_dashboard.html", context)
 

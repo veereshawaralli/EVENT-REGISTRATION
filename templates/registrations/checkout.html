@@ -3,159 +3,220 @@
 
 {% block title %}Checkout - {{ event.title }} | EventHub{% endblock %}
 
+{% block extra_css %}
+<style>
+.ck-wrap{min-height:80vh;background:linear-gradient(135deg,#f0f0ff 0%,#e8e0ff 50%,#f5f0ff 100%);position:relative;overflow:hidden;padding:3rem 0 4rem}
+.ck-wrap::before,.ck-wrap::after{content:'';position:absolute;border-radius:50%;pointer-events:none;animation:ckF 12s ease-in-out infinite}
+.ck-wrap::before{width:500px;height:500px;background:radial-gradient(circle,rgba(79,70,229,.08) 0%,transparent 70%);top:-15%;right:-10%}
+.ck-wrap::after{width:350px;height:350px;background:radial-gradient(circle,rgba(124,58,237,.06) 0%,transparent 70%);bottom:-10%;left:-5%;animation-delay:3s}
+@keyframes ckF{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-30px) scale(1.05)}}
+.ck-card{background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.6);border-radius:1.5rem;box-shadow:0 20px 60px rgba(79,70,229,.08),0 4px 20px rgba(0,0,0,.04);overflow:hidden;animation:ckUp .6s cubic-bezier(.16,1,.3,1) forwards;opacity:0;transform:translateY(30px)}
+@keyframes ckUp{to{opacity:1;transform:translateY(0)}}
+.ck-hdr{background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));padding:2rem 2rem 2.5rem;position:relative;overflow:hidden;text-align:center}
+.ck-hdr::before{content:'';position:absolute;top:-50%;right:-30%;width:300px;height:300px;background:rgba(255,255,255,.08);border-radius:50%}
+.ck-hdr *{position:relative;z-index:1}
+.ck-hdr-icon{width:56px;height:56px;background:rgba(255,255,255,.2);border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;margin:0 auto 1rem;border:1px solid rgba(255,255,255,.25)}
+.ck-hdr h4{color:#fff;font-weight:700;font-size:1.5rem;margin-bottom:.25rem}
+.ck-hdr p{color:rgba(255,255,255,.8);font-size:.875rem;margin:0}
+.ck-stepper{display:flex;align-items:center;justify-content:center;padding:1.5rem 2rem 0;gap:0}
+.ck-step{display:flex;align-items:center;gap:.5rem;font-size:.8rem;font-weight:600;color:#c4b5fd}
+.ck-step.active{color:var(--eh-primary)}
+.ck-step.done{color:#10b981}
+.ck-step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;background:#ede9fe;color:#a78bfa;flex-shrink:0}
+.ck-step.active .ck-step-dot{background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));color:#fff;box-shadow:0 4px 14px rgba(79,70,229,.35)}
+.ck-step.done .ck-step-dot{background:#10b981;color:#fff}
+.ck-step-line{width:60px;height:2px;background:#e2e8f0;margin:0 .75rem;border-radius:2px;position:relative;overflow:hidden}
+.ck-step-line.done::after{content:'';position:absolute;inset:0;background:#10b981;border-radius:2px}
+.ck-body{padding:1.75rem 2rem 2rem}
+.ck-event{background:linear-gradient(135deg,#faf5ff,#f0f0ff);border:1px solid #ede9fe;border-radius:1rem;padding:1.25rem;margin-bottom:1.5rem;animation:ckFi .5s .3s cubic-bezier(.16,1,.3,1) forwards;opacity:0}
+@keyframes ckFi{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.ck-event h5{font-weight:700;font-size:1.1rem;color:#1e293b;margin-bottom:.75rem}
+.ck-meta{display:flex;flex-direction:column;gap:.4rem}
+.ck-meta span{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:#64748b}
+.ck-meta i{color:var(--eh-primary);font-size:.9rem;width:18px;text-align:center}
+.ck-price{background:#fff;border:1.5px solid #e2e8f0;border-radius:1rem;padding:1.25rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:1.75rem;transition:border-color .3s,box-shadow .3s;animation:ckFi .5s .45s cubic-bezier(.16,1,.3,1) forwards;opacity:0}
+.ck-price:hover{border-color:#c4b5fd;box-shadow:0 4px 20px rgba(79,70,229,.08)}
+.ck-price-lbl{font-size:.9rem;font-weight:600;color:#475569}
+.ck-price-lbl small{display:block;font-size:.75rem;font-weight:400;color:#94a3b8;margin-top:2px}
+.ck-price-amt{font-size:1.75rem;font-weight:800;background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ck-price-free{font-size:1.1rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#10b981,#059669);padding:.35rem 1.25rem;border-radius:2rem;letter-spacing:.5px}
+.ck-form .form-label{font-weight:600;font-size:.85rem;color:#334155;margin-bottom:.4rem}
+.ck-form .form-control,.ck-form .form-select{border-radius:.75rem;border:1.5px solid #e2e8f0;padding:.75rem 1rem;font-size:.9rem;transition:all .25s;background:rgba(255,255,255,.8)}
+.ck-form .form-control:focus,.ck-form .form-select:focus{border-color:var(--eh-primary);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+.btn-ck{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.9rem 1.5rem;font-size:1rem;font-weight:700;color:#fff;border:none;border-radius:.875rem;cursor:pointer;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.btn-ck:hover{transform:translateY(-2px);color:#fff}
+.btn-ck::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);animation:ckSh 3s ease-in-out infinite}
+@keyframes ckSh{0%{left:-100%}50%{left:120%}100%{left:120%}}
+.btn-ck-pay{background:linear-gradient(135deg,var(--eh-gradient-start),var(--eh-gradient-end));box-shadow:0 6px 20px rgba(79,70,229,.3)}
+.btn-ck-pay:hover{box-shadow:0 8px 30px rgba(79,70,229,.4)}
+.btn-ck-free{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 6px 20px rgba(16,185,129,.3)}
+.btn-ck-free:hover{box-shadow:0 8px 30px rgba(16,185,129,.4)}
+.btn-ck-venue{background:#fff;color:#475569;border:1.5px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.btn-ck-venue:hover{border-color:#c4b5fd;color:var(--eh-primary);box-shadow:0 4px 16px rgba(79,70,229,.1)}
+.btn-ck-venue::after{display:none}
+.ck-divider{display:flex;align-items:center;gap:1rem;margin:1.25rem 0}
+.ck-divider::before,.ck-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent)}
+.ck-divider span{font-size:.75rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px}
+.ck-trust{display:flex;align-items:center;justify-content:center;gap:1.5rem;padding-top:1.5rem;margin-top:1.5rem;border-top:1px solid #f1f5f9;animation:ckFi .5s .6s cubic-bezier(.16,1,.3,1) forwards;opacity:0}
+.ck-trust-badge{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:#94a3b8;font-weight:500}
+.ck-trust-badge i{font-size:1rem;color:#10b981}
+.ck-back{display:inline-flex;align-items:center;gap:.4rem;color:#64748b;text-decoration:none;font-size:.875rem;font-weight:500;transition:all .25s;margin-top:1.25rem}
+.ck-back:hover{color:var(--eh-primary);gap:.6rem}
+.ck-alert{background:linear-gradient(135deg,#fef3c7,#fef9c3);border:1px solid #fde68a;border-radius:.875rem;padding:.875rem 1rem;font-size:.825rem;color:#92400e;display:flex;align-items:center;gap:.6rem;margin-bottom:1.25rem}
+.ck-rp-trust{display:flex;align-items:center;justify-content:center;gap:.75rem;margin-top:1rem}
+.ck-rp-trust img{max-height:32px;opacity:.6;transition:opacity .3s}
+.ck-rp-trust img:hover{opacity:1}
+@media(max-width:576px){.ck-wrap{padding:1.5rem 0 2.5rem}.ck-body{padding:1.25rem}.ck-hdr{padding:1.5rem 1.25rem 2rem}.ck-price-amt{font-size:1.4rem}.ck-trust{flex-direction:column;gap:.5rem}.ck-step span{display:none}.ck-step-line{width:30px}}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white text-center py-3">
-                    <h4 class="mb-0">Secure Checkout</h4>
-                </div>
-                <div class="card-body p-4">
-                    <div class="text-center mb-4">
-                        <h5 class="text-muted">Event Registration</h5>
-                        <h3 class="fw-bold">{{ event.title }}</h3>
-                        <p class="mb-1"><i class="bi bi-calendar3 me-2"></i>{{ event.date }} at {{ event.time }}</p>
-                        <p><i class="bi bi-geo-alt me-2"></i>{{ event.location }}</p>
-                    </div>
+<div class="ck-wrap">
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-lg-5 col-md-7 col-sm-10">
 
-                    <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-4">
-                        <span class="h5 mb-0">Total Amount:</span>
-                        <span class="h3 mb-0 fw-bold text-primary">
-                            {% if event.is_free %}FREE{% else %}₹{{ event.price }}{% endif %}
-                        </span>
-                    </div>
+<div class="ck-card">
+<!-- Header -->
+<div class="ck-hdr">
+    <div class="ck-hdr-icon"><i class="bi bi-shield-lock"></i></div>
+    <h4>Secure Checkout</h4>
+    <p>Event Registration</p>
+</div>
 
-                    {% if has_questions and not registration.custom_values.exists %}
-                    <!-- Step 1: Custom Questions -->
-                    <div class="mb-4">
-                        <h5 class="fw-bold mb-3"><i class="bi bi-patch-question me-2 text-primary"></i>Attendee Details</h5>
-                        <form method="post" class="needs-validation" novalidate>
-                            {% csrf_token %}
-                            {% for field in custom_form %}
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">{{ field.label }}{% if field.field.required %}<span class="text-danger">*</span>{% endif %}</label>
-                                {{ field }}
-                                {% if field.help_text %}
-                                <div class="form-text">{{ field.help_text }}</div>
-                                {% endif %}
-                                {% if field.errors %}
-                                <div class="text-danger small">{{ field.errors }}</div>
-                                {% endif %}
-                            </div>
-                            {% endfor %}
-                            <div class="d-grid mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg py-3 shadow-sm">
-                                    Continue to {% if event.is_free %}Confirmation{% else %}Payment{% endif %}<i class="bi bi-arrow-right ms-2"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                    {% else %}
-                    <!-- Step 2: Payment or Final Confirmation -->
-                    {% if event.is_free %}
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="confirm_free" value="true">
-                        <div class="d-grid mt-2">
-                            <button type="submit" class="btn btn-success btn-lg py-3 shadow-sm fw-bold">
-                                <i class="bi bi-check-circle me-2"></i>Complete Registration
-                            </button>
-                        </div>
-                    </form>
-                    {% else %}
-                        {% if razorpay_configured %}
-                        <div class="d-grid mb-3">
-                            <button id="rzp-button1" class="btn btn-primary btn-lg py-3 shadow-sm">
-                                <i class="bi bi-shield-check me-2"></i>Pay Now online (Razorpay)
-                            </button>
-                        </div>
+<!-- Stepper -->
+<div class="ck-stepper">
+{% if has_questions and not registration.custom_values.exists %}
+    <div class="ck-step active"><div class="ck-step-dot">1</div><span>Details</span></div>
+    <div class="ck-step-line"></div>
+    <div class="ck-step"><div class="ck-step-dot">2</div><span>{% if event.is_free %}Confirm{% else %}Pay{% endif %}</span></div>
+{% else %}
+    <div class="ck-step done"><div class="ck-step-dot"><i class="bi bi-check2"></i></div><span>Details</span></div>
+    <div class="ck-step-line done"></div>
+    <div class="ck-step active"><div class="ck-step-dot">2</div><span>{% if event.is_free %}Confirm{% else %}Pay{% endif %}</span></div>
+{% endif %}
+</div>
 
-                        <div class="position-relative my-4 text-center">
-                            <hr class="text-muted">
-                            <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small fw-semibold">OR</span>
-                        </div>
-                        {% else %}
-                        <div class="alert alert-warning text-center small mb-4">
-                            <i class="bi bi-exclamation-triangle me-1"></i> Online payments are currently disabled. Please use the Pay at Venue option below.
-                        </div>
-                        {% endif %}
+<!-- Body -->
+<div class="ck-body">
 
-                        <form method="post" action="{% url 'registrations:process_offline_payment' registration.id %}">
-                            {% csrf_token %}
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-outline-secondary btn-lg py-3 fw-bold">
-                                    <i class="bi bi-cash-coin me-2"></i>Reserve & Pay at Venue
-                                </button>
-                            </div>
-                        </form>
-                    {% endif %}
-                    
-                    {% if not event.is_free and razorpay_configured %}
-                    <div class="mt-4 text-center">
-                        <img src="https://badges.razorpay.com/badge-light.png" alt="Razorpay Secure" style="max-height: 40px;">
-                        <p class="small text-muted mt-2">100% Secure & Encrypted Payments</p>
-                    </div>
-                    {% endif %}
-                    {% endif %}
-                </div>
-            </div>
-            
-            <div class="text-center mt-3">
-                <a href="{% url 'events:event_detail' event.id %}" class="btn btn-link text-decoration-none">
-                    <i class="bi bi-arrow-left me-1"></i>Cancel and go back
-                </a>
-            </div>
+    <!-- Event Info -->
+    <div class="ck-event">
+        <h5>{{ event.title }}</h5>
+        <div class="ck-meta">
+            <span><i class="bi bi-calendar3"></i> {{ event.date }} at {{ event.time }}</span>
+            <span><i class="bi bi-geo-alt-fill"></i> {{ event.location }}</span>
         </div>
     </div>
+
+    <!-- Price -->
+    <div class="ck-price">
+        <div class="ck-price-lbl">Total Amount<small>Inclusive of all charges</small></div>
+        {% if event.is_free %}
+            <span class="ck-price-free">FREE</span>
+        {% else %}
+            <span class="ck-price-amt">₹{{ event.price }}</span>
+        {% endif %}
+    </div>
+
+    {% if has_questions and not registration.custom_values.exists %}
+    <!-- Step 1: Custom Questions -->
+    <form method="post" class="ck-form needs-validation" novalidate>
+        {% csrf_token %}
+        <h6 class="fw-bold mb-3" style="color:#334155"><i class="bi bi-person-lines-fill me-2" style="color:var(--eh-primary)"></i>Attendee Details</h6>
+        {% for field in custom_form %}
+        <div class="mb-3">
+            <label class="form-label">{{ field.label }}{% if field.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+            {{ field }}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn-ck btn-ck-pay mt-2">Continue to {% if event.is_free %}Confirmation{% else %}Payment{% endif %} <i class="bi bi-arrow-right"></i></button>
+    </form>
+
+    {% else %}
+    <!-- Step 2: Payment / Confirmation -->
+    {% if event.is_free %}
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="confirm_free" value="true">
+        <button type="submit" class="btn-ck btn-ck-free"><i class="bi bi-check-circle-fill"></i> Complete Registration</button>
+    </form>
+    {% else %}
+        {% if razorpay_configured %}
+        <button id="rzp-button1" class="btn-ck btn-ck-pay"><i class="bi bi-credit-card-2-front-fill"></i> Pay Now — ₹{{ event.price }}</button>
+        <div class="ck-divider"><span>or</span></div>
+        {% else %}
+        <div class="ck-alert"><i class="bi bi-exclamation-triangle-fill"></i> Online payments are currently unavailable. Please use the venue payment option below.</div>
+        {% endif %}
+
+        <form method="post" action="{% url 'registrations:process_offline_payment' registration.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-ck btn-ck-venue"><i class="bi bi-shop"></i> Reserve & Pay at Venue</button>
+        </form>
+    {% endif %}
+
+    {% if not event.is_free and razorpay_configured %}
+    <div class="ck-rp-trust"><img src="https://badges.razorpay.com/badge-light.png" alt="Razorpay Secure"></div>
+    {% endif %}
+    {% endif %}
+
+    <!-- Trust Badges -->
+    <div class="ck-trust">
+        <div class="ck-trust-badge"><i class="bi bi-shield-check"></i> Secure</div>
+        <div class="ck-trust-badge"><i class="bi bi-lock-fill"></i> Encrypted</div>
+        <div class="ck-trust-badge"><i class="bi bi-arrow-counterclockwise"></i> Refundable</div>
+    </div>
+</div>
+</div>
+
+<!-- Back link -->
+<div class="text-center">
+    <a href="{% url 'events:event_detail' event.id %}" class="ck-back"><i class="bi bi-arrow-left"></i> Cancel and go back</a>
+</div>
+
+</div>
+</div>
+</div>
 </div>
 
 <!-- Razorpay Integration -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-    var options = {
-        "key": "{{ razorpay_key_id }}",
-        "amount": "{{ amount }}",
-        "currency": "INR",
-        "name": "EventHub",
-        "description": "Registration for {{ event.title }}",
-        "image": "{% static 'images/logo.png' %}",
-        "order_id": "{{ razorpay_order_id }}",
-        "handler": function (response){
-            // Create a form and submit it to the callback URL
-            var form = document.createElement('form');
-            form.method = 'POST';
-            form.action = "{% url 'registrations:payment_callback' %}";
-            
-            var params = {
-                'razorpay_payment_id': response.razorpay_payment_id,
-                'razorpay_order_id': response.razorpay_order_id,
-                'razorpay_signature': response.razorpay_signature
-            };
-
-            for (var key in params) {
-                var hiddenField = document.createElement('input');
-                hiddenField.type = 'hidden';
-                hiddenField.name = key;
-                hiddenField.value = params[key];
-                form.appendChild(hiddenField);
-            }
-
-            document.body.appendChild(form);
-            form.submit();
-        },
-        "prefill": {
-            "name": "{{ request.user.get_full_name|default:request.user.username }}",
-            "email": "{{ request.user.email }}",
-        },
-        "theme": {
-            "color": "#0d6efd"
+var options = {
+    "key": "{{ razorpay_key_id }}",
+    "amount": "{{ amount }}",
+    "currency": "INR",
+    "name": "EventHub",
+    "description": "Registration for {{ event.title }}",
+    "image": "{% static 'images/logo.png' %}",
+    "order_id": "{{ razorpay_order_id }}",
+    "handler": function (response){
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{% url 'registrations:payment_callback' %}";
+        var params = {
+            'razorpay_payment_id': response.razorpay_payment_id,
+            'razorpay_order_id': response.razorpay_order_id,
+            'razorpay_signature': response.razorpay_signature
+        };
+        for (var key in params) {
+            var h = document.createElement('input');
+            h.type = 'hidden'; h.name = key; h.value = params[key];
+            form.appendChild(h);
         }
-    };
-    var rzp1 = new Razorpay(options);
-    document.getElementById('rzp-button1').onclick = function(e){
-        rzp1.open();
-        e.preventDefault();
-    }
+        document.body.appendChild(form);
+        form.submit();
+    },
+    "prefill": {
+        "name": "{{ request.user.get_full_name|default:request.user.username }}",
+        "email": "{{ request.user.email }}"
+    },
+    "theme": {"color": "#4f46e5"}
+};
+var rzp1 = new Razorpay(options);
+var btn = document.getElementById('rzp-button1');
+if(btn){btn.onclick = function(e){rzp1.open();e.preventDefault();}}
 </script>
 {% endblock %}

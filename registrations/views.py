@@ -226,10 +226,30 @@ def mark_attended(request, registration_id):
         return redirect("events:event_detail", pk=event.pk)
 
     if request.method == "POST":
+        was_attended = registration.attended
         registration.attended = not registration.attended
         registration.save(update_fields=["attended"])
+        
         status_text = "attended" if registration.attended else "not attended"
         messages.success(request, f"Marked {registration.user.username} as {status_text}.")
+        
+        # If newly marked as attended, generate and send the certificate
+        if registration.attended and not was_attended:
+            try:
+                from .utils import generate_certificate_pdf
+                from .emails import send_certificate_email
+                
+                pdf_buffer = generate_certificate_pdf(registration)
+                if pdf_buffer:
+                    send_certificate_email(registration, pdf_buffer)
+                    messages.success(request, f"Certificate generated and emailed to {registration.user.email}.")
+                else:
+                    messages.error(request, "Check-in successful, but failed to generate the PDF certificate.")
+            except Exception as e:
+                import traceback
+                error_details = traceback.format_exc()
+                logger.error(f"Error generating/sending certificate for reg {registration.id}: {e}\n{error_details}")
+                messages.error(request, f"Check-in successful, but an error occurred sending the certificate: {str(e)}")
         
         # Check if they came from the verification page
         if 'HTTP_REFERER' in request.META and 'verify' in request.META['HTTP_REFERER']:

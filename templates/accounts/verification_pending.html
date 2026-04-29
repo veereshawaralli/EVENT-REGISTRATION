@@ -3,30 +3,37 @@
 {% block title %}Verify Your Email{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 text-center">
-            <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5">
-                <i class="bi bi-envelope-check display-1 text-primary mb-4"></i>
-                <h1 class="fw-bold mb-3">Check Your Email</h1>
-                <p class="lead text-muted mb-4">
-                    We've sent a verification link to <strong>{{ email }}</strong>. 
-                    Please click the link in the email to activate your account.
-                </p>
-                <div class="alert alert-warning border-0 bg-warning bg-opacity-10 text-dark mb-4">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    Didn't receive the email? Check your spam folder or try resending it.
-                </div>
-                <div class="d-grid gap-2">
-                    <a href="{% url 'accounts:resend_verification' %}" class="btn btn-outline-primary rounded-pill px-4">
-                        Resend Verification Email
-                    </a>
-                    <a href="{% url 'accounts:login' %}" class="btn btn-link text-decoration-none">
-                        Back to Login
-                    </a>
-                </div>
-            </div>
+<div class="eh-page">
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-md-6 col-sm-10">
+
+<div class="eh-glass">
+    <div class="eh-hdr">
+        <div class="eh-hdr-icon"><i class="bi bi-envelope-check"></i></div>
+        <h4>Check Your Email</h4>
+        <p>Verification link sent</p>
+    </div>
+    <div class="eh-body text-center">
+        <p class="text-muted mb-3">
+            We've sent a verification link to <strong>{{ email }}</strong>.
+            Please click the link in the email to activate your account.
+        </p>
+        <div class="eh-alert eh-alert-warning">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Didn't receive the email? Check your spam folder or try resending it.
+        </div>
+        <a href="{% url 'accounts:resend_verification' %}" class="eh-btn eh-btn-outline mb-2">
+            <i class="bi bi-arrow-repeat"></i> Resend Verification Email
+        </a>
+        <div class="mt-2">
+            <a href="{% url 'accounts:login' %}" class="eh-back" style="margin-top:0"><i class="bi bi-arrow-left"></i> Back to Login</a>
         </div>
     </div>
+</div>
+
+</div>
+</div>
+</div>
 </div>
 {% endblock %}

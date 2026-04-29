@@ -3,126 +3,158 @@
 
 {% block title %}Organizer Dashboard{% endblock %}
 
+{% block extra_css %}
+<style>
+.org-hero{position:relative;overflow:hidden;padding:2.5rem 0;background:#0f172a}
+.org-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 40%,rgba(79,70,229,.35),transparent),radial-gradient(ellipse 60% 50% at 80% 50%,rgba(124,58,237,.3),transparent);pointer-events:none}
+.org-hero::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+.org-hero *{position:relative;z-index:1}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fw-bold">
-            <i class="bi bi-bar-chart-line me-2"></i>Organizer Dashboard
-        </h1>
-        <div class="d-flex gap-2">
-            <a href="{% url 'events:qr_scanner' %}" class="btn btn-dark shadow-sm">
-                <i class="bi bi-qr-code-scan me-1"></i>Scan Tickets
-            </a>
-            <a href="{% url 'events:event_create' %}" class="btn btn-primary shadow-sm">
-                <i class="bi bi-plus-circle me-1"></i>Create Event
-            </a>
+<!-- Hero Header -->
+<div class="org-hero">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="text-white">
+                <h2 class="fw-bold mb-1"><i class="bi bi-bar-chart-line me-2"></i>Organizer Dashboard</h2>
+                <p class="mb-0 opacity-75">Manage events, track registrations & revenue</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'events:qr_scanner' %}" class="eh-btn eh-btn-outline" style="width:auto;padding:.6rem 1.25rem;font-size:.85rem;background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)">
+                    <i class="bi bi-qr-code-scan"></i> Scan
+                </a>
+                <a href="{% url 'events:event_create' %}" class="eh-btn eh-btn-outline" style="width:auto;padding:.6rem 1.25rem;font-size:.85rem;background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)">
+                    <i class="bi bi-plus-circle"></i> Create
+                </a>
+            </div>
         </div>
     </div>
+</div>
 
+<div class="container py-4">
     <!-- Stats Cards -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="card border-0 shadow text-center p-4 h-100">
-                <div class="display-6 fw-bold text-primary mb-1">{{ total_events }}</div>
-                <p class="text-muted mb-0 small"><i class="bi bi-calendar-event me-1"></i>Total Events</p>
+    <div class="row row-cols-2 row-cols-md-5 g-4 mb-5">
+        <div class="col">
+            <div class="eh-stat">
+                <div class="stat-value">{{ total_events }}</div>
+                <div class="stat-label"><i class="bi bi-calendar-event me-1"></i>Total Events</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow text-center p-4 h-100">
-                <div class="display-6 fw-bold text-success mb-1">{{ total_regs }}</div>
-                <p class="text-muted mb-0 small"><i class="bi bi-person-check me-1"></i>Total Registrations</p>
+        <div class="col">
+            <div class="eh-stat" style="border-bottom:3px solid #8b5cf6">
+                <div class="stat-value">{{ total_views|intcomma }}</div>
+                <div class="stat-label" style="color:#8b5cf6"><i class="bi bi-eye me-1"></i>Page Views</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow text-center p-4 h-100">
-                <div class="display-6 fw-bold text-info mb-1">{{ total_attended }}</div>
-                <p class="text-muted mb-0 small"><i class="bi bi-check2-all me-1"></i>Total Attended</p>
+        <div class="col">
+            <div class="eh-stat green">
+                <div class="stat-value">{{ total_regs }}</div>
+                <div class="stat-label"><i class="bi bi-person-check me-1"></i>Registrations</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow text-center p-4 h-100 bg-light text-dark">
-                <div class="display-6 fw-bold text-warning mb-1">₹{{ total_revenue|floatformat:0|intcomma }}</div>
-                <p class="text-muted mb-0 small"><i class="bi bi-cash-stack me-1"></i>Total Revenue</p>
+        <div class="col">
+            <div class="eh-stat blue">
+                <div class="stat-value">{{ total_attended }}</div>
+                <div class="stat-label"><i class="bi bi-check2-all me-1"></i>Attended</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="eh-stat amber">
+                <div class="stat-value">₹{{ total_revenue|floatformat:0|intcomma }}</div>
+                <div class="stat-label"><i class="bi bi-cash-stack me-1"></i>Revenue</div>
             </div>
         </div>
     </div>
 
-    <!-- Chart -->
+    <!-- Charts Row -->
+    <div class="row g-4 mb-5">
+        {% if sales_velocity_labels %}
+        <div class="col-md-8">
+            <div class="eh-glass h-100" style="animation-delay:0s">
+                <div class="eh-body">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-graph-up-arrow me-2" style="color:var(--eh-primary)"></i>Sales Velocity (Registrations)</h5>
+                    <div style="position: relative; height: 250px; width: 100%;">
+                        <canvas id="velocityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="col-md-4">
+            <div class="eh-glass h-100" style="animation-delay:0.1s">
+                <div class="eh-body text-center">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-pie-chart me-2" style="color:#10b981"></i>Conversion Rate</h5>
+                    <div style="position: relative; height:200px; width:200px; margin:0 auto;">
+                        <canvas id="conversionChart"></canvas>
+                        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-weight:800; font-size:1.5rem; color:var(--eh-primary)">
+                            {{ conversion_rate }}%
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">{{ total_regs }} regs out of {{ total_views }} views</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Comparison Chart -->
     {% if chart_labels %}
-    <div class="card border-0 shadow mb-5">
-        <div class="card-body p-4">
-            <h5 class="fw-bold mb-3"><i class="bi bi-graph-up me-2"></i>Registrations Overview</h5>
-            <canvas id="regsChart" height="80"></canvas>
+    <div class="eh-glass mb-5" style="animation-delay:0.2s">
+        <div class="eh-body">
+            <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart me-2" style="color:#f59e0b"></i>Event Comparison</h5>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="regsChart"></canvas>
+            </div>
         </div>
     </div>
     {% endif %}
 
     <!-- Events Table -->
-    <div class="card border-0 shadow">
-        <div class="card-body p-4">
-            <h5 class="fw-bold mb-3"><i class="bi bi-list-ul me-2"></i>Your Events</h5>
+    <div class="eh-glass" style="animation-delay:0s">
+        <div class="eh-body">
+            <h5 class="fw-bold mb-3"><i class="bi bi-list-ul me-2" style="color:var(--eh-primary)"></i>Your Events</h5>
             {% if my_events %}
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
+                <table class="table eh-table mb-0">
+                    <thead>
                         <tr>
-                            <th>Event</th>
-                            <th>Date</th>
-                            <th>Category</th>
-                            <th>Registrations</th>
-                            <th>Earnings</th>
-                            <th>Commission (5%)</th>
-                            <th>Actions</th>
+                            <th>Event</th><th>Date</th><th>Category</th><th>Regs</th><th>Earnings</th><th>Commission</th><th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for event in my_events %}
                         <tr>
                             <td>
-                                <a href="{{ event.get_absolute_url }}" class="fw-semibold text-decoration-none">
-                                    {{ event.title }}
-                                </a>
-                                {% if event.is_featured %}
-                                <span class="badge bg-warning text-dark ms-1">Featured</span>
-                                {% endif %}
+                                <a href="{{ event.get_absolute_url }}" class="fw-semibold text-decoration-none" style="color:var(--eh-primary)">{{ event.title }}</a>
+                                {% if event.is_featured %}<span style="background:#fef3c7;color:#92400e;font-size:.65rem;padding:.15rem .5rem;border-radius:2rem;font-weight:600;margin-left:.25rem">Featured</span>{% endif %}
                             </td>
                             <td class="text-muted small">{{ event.date|date:"M d, Y" }}</td>
                             <td>
                                 {% if event.category %}
-                                <span class="badge bg-secondary">{{ event.category.name }}</span>
-                                {% else %}
-                                <span class="text-muted">—</span>
-                                {% endif %}
+                                <span style="background:#ede9fe;color:var(--eh-primary);font-size:.7rem;padding:.2rem .6rem;border-radius:2rem;font-weight:600">{{ event.category.name }}</span>
+                                {% else %}<span class="text-muted">—</span>{% endif %}
                             </td>
-                            <td>
-                                <span class="badge bg-primary">{{ event.confirmed_count }}</span>
-                            </td>
-                            <td class="fw-bold text-success">
-                                ₹{{ event.commission.earnings|floatformat:0|intcomma }}
-                            </td>
+                            <td><span style="background:#e0f2fe;color:#1e40af;font-size:.7rem;padding:.2rem .6rem;border-radius:2rem;font-weight:700">{{ event.confirmed_count }}</span></td>
+                            <td class="fw-bold" style="color:#10b981">₹{{ event.commission.earnings|floatformat:0|intcomma }}</td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="fw-bold text-danger">₹{{ event.commission.commission_due|floatformat:0|intcomma }}</span>
+                                    <span class="fw-bold" style="color:#ef4444;font-size:.85rem">₹{{ event.commission.commission_due|floatformat:0|intcomma }}</span>
                                     {% if event.commission.status == 'paid' %}
-                                        <span class="badge bg-success">Paid</span>
+                                        <span style="background:#d1fae5;color:#065f46;font-size:.65rem;padding:.15rem .5rem;border-radius:2rem;font-weight:600">Paid</span>
                                     {% elif event.commission.status == 'pending' %}
-                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        <span style="background:#fef3c7;color:#92400e;font-size:.65rem;padding:.15rem .5rem;border-radius:2rem;font-weight:600">Pending</span>
                                     {% elif event.commission.commission_due > 0 %}
-                                        <a href="{% url 'events:commission_checkout' event.id %}" class="btn btn-sm btn-primary py-0 px-2 rounded-pill">Pay</a>
+                                        <a href="{% url 'events:commission_checkout' event.id %}" class="btn btn-sm" style="background:var(--eh-primary);color:#fff;font-size:.7rem;padding:.15rem .6rem;border-radius:2rem;font-weight:600">Pay</a>
                                     {% endif %}
                                 </div>
                             </td>
                             <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{% url 'events:export_attendees_csv' event.id %}" class="btn btn-outline-success" title="Download Attendee List">
-                                        <i class="bi bi-file-earmark-arrow-down"></i>
-                                    </a>
-                                    <a href="{{ event.get_absolute_url }}" class="btn btn-outline-primary" title="Details">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a href="{% url 'events:event_update' event.pk %}" class="btn btn-outline-secondary" title="Edit">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
+                                <div class="d-flex gap-1">
+                                    <a href="{% url 'events:export_attendees_csv' event.id %}" class="btn btn-sm" style="border:1.5px solid #d1fae5;border-radius:.5rem;color:#10b981" title="Download"><i class="bi bi-file-earmark-arrow-down"></i></a>
+                                    <a href="{{ event.get_absolute_url }}" class="btn btn-sm" style="border:1.5px solid #e0e7ff;border-radius:.5rem;color:var(--eh-primary)" title="View"><i class="bi bi-eye"></i></a>
+                                    <a href="{% url 'events:event_update' event.pk %}" class="btn btn-sm" style="border:1.5px solid #e2e8f0;border-radius:.5rem;color:#64748b" title="Edit"><i class="bi bi-pencil"></i></a>
                                 </div>
                             </td>
                         </tr>
@@ -132,10 +164,10 @@
             </div>
             {% else %}
             <div class="text-center py-4">
-                <i class="bi bi-calendar-x display-3 text-muted"></i>
+                <i class="bi bi-calendar-x display-3" style="color:#c4b5fd"></i>
                 <p class="text-muted mt-2">No events yet.</p>
                 {% if user.is_staff %}
-                <a href="{% url 'events:event_create' %}" class="btn btn-primary">Create Your First Event</a>
+                <a href="{% url 'events:event_create' %}" class="eh-btn eh-btn-primary" style="max-width:220px;margin:0 auto">Create Your First Event</a>
                 {% endif %}
             </div>
             {% endif %}
@@ -149,70 +181,138 @@
 {{ chart_regs|json_script:"chart-regs" }}
 {{ chart_attended|json_script:"chart-attended" }}
 {{ chart_revenue|json_script:"chart-revenue" }}
+{{ sales_velocity_labels|json_script:"velocity-labels" }}
+{{ sales_velocity_data|json_script:"velocity-data" }}
+{{ conversion_rate|json_script:"conversion-rate" }}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Shared Tooltip & Legend options
+    const commonOptions = {
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { labels: { color: '#64748b', font: { family: 'Inter' } } },
+            tooltip: { backgroundColor: 'rgba(15,23,42,0.9)', titleFont: { family: 'Inter' }, bodyFont: { family: 'Inter' }, padding: 12, cornerRadius: 8 }
+        },
+        scales: {
+            x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        }
+    };
+
+    // 1. Sales Velocity Chart
+    const velLabels = JSON.parse(document.getElementById('velocity-labels').textContent);
+    const velData = JSON.parse(document.getElementById('velocity-data').textContent);
+    const velCtx = document.getElementById('velocityChart');
+    if (velCtx && velLabels && velLabels.length > 0) {
+        new Chart(velCtx, {
+            type: 'line',
+            data: {
+                labels: velLabels,
+                datasets: [{
+                    label: 'New Registrations',
+                    data: velData,
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#8b5cf6',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                ...commonOptions,
+                plugins: { ...commonOptions.plugins, legend: { display: false } },
+                scales: {
+                    ...commonOptions.scales,
+                    y: { ...commonOptions.scales.y, beginAtZero: true, ticks: { stepSize: 1, color: '#94a3b8' } }
+                }
+            }
+        });
+    }
+
+    // 2. Conversion Rate Doughnut
+    const convRate = parseFloat(JSON.parse(document.getElementById('conversion-rate').textContent));
+    const convCtx = document.getElementById('conversionChart');
+    if (convCtx) {
+        new Chart(convCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Converted', 'Did Not Register'],
+                datasets: [{
+                    data: [convRate, 100 - convRate],
+                    backgroundColor: ['#10b981', 'rgba(255,255,255,0.05)'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                cutout: '80%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { ...commonOptions.plugins.tooltip, callbacks: { label: function(c) { return c.label + ': ' + c.raw + '%'; } } }
+                }
+            }
+        });
+    }
+
+    // 3. Event Comparison Chart
     const labels = JSON.parse(document.getElementById('chart-labels').textContent);
     const regsData = JSON.parse(document.getElementById('chart-regs').textContent);
     const attendedData = JSON.parse(document.getElementById('chart-attended').textContent);
     const revenueData = JSON.parse(document.getElementById('chart-revenue').textContent);
-    
-    const ctx = document.getElementById('regsChart');
-    if (!ctx) return;
 
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Registrations',
-                    data: regsData,
-                    backgroundColor: 'rgba(13, 110, 253, 0.7)',
-                    borderRadius: 6,
-                    yAxisID: 'y',
-                },
-                {
-                    label: 'Attended',
-                    data: attendedData,
-                    backgroundColor: 'rgba(25, 135, 84, 0.7)',
-                    borderRadius: 6,
-                    yAxisID: 'y',
-                },
-                {
-                    label: 'Revenue (₹)',
-                    data: revenueData,
-                    type: 'line',
-                    borderColor: '#ffc107',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#ffc107',
-                    tension: 0.3,
-                    yAxisID: 'y1',
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: { position: 'top' },
-                tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
+    const ctx = document.getElementById('regsChart');
+    if (ctx && labels && labels.length > 0) {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Registrations',
+                        data: regsData,
+                        backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                        borderRadius: 6,
+                        yAxisID: 'y',
+                    },
+                    {
+                        label: 'Attended',
+                        data: attendedData,
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                        borderRadius: 6,
+                        yAxisID: 'y',
+                    },
+                    {
+                        label: 'Revenue (₹)',
+                        data: revenueData,
+                        type: 'line',
+                        borderColor: '#f59e0b',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#f59e0b',
+                        pointBorderColor: '#fff',
+                        pointRadius: 5,
+                        tension: 0.3,
+                        yAxisID: 'y1',
+                    }
+                ]
             },
-            scales: {
-                y: {
-                    type: 'linear', display: true, position: 'left',
-                    beginAtZero: true, title: { display: true, text: 'Count' },
-                    ticks: { stepSize: 1 }
-                },
-                y1: {
-                    type: 'linear', display: true, position: 'right',
-                    beginAtZero: true, grid: { drawOnChartArea: false },
-                    title: { display: true, text: 'Revenue (₹)' }
+            options: {
+                ...commonOptions,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    ...commonOptions.scales,
+                    y: { ...commonOptions.scales.y, beginAtZero: true, title: { display: true, text: 'Count', color: '#64748b' }, ticks: { stepSize: 1, color: '#94a3b8' } },
+                    y1: { ...commonOptions.scales.y, position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Revenue (₹)', color: '#64748b' } }
                 }
             }
-        }
-    });
+        });
+    }
 });
 </script>
 {% endblock %}
