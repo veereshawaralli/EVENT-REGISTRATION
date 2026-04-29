@@ -1,6 +1,11 @@
 # Render Web Service Configuration
-# Database: Use Neon (https://neon.tech) free PostgreSQL
-# Set DATABASE_URL env var manually in Render dashboard
+# Database: Render-managed PostgreSQL (free tier)
+
+databases:
+  - name: eventhub-db
+    plan: free
+    databaseName: eventhub
+    user: eventhub_user
 
 services:
   - type: web
@@ -18,6 +23,10 @@ services:
         value: ".onrender.com"
       - key: PYTHON_VERSION
         value: "3.12.3"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: eventhub-db
+          property: connectionString
       - key: EMAIL_BACKEND
         value: "django.core.mail.backends.smtp.EmailBackend"
       - key: EMAIL_HOST
@@ -40,4 +49,4 @@ services:
         sync: false
       - key: RAZORPAY_KEY_SECRET
         sync: false
-      # Set DATABASE_URL manually in Render dashboard
+
