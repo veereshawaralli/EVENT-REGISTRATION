@@ -25,4 +25,11 @@ urlpatterns = [
     path("privacy/", views.privacy_policy, name="privacy"),
     path("terms/", views.terms_conditions, name="terms"),
     path("refund/", views.refund_policy, name="refund"),
+    path("api/ai-generate/", views.ai_generate_event_content, name="ai_generate"),
+    
+    # Certificate Builder
+    path("<int:event_id>/certificate-builder/", views.certificate_builder, name="certificate_builder"),
+    path("<int:event_id>/certificate-preview/", views.certificate_preview, name="certificate_preview"),
+    path("<int:event_id>/certificate-preview/pdf/", views.certificate_preview_pdf, name="certificate_preview_pdf"),
+    path("certificate/<int:registration_id>/send/", views.send_certificate_manual, name="send_certificate_manual"),
 ]

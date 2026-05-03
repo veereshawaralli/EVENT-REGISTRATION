@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.text import slugify
 
-from .models import Category, Event, Tag
+from .models import Category, Event, Tag, CertificateTemplate
 
 
 class EventForm(forms.ModelForm):
@@ -142,3 +142,45 @@ class EventSearchForm(forms.Form):
         empty_label="All Categories",
         widget=forms.Select(attrs={"class": "form-select"}),
     )
+
+class CertificateTemplateForm(forms.ModelForm):
+    """Form for customizing event certificates."""
+    
+    # We will use a hidden input for the layout JSON string since it's populated via JS
+    layout_data = forms.CharField(widget=forms.HiddenInput(), required=False)
+    
+    class Meta:
+        model = CertificateTemplate
+        fields = ['background_image']
+        widgets = {
+            'background_image': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Background is only required if one doesn't exist yet
+        if not self.instance or not self.instance.background_image:
+            self.fields['background_image'].required = True
+        else:
+            self.fields['background_image'].required = False
+            
+        if self.instance and self.instance.pk:
+            # Pre-populate the hidden layout_data field with the existing JSON
+            import json
+            self.initial['layout_data'] = json.dumps(self.instance.layout)
+            
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        layout_data = self.cleaned_data.get('layout_data')
+        
+        if layout_data:
+            import json
+            try:
+                instance.layout = json.loads(layout_data)
+            except json.JSONDecodeError:
+                pass # keep existing layout if invalid
+        
+        if commit:
+            instance.save()
+        return instance
+

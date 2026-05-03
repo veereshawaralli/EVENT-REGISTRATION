@@ -59,7 +59,7 @@ class Registration(models.Model):
     razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
     
     attended = models.BooleanField(default=False)
-    qr_code = models.ImageField(upload_to="qr_codes/", blank=True, null=True)
+    qr_code = models.ImageField(upload_to="qr_codes/", blank=True, null=True, max_length=500)
 
     class Meta:
         # Prevent duplicate active registrations

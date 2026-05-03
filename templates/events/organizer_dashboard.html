@@ -154,6 +154,7 @@
                                 <div class="d-flex gap-1">
                                     <a href="{% url 'events:export_attendees_csv' event.id %}" class="btn btn-sm" style="border:1.5px solid #d1fae5;border-radius:.5rem;color:#10b981" title="Download"><i class="bi bi-file-earmark-arrow-down"></i></a>
                                     <a href="{{ event.get_absolute_url }}" class="btn btn-sm" style="border:1.5px solid #e0e7ff;border-radius:.5rem;color:var(--eh-primary)" title="View"><i class="bi bi-eye"></i></a>
+                                    <a href="{% url 'events:certificate_builder' event.pk %}" class="btn btn-sm" style="border:1.5px solid #fef08a;border-radius:.5rem;color:#ca8a04" title="Customize Certificate"><i class="bi bi-award"></i></a>
                                     <a href="{% url 'events:event_update' event.pk %}" class="btn btn-sm" style="border:1.5px solid #e2e8f0;border-radius:.5rem;color:#64748b" title="Edit"><i class="bi bi-pencil"></i></a>
                                 </div>
                             </td>

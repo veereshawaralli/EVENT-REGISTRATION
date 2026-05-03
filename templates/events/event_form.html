@@ -15,6 +15,21 @@
         <p>Fill in the details to create or update your event</p>
     </div>
     <div class="eh-body eh-form">
+        <!-- AI Generator Section -->
+        <div class="card mb-4" style="background: rgba(99,102,241,0.05); border: 1px dashed rgba(99,102,241,0.3);">
+            <div class="card-body">
+                <h6 class="card-title text-indigo" style="color: #6366f1;"><i class="bi bi-magic me-2"></i>AI Content Generator</h6>
+                <p class="small text-muted mb-2">Stuck? Describe your event in a few words and let AI write the details for you.</p>
+                <div class="input-group">
+                    <input type="text" id="ai-prompt" class="form-control" placeholder="e.g. A 2-day AI workshop in Bangalore next month">
+                    <button type="button" id="btn-ai-generate" class="btn btn-outline-primary" style="border-color: #6366f1; color: #6366f1;">
+                        Generate ✨
+                    </button>
+                </div>
+                <div id="ai-feedback" class="mt-2 small d-none"></div>
+            </div>
+        </div>
+
         <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
@@ -56,4 +71,62 @@
 </div>
 </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const aiBtn = document.getElementById("btn-ai-generate");
+    if (!aiBtn) return;
+    
+    aiBtn.addEventListener("click", function() {
+        const promptInput = document.getElementById("ai-prompt");
+        const promptText = promptInput.value.trim();
+        const feedback = document.getElementById("ai-feedback");
+        
+        if (!promptText) {
+            feedback.innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-circle"></i> Please enter a prompt first.</span>';
+            feedback.classList.remove("d-none");
+            return;
+        }
+        
+        // UI Loading State
+        aiBtn.disabled = true;
+        aiBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...';
+        feedback.innerHTML = '<span class="text-muted"><i class="bi bi-hourglass-split"></i> AI is thinking...</span>';
+        feedback.classList.remove("d-none");
+        
+        // Fetch API
+        fetch("{% url 'events:ai_generate' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ prompt: promptText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                feedback.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> ${data.error}</span>`;
+            } else {
+                // Populate fields
+                if(data.title) document.getElementById("id_title").value = data.title;
+                if(data.description) document.getElementById("id_description").value = data.description;
+                if(data.location) document.getElementById("id_location").value = data.location;
+                if(data.tags) document.getElementById("id_tags_input").value = data.tags;
+                
+                feedback.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> Content generated successfully!</span>';
+            }
+        })
+        .catch(err => {
+            feedback.innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> Something went wrong.</span>';
+        })
+        .finally(() => {
+            aiBtn.disabled = false;
+            aiBtn.innerHTML = 'Generate ✨';
+        });
+    });
+});
+</script>
 {% endblock %}

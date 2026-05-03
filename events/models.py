@@ -3,6 +3,19 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
+import os
+import uuid
+
+def get_banner_path(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = f"banner_{uuid.uuid4().hex[:10]}.{ext}"
+    return os.path.join('event_banners', filename)
+
+def get_cert_path(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = f"cert_{uuid.uuid4().hex[:10]}.{ext}"
+    return os.path.join('cert_backgrounds', filename)
+
 
 
 class Category(models.Model):
@@ -58,9 +71,10 @@ class Event(models.Model):
     location = models.CharField(max_length=300)
     capacity = models.PositiveIntegerField(help_text="Maximum number of attendees.")
     banner = models.ImageField(
-        upload_to="event_banners/",
+        upload_to=get_banner_path,
         blank=True,
         null=True,
+        max_length=500,
         help_text="Event banner image.",
     )
     organizer = models.ForeignKey(
@@ -207,3 +221,22 @@ class EventCommission(models.Model):
 
     def __str__(self):
         return f"Commission for {self.event.title} - {self.status}"
+
+
+class CertificateTemplate(models.Model):
+    """Custom certificate configuration for an event."""
+    event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name="certificate_template")
+    background_image = models.ImageField(
+        upload_to=get_cert_path,
+        blank=True,
+        null=True,
+        max_length=500,
+        help_text="Upload your base certificate design (A4 Landscape, 3508x2480px)"
+    )
+    
+    # Store layout configuration for text elements
+    layout = models.JSONField(default=dict, blank=True, help_text="JSON mapping of elements (title, name, date, etc) to their x, y, font_size, and color.")
+
+    def __str__(self):
+        return f"Certificate Template for {self.event.title}"
+

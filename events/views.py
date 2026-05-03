@@ -4,19 +4,23 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.paginator import Paginator
 from django.db.models import Count, Q, Sum
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.generic import CreateView, DeleteView, UpdateView
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.clickjacking import xframe_options_sameorigin, xframe_options_exempt
 from django.views.decorators.http import require_POST
 import csv
+import json
 import logging
+from decouple import config
+import google.generativeai as genai
 
 logger = logging.getLogger(__name__)
 
-from .forms import EventForm, EventSearchForm
-from .models import Category, Event, EventCommission
+from .forms import EventForm, EventSearchForm, CertificateTemplateForm
+from .models import Category, Event, EventCommission, CertificateTemplate
 
 
 def event_list(request):
@@ -442,3 +446,193 @@ def terms_conditions(request):
 
 def refund_policy(request):
     return render(request, "events/policies/refund.html")
+
+@login_required
+@require_POST
+def ai_generate_event_content(request):
+    """Generate event content using Gemini API from a prompt."""
+    try:
+        data = json.loads(request.body)
+        prompt = data.get("prompt", "").strip()
+        
+        if not prompt:
+            return JsonResponse({"error": "Prompt is required."}, status=400)
+            
+        api_key = config("GEMINI_API_KEY", default="").strip(' "\'')
+        if not api_key:
+            return JsonResponse({"error": "AI not configured on server."}, status=500)
+            
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-2.5-flash")
+        
+        system_prompt = """
+        You are an AI event content generator. The user will provide a rough idea.
+        You must return ONLY a valid JSON object (without markdown blocks) containing exactly:
+        {
+            "title": "A catchy, professional title",
+            "description": "A detailed, engaging description (plain text with line breaks \\n, no markdown bold/italics)",
+            "location": "Suggested location (if implied, else empty)",
+            "tags": "3-5 relevant comma-separated tags"
+        }
+        """
+        
+        response = model.generate_content(f"{system_prompt}\nUser Idea: {prompt}")
+        
+        text_response = response.text.strip()
+        if text_response.startswith("```json"):
+            text_response = text_response.replace("```json", "").replace("```", "").strip()
+        elif text_response.startswith("```"):
+            text_response = text_response.replace("```", "").strip()
+            
+        parsed_data = json.loads(text_response)
+        
+        return JsonResponse({
+            "title": parsed_data.get("title", ""),
+            "description": parsed_data.get("description", ""),
+            "location": parsed_data.get("location", ""),
+            "tags": parsed_data.get("tags", "")
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid request format or AI response format."}, status=400)
+    except Exception as e:
+        logger.error(f"AI Generation failed: {e}")
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@login_required
+def certificate_builder(request, event_id):
+    """View to customize the certificate for an event."""
+    event = get_object_or_404(Event, pk=event_id)
+    
+    # Only allow organizer or staff
+    is_provider = getattr(request.user, 'profile', None) and request.user.profile.is_provider
+    if not (request.user.is_staff or is_provider or request.user == event.organizer):
+        messages.error(request, "You do not have permission to edit this event's certificate.")
+        return redirect("events:event_list")
+
+    # Get or create template
+    template, created = CertificateTemplate.objects.get_or_create(event=event)
+
+    if request.method == "POST":
+        form = CertificateTemplateForm(request.POST, request.FILES, instance=template)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Certificate template updated successfully.")
+            return redirect("events:certificate_builder", event_id=event.id)
+    else:
+        form = CertificateTemplateForm(instance=template)
+
+    context = {
+        "event": event,
+        "form": form,
+        "template": template,
+    }
+    return render(request, "events/certificate_builder.html", context)
+
+
+@login_required
+def certificate_preview(request, event_id):
+    """Renders the dual-preview page (HTML + PDF iframe)."""
+    event = get_object_or_404(Event, pk=event_id)
+    
+    is_provider = getattr(request.user, 'profile', None) and request.user.profile.is_provider
+    if not (request.user.is_staff or is_provider or request.user == event.organizer):
+        messages.error(request, "Unauthorized")
+        return redirect("events:event_list")
+
+    template, _ = CertificateTemplate.objects.get_or_create(event=event)
+    
+    # Process layout for HTML preview
+    layout = template.layout or {
+        'title': { 'x': 50, 'y': 15, 'text': "CERTIFICATE", 'font_size': 48, 'color': "#1a2f4c", 'weight': "bold" },
+        'subtitle': { 'x': 50, 'y': 28, 'text': "Of Achievement", 'font_size': 20, 'color': "#d4af37", 'weight': "normal" },
+        'name': { 'x': 50, 'y': 45, 'text': "Jane Doe", 'font_size': 36, 'color': "#1a2f4c", 'weight': "normal" },
+        'description': { 'x': 50, 'y': 65, 'text': f"Proudly presented for attending {event.title}", 'font_size': 16, 'color': "#555555", 'weight': "normal" },
+        'date': { 'x': 20, 'y': 85, 'text': "Issued: June 29, 2026", 'font_size': 14, 'color': "#1a2f4c", 'weight': "normal" },
+        'signature': { 'x': 80, 'y': 85, 'text': event.organizer.get_full_name() or event.organizer.username, 'font_size': 14, 'color': "#1a2f4c", 'weight': "normal" }
+    }
+    
+    # Replace placeholders in layout for HTML preview
+    for key, config in layout.items():
+        if 'text' in config:
+            config['text'] = config['text'].replace('[Attendee Name]', "Jane Doe")
+            config['text'] = config['text'].replace('[Date]', "June 29, 2026")
+            config['text'] = config['text'].replace('[Signature]', event.organizer.get_full_name() or event.organizer.username)
+
+    context = {
+        "event": event,
+        "template": template,
+        "layout": layout
+    }
+    return render(request, "events/certificate_preview.html", context)
+
+
+@login_required
+@xframe_options_exempt
+def certificate_preview_pdf(request, event_id):
+    """Generates a raw PDF preview of the certificate."""
+    event = get_object_or_404(Event, pk=event_id)
+    
+    is_provider = getattr(request.user, 'profile', None) and request.user.profile.is_provider
+    if not (request.user.is_staff or is_provider or request.user == event.organizer):
+        return HttpResponse("Unauthorized", status=401)
+
+    # Mock registration for preview
+    class DummyUser:
+        def get_full_name(self):
+            return "Jane Doe"
+        username = "janedoe"
+        email = "jane@example.com"
+
+    class DummyRegistration:
+        def __init__(self, evt):
+            self.user = DummyUser()
+            self.event = evt
+            self.attended = True
+
+    dummy_reg = DummyRegistration(event)
+    
+    from registrations.utils import generate_certificate_pdf
+    pdf_bytes = generate_certificate_pdf(dummy_reg)
+    
+    if pdf_bytes:
+        response = HttpResponse(pdf_bytes, content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="preview.pdf"'
+        return response
+    else:
+        return HttpResponse("Error generating PDF preview.", status=500)
+
+
+@login_required
+@require_POST
+def send_certificate_manual(request, registration_id):
+    """Manually trigger certificate generation and email for a specific attendee."""
+    from registrations.models import Registration
+    registration = get_object_or_404(Registration, pk=registration_id)
+    event = registration.event
+    
+    if not (request.user.is_staff or event.organizer == request.user):
+        messages.error(request, "You do not have permission to send certificates for this event.")
+        return redirect("events:event_detail", pk=event.pk)
+    
+    if not registration.attended:
+        messages.error(request, "Cannot send certificate to an attendee who hasn't checked in yet.")
+        return redirect("events:event_detail", pk=event.pk)
+
+    try:
+        from registrations.utils import generate_certificate_pdf
+        from registrations.emails import send_certificate_email
+        
+        pdf_buffer = generate_certificate_pdf(registration)
+        if pdf_buffer:
+            send_certificate_email(registration, pdf_buffer)
+            messages.success(request, f"Certificate manually sent to {registration.user.email}.")
+        else:
+            messages.error(request, "Failed to generate the PDF certificate.")
+    except Exception as e:
+        logger.error(f"Manual certificate send failed: {e}")
+        messages.error(request, f"Error sending certificate: {str(e)}")
+        
+    return redirect("events:event_detail", pk=event.pk)
+

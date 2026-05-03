@@ -135,6 +135,9 @@
                         <a href="{% url 'events:event_update' event.pk %}" class="btn btn-outline-secondary btn-sm">
                             <i class="bi bi-pencil me-1"></i>Edit Event
                         </a>
+                        <a href="{% url 'events:certificate_builder' event.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-award me-1"></i>Customize Certificate
+                        </a>
                         <a href="{% url 'events:event_delete' event.pk %}" class="btn btn-outline-danger btn-sm">
                             <i class="bi bi-trash me-1"></i>Delete Event
                         </a>
@@ -203,12 +206,23 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <form method="post" action="{% url 'registrations:mark_attended' reg.pk %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-xs btn-outline-{% if reg.attended %}warning{% else %}success{% endif %} btn-sm">
-                                                {% if reg.attended %}Unmark{% else %}Mark Attended{% endif %}
-                                            </button>
-                                        </form>
+                                        <div class="d-flex gap-1">
+                                            <form method="post" action="{% url 'registrations:mark_attended' reg.pk %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-xs btn-outline-{% if reg.attended %}warning{% else %}success{% endif %} btn-sm">
+                                                    {% if reg.attended %}Unmark{% else %}Mark Attended{% endif %}
+                                                </button>
+                                            </form>
+                                            
+                                            {% if reg.attended %}
+                                            <form method="post" action="{% url 'events:send_certificate_manual' reg.pk %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-xs btn-primary btn-sm" title="Re-send Certificate">
+                                                    <i class="bi bi-envelope-at"></i> Send Cert
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                        </div>
                                     </td>
                                 </tr>
                                 {% endfor %}

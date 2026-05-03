@@ -1,0 +1,419 @@
+{% extends "base.html" %}
+
+{% block title %}Certificate Layout Builder - {{ event.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .builder-container {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    .sidebar-pane {
+        flex: 1;
+        min-width: 300px;
+        max-width: 400px;
+    }
+    .canvas-pane {
+        flex: 2;
+        min-width: 600px;
+        background: #f8f9fa;
+        border-radius: 1rem;
+        border: 1.5px solid #e2e8f0;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    
+    /* A4 Landscape aspect ratio (297x210) ~ 1.414 */
+    .certificate-canvas {
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+        aspect-ratio: 1.4142; /* A4 Landscape (297/210) */
+        background-color: #fff;
+        background-size: 100% 100%; /* Stretch to match PDF behavior */
+        background-position: center;
+        background-repeat: no-repeat;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        overflow: hidden;
+        border: 1px solid #ddd;
+        margin: 0 auto;
+    }
+
+
+    /* Draggable text elements */
+    .drag-element {
+        position: absolute;
+        cursor: move;
+        white-space: nowrap;
+        padding: 4px 8px;
+        border: 2px dashed transparent;
+        user-select: none;
+        touch-action: none;
+        /* Initial styling overridden by JS */
+        font-family: "Times New Roman", Times, serif;
+        transform: translate(0px, 0px);
+    }
+    .drag-element:hover {
+        border-color: rgba(139, 92, 246, 0.5);
+    }
+    .drag-element.active {
+        border-color: #8b5cf6;
+        background: rgba(139, 92, 246, 0.05);
+        z-index: 10;
+    }
+
+    /* Properties Editor */
+    .editor-panel {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        margin-top: 1.5rem;
+        display: none;
+    }
+    .editor-panel.show {
+        display: block;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="eh-page">
+<div class="container-fluid px-4 py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-white mb-0"><i class="bi bi-layout-wtf me-2"></i>Certificate Layout Builder</h2>
+        <a href="{% url 'events:event_detail' event.id %}" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to Event</a>
+    </div>
+    
+    <div class="card border-0 shadow-lg" style="border-radius: 1.25rem; overflow: hidden; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+        <div class="card-body p-4">
+            
+            <div class="builder-container">
+                <!-- Sidebar -->
+                <div class="sidebar-pane">
+                    <form method="post" enctype="multipart/form-data" id="cert-form">
+                        {% csrf_token %}
+                        <!-- Hidden field for JSON data -->
+                        {{ form.layout_data }}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger small p-2">
+                            <ul class="mb-0">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <li>{{ field|title }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="bi bi-image me-2"></i>Background Image</h5>
+                        <div class="mb-4">
+                            {{ form.background_image }}
+                            {% if template.background_image %}
+                            <div class="mt-2 small text-success">
+                                <i class="bi bi-check-circle me-1"></i>Current: {{ template.background_image.name }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text small mt-2">
+                                <i class="bi bi-info-circle me-1"></i>Upload a <strong>landscape</strong> image (e.g., 3508×2480px). REQUIRED.
+                            </div>
+                        </div>
+
+                        <!-- Element Settings -->
+                        <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="bi bi-cursor-text me-2"></i>Element Properties</h5>
+                        <p class="text-muted small">Click an element on the canvas to edit its properties.</p>
+                        
+                        <div id="editor-panel" class="editor-panel">
+                            <h6 id="editor-title" class="fw-bold text-primary mb-3">Editing: None</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Displayed Text (for static elements)</label>
+                                <input type="text" id="prop-text" class="form-control form-control-sm">
+                                <div class="form-text" style="font-size: 0.7rem;">Dynamic elements (like Attendee Name) will show sample text here but use real data in the PDF.</div>
+                            </div>
+                            
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold small">Font Size (pt)</label>
+                                    <input type="number" id="prop-size" class="form-control form-control-sm" min="10" max="150">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold small">Color</label>
+                                    <input type="color" id="prop-color" class="form-control form-control-color form-control-sm w-100" style="padding: 0.2rem;">
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold small">Font Weight</label>
+                                    <select id="prop-weight" class="form-select form-select-sm">
+                                        <option value="normal">Normal</option>
+                                        <option value="bold">Bold</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="eh-btn eh-btn-primary" id="save-btn">
+                                <i class="bi bi-save me-1"></i>Save Layout
+                            </button>
+                            <a href="{% url 'events:certificate_preview' event.id %}" target="_blank" class="btn btn-outline-dark">
+                                <i class="bi bi-eye me-1"></i>Live PDF Preview
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Canvas -->
+                <div class="canvas-pane">
+                    <div id="certificate-canvas" class="certificate-canvas" 
+                         style="background-image: url('{% if template.background_image %}{{ template.background_image.url }}{% endif %}');">
+                         
+                        <!-- Draggable Elements -->
+                        <div id="el-title" class="drag-element" data-id="title">CERTIFICATE</div>
+                        <div id="el-subtitle" class="drag-element" data-id="subtitle">Of Achievement</div>
+                        <div id="el-name" class="drag-element" data-id="name">[Attendee Name]</div>
+                        <div id="el-description" class="drag-element" data-id="description">Proudly presented for attending {{ event.title }}</div>
+                        <div id="el-date" class="drag-element" data-id="date">Issued: 2026-01-01</div>
+                        <div id="el-signature" class="drag-element" data-id="signature">Authorized Signature</div>
+                        
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Default Layout Configuration
+    let layoutConfig = {
+        title: { x: 50, y: 15, text: "CERTIFICATE", font_size: 48, color: "#1a2f4c", weight: "bold" },
+        subtitle: { x: 50, y: 28, text: "Of Achievement", font_size: 20, color: "#d4af37", weight: "normal" },
+        name: { x: 50, y: 45, text: "[Attendee Name]", font_size: 36, color: "#1a2f4c", weight: "normal" },
+        description: { x: 50, y: 65, text: "Proudly presented for attending {{ event.title }}", font_size: 16, color: "#555555", weight: "normal" },
+        date: { x: 20, y: 85, text: "Issued: [Date]", font_size: 14, color: "#1a2f4c", weight: "normal" },
+        signature: { x: 80, y: 85, text: "[Signature]", font_size: 14, color: "#1a2f4c", weight: "normal" }
+    };
+
+    // Load existing config from hidden field
+    const hiddenDataField = document.getElementById('id_layout_data');
+    if (hiddenDataField && hiddenDataField.value) {
+        try {
+            const savedData = JSON.parse(hiddenDataField.value);
+            // Merge saved data with defaults so missing elements don't break
+            for (let key in savedData) {
+                if(layoutConfig[key]) {
+                    layoutConfig[key] = { ...layoutConfig[key], ...savedData[key] };
+                }
+            }
+        } catch (e) {
+            console.error("Invalid JSON in layout data", e);
+        }
+    }
+
+    const canvas = document.getElementById('certificate-canvas');
+    let activeElementId = null;
+
+    // References to property editor inputs
+    const editorPanel = document.getElementById('editor-panel');
+    const editorTitle = document.getElementById('editor-title');
+    const propText = document.getElementById('prop-text');
+    const propSize = document.getElementById('prop-size');
+    const propColor = document.getElementById('prop-color');
+    const propWeight = document.getElementById('prop-weight');
+
+    // Initialize elements on canvas based on config
+    function renderElements() {
+        for (let key in layoutConfig) {
+            let config = layoutConfig[key];
+            let el = document.getElementById('el-' + key);
+            if (!el) continue;
+
+            el.textContent = config.text;
+            el.style.color = config.color;
+            el.style.fontWeight = config.weight;
+            
+            // Use PT for consistent scaling between builder and PDF
+            el.style.fontSize = config.font_size + 'pt'; 
+            
+            // Apply percentage positioning
+            el.style.left = config.x + '%';
+            el.style.top = config.y + '%';
+            el.style.transform = 'translate(-50%, -50%)';
+
+            
+            // Save pixel transform data in attributes for InteractJS
+            el.setAttribute('data-x', 0);
+            el.setAttribute('data-y', 0);
+        }
+        updateHiddenField();
+    }
+
+    function updateHiddenField() {
+        if(hiddenDataField) {
+            hiddenDataField.value = JSON.stringify(layoutConfig);
+        }
+    }
+
+    // Set active element
+    function setActiveElement(id) {
+        // Remove active class from all
+        document.querySelectorAll('.drag-element').forEach(el => el.classList.remove('active'));
+        
+        activeElementId = id;
+        const el = document.getElementById('el-' + id);
+        if (el) {
+            el.classList.add('active');
+            editorPanel.classList.add('show');
+            editorTitle.textContent = "Editing: " + id.toUpperCase();
+            
+            let config = layoutConfig[id];
+            propText.value = config.text;
+            propSize.value = config.font_size;
+            propColor.value = config.color;
+            propWeight.value = config.weight;
+            
+            // Dynamic text (name) shouldn't have its "text" value overridden easily
+            if (id === 'name') {
+                propText.disabled = true;
+            } else {
+                propText.disabled = false;
+            }
+        } else {
+            editorPanel.classList.remove('show');
+        }
+    }
+
+    // Canvas click (deselect)
+    canvas.addEventListener('click', function(e) {
+        if(e.target === canvas) {
+            document.querySelectorAll('.drag-element').forEach(el => el.classList.remove('active'));
+            activeElementId = null;
+            editorPanel.classList.remove('show');
+        }
+    });
+
+    // Element click
+    document.querySelectorAll('.drag-element').forEach(el => {
+        el.addEventListener('mousedown', function(e) {
+            setActiveElement(this.getAttribute('data-id'));
+        });
+        el.addEventListener('touchstart', function(e) {
+            setActiveElement(this.getAttribute('data-id'));
+        });
+    });
+
+    // Property changes
+    propText.addEventListener('input', function() {
+        if (activeElementId) {
+            layoutConfig[activeElementId].text = this.value;
+            document.getElementById('el-' + activeElementId).textContent = this.value;
+            updateHiddenField();
+        }
+    });
+    
+    propSize.addEventListener('input', function() {
+        if (activeElementId) {
+            let size = parseInt(this.value);
+            layoutConfig[activeElementId].font_size = size;
+            document.getElementById('el-' + activeElementId).style.fontSize = size + 'pt';
+
+            updateHiddenField();
+        }
+    });
+
+    propColor.addEventListener('input', function() {
+        if (activeElementId) {
+            layoutConfig[activeElementId].color = this.value;
+            document.getElementById('el-' + activeElementId).style.color = this.value;
+            updateHiddenField();
+        }
+    });
+    
+    propWeight.addEventListener('change', function() {
+        if (activeElementId) {
+            layoutConfig[activeElementId].weight = this.value;
+            document.getElementById('el-' + activeElementId).style.fontWeight = this.value;
+            updateHiddenField();
+        }
+    });
+
+    // Interact JS Drag Logic
+    interact('.drag-element').draggable({
+        listeners: {
+            move (event) {
+                const target = event.target;
+                const id = target.getAttribute('data-id');
+                
+                // Get canvas dimensions
+                const canvasRect = canvas.getBoundingClientRect();
+                
+                // Calculate new position in pixels
+                let currentLeft = parseFloat(target.style.left) || 0; // %
+                let currentTop = parseFloat(target.style.top) || 0;   // %
+                
+                // Convert current % to px based on canvas
+                let pxX = (currentLeft / 100) * canvasRect.width;
+                let pxY = (currentTop / 100) * canvasRect.height;
+                
+                // Add the drag delta
+                pxX += event.dx;
+                pxY += event.dy;
+                
+                // Convert back to percentage to keep it responsive
+                let newLeft = (pxX / canvasRect.width) * 100;
+                let newTop = (pxY / canvasRect.height) * 100;
+                
+                // Boundaries (roughly)
+                newLeft = Math.max(0, Math.min(100, newLeft));
+                newTop = Math.max(0, Math.min(100, newTop));
+
+                target.style.left = newLeft + '%';
+                target.style.top = newTop + '%';
+                
+                // Update config
+                layoutConfig[id].x = parseFloat(newLeft.toFixed(2));
+                layoutConfig[id].y = parseFloat(newTop.toFixed(2));
+                updateHiddenField();
+            }
+        },
+        modifiers: [
+            interact.modifiers.restrictRect({
+                restriction: 'parent',
+                endOnly: false
+            })
+        ]
+    });
+
+    // Initial render
+    renderElements();
+
+    // Live background preview
+    const bgInput = document.getElementById('{{ form.background_image.id_for_label }}');
+    if (bgInput) {
+        bgInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    canvas.style.backgroundImage = 'url(' + e.target.result + ')';
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -32,3 +32,10 @@ Thumbs.db
 
 # Static (collected)
 staticfiles/
+
+# Local work
+scratch/
+test_*.py
+debug_*.html
+debug_*.pdf
+*.pdf

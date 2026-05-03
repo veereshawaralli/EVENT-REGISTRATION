@@ -200,6 +200,7 @@ main {
 .event-detail-banner {
     max-height: 400px;
     object-fit: cover;
+    object-position: top center;
     width: 100%;
 }
 
