@@ -1,28 +1,83 @@
 import io
+import os
+import copy
+import logging
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
+
+def link_callback(uri, rel):
+    """
+    Convert HTML temporary paths to absolute system paths for xhtml2pdf.
+    """
+    if uri.startswith('http://') or uri.startswith('https://'):
+        return uri
+
+    # Handle static and media files
+    static_url = settings.STATIC_URL
+    static_root = getattr(settings, 'STATIC_ROOT', None)
+    media_url = settings.MEDIA_URL
+    media_root = getattr(settings, 'MEDIA_ROOT', None)
+
+    if media_root and uri.startswith(media_url):
+        path = os.path.join(media_root, uri.replace(media_url, ""))
+    elif static_root and uri.startswith(static_url):
+        path = os.path.join(static_root, uri.replace(static_url, ""))
+    else:
+        # Fallback to absolute path or BASE_DIR
+        if os.path.isabs(uri):
+            path = uri
+        else:
+            path = os.path.join(settings.BASE_DIR, uri)
+
+    # make sure that file exists
+    if not os.path.isfile(path):
+        # Last attempt: check in STATICFILES_DIRS if STATIC_ROOT fails
+        found = False
+        for static_dir in getattr(settings, 'STATICFILES_DIRS', []):
+            try_path = os.path.join(static_dir, uri.replace(static_url, "").lstrip('/'))
+            if os.path.isfile(try_path):
+                path = try_path
+                found = True
+                break
+        
+        if not found:
+            # Check for BASE_DIR/static as well
+            try_path = os.path.join(settings.BASE_DIR, 'static', uri.replace(static_url, "").lstrip('/'))
+            if os.path.isfile(try_path):
+                path = try_path
+                found = True
+
+        if not found:
+            logger.warning(f"File not found for xhtml2pdf: {uri} (tried {path})")
+            return uri
+            
+    return path
 
 def generate_certificate_pdf(registration):
     """
     Generate a PDF certificate for a confirmed registration.
     Returns the raw PDF bytes if successful, else None.
     """
-    import os
-    import copy
-    from django.conf import settings
     template_path = 'events/certificate_pdf.html'
     
     # Check for custom certificate template
     cert_template = getattr(registration.event, 'certificate_template', None)
     
     if cert_template and cert_template.background_image:
-        bg_path = cert_template.background_image.path
+        try:
+            # Try to get the local filesystem path (works for local storage)
+            bg_path = cert_template.background_image.path
+            bg_path = bg_path.replace('\\', '/')
+        except (NotImplementedError, AttributeError):
+            # For remote storage (Cloudinary/S3), .path is not available, use .url
+            bg_path = cert_template.background_image.url
     else:
+        # Fallback to default static background
         bg_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'cert_bg.png')
-    
-    # xhtml2pdf needs raw forward-slash paths (NOT file:/// URLs)
-    bg_path = bg_path.replace('\\', '/')
+        bg_path = bg_path.replace('\\', '/')
         
     # Process layout text replacements
     # Mirror of the defaults in certificate_builder.html
@@ -180,10 +235,15 @@ def generate_certificate_pdf(registration):
     # Create a file-like buffer to receive PDF data.
     result = io.BytesIO()
 
-    # Generate PDF
-    pdf = pisa.pisaDocument(io.BytesIO(html.encode("UTF-8")), result)
+    # Generate PDF with link_callback for path resolution
+    pdf = pisa.pisaDocument(
+        io.BytesIO(html.encode("UTF-8")), 
+        result,
+        link_callback=link_callback
+    )
     
     if not pdf.err:
         return result.getvalue()
     
+    logger.error(f"xhtml2pdf error during certificate generation: {pdf.err}")
     return None

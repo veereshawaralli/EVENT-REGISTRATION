@@ -593,15 +593,21 @@ def certificate_preview_pdf(request, event_id):
 
     dummy_reg = DummyRegistration(event)
     
-    from registrations.utils import generate_certificate_pdf
-    pdf_bytes = generate_certificate_pdf(dummy_reg)
-    
-    if pdf_bytes:
-        response = HttpResponse(pdf_bytes, content_type='application/pdf')
-        response['Content-Disposition'] = 'inline; filename="preview.pdf"'
-        return response
-    else:
-        return HttpResponse("Error generating PDF preview.", status=500)
+    try:
+        from registrations.utils import generate_certificate_pdf
+        pdf_bytes = generate_certificate_pdf(dummy_reg)
+        
+        if pdf_bytes:
+            response = HttpResponse(pdf_bytes, content_type='application/pdf')
+            response['Content-Disposition'] = 'inline; filename="preview.pdf"'
+            return response
+        else:
+            logger.error(f"Certificate PDF generation failed for event {event_id} (Preview). Check registrations/utils.py logs.")
+            return HttpResponse("Error generating PDF preview. Please check if the background image and layout are valid.", status=500)
+    except Exception as e:
+        import traceback
+        logger.error(f"Exception during certificate preview PDF for event {event_id}: {e}\n{traceback.format_exc()}")
+        return HttpResponse(f"Internal Error: {str(e)}", status=500)
 
 
 @login_required
