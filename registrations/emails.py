@@ -9,6 +9,21 @@ import os
 def _get_site_url():
     return getattr(settings, 'SITE_URL', 'http://localhost:8000').rstrip('/')
 
+def _attach_logo(email):
+    """Helper to attach the project logo as CID:logo."""
+    logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
+    if os.path.exists(logo_path):
+        try:
+            with open(logo_path, 'rb') as f:
+                logo_content = f.read()
+            mime_logo = MIMEImage(logo_content)
+            mime_logo.add_header('Content-ID', '<logo>')
+            mime_logo.add_header('Content-Disposition', 'inline', filename='logo.png')
+            email.attach(mime_logo)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Failed to attach logo CID: {e}")
+
 def send_html_email(subject, template_name, context, recipient_list, inline_images=None):
     """
     Helper to send a multi-part HTML email with optional inline images (CIDs).
@@ -30,18 +45,7 @@ def send_html_email(subject, template_name, context, recipient_list, inline_imag
     email.attach_alternative(html_content, "text/html")
     
     # 1. Automatically attach the logo as CID:logo
-    logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
-    if os.path.exists(logo_path):
-        try:
-            with open(logo_path, 'rb') as f:
-                logo_content = f.read()
-            mime_logo = MIMEImage(logo_content)
-            mime_logo.add_header('Content-ID', '<logo>')
-            mime_logo.add_header('Content-Disposition', 'inline', filename='logo.png')
-            email.attach(mime_logo)
-        except Exception as e:
-            import logging
-            logging.getLogger(__name__).error(f"Failed to attach logo CID: {e}")
+    _attach_logo(email)
 
     # 2. Attach additional inline images if provided
     if inline_images:
@@ -178,6 +182,9 @@ def send_certificate_email(registration, pdf_buffer):
         to=[user.email]
     )
     email.attach_alternative(html_content, "text/html")
+    
+    # Attach logo for cid:logo reference in template
+    _attach_logo(email)
     
     if pdf_buffer:
         email.attach(f"Certificate_{event.title.replace(' ', '_')}.pdf", pdf_buffer, 'application/pdf')
