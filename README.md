@@ -13,6 +13,11 @@ EventHub aims to bridge the gap between event organizers and attendees by provid
 - **⏳ Smart Waitlist System** — Automatically manage interest for sold-out events with an intelligent waitlisting flow.
 - **📈 Organizer Dashboard** — Real-time revenue analytics, registration graphs (Chart.js), and one-click CSV attendee exports.
 - **📝 Custom Registration Forms** — Create unique questions per event (e.g., T-shirt size, meal preference) with dynamic form validation.
+- **📅 Calendar Integration** — One-click "Add to Google Calendar" and `.ics` file downloads for attendees.
+- **📍 Interactive Maps** — Embedded Google Maps on event pages for easy venue location.
+- **⭐ Reviews & Ratings** — A comprehensive attendee feedback system with star ratings.
+- **💬 Event Discussions** — Real-time comment sections for event-specific queries and networking.
+- **🔗 Social Sharing** — Built-in buttons to easily share events to X (Twitter), LinkedIn, and WhatsApp.
 - **📧 Automated Notifications** — Rich HTML emails for confirmations, waitlist updates, and 24h event reminders.
 - **💳 Payment Integration** — Secure **Razorpay** integration for online payments and 'Pay at Venue' support.
 - **🤖 AI Platform Assistant** — Conversational chatbot to help users find events and navigate the platform.
@@ -67,67 +72,6 @@ EventHub aims to bridge the gap between event organizers and attendees by provid
 - Register for events and make secure payments.
 - Access a personal dashboard with QR-coded tickets.
 - Download certificates and leave reviews for attended events.
-
----
-
-## Quick Start
-
-### 1. Clone & Create Virtual Environment
-
-```bash
-git clone https://github.com/veereshawaralli/EVENT-REGISTRATION.git
-cd event_registration
-python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# macOS/Linux
-source venv/bin/activate
-```
-
-### 2. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Environment Variables (optional for dev)
-
-Create a `.env` file in the project root:
-
-```env
-SECRET_KEY=your-secret-key-here
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-```
-
-### 4. Run Migrations
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-### 5. Create Superuser
-
-```bash
-python manage.py createsuperuser
-```
-
-### 6. Collect Static Files
-
-```bash
-python manage.py collectstatic --noinput
-```
-
-### 7. Run Development Server
-
-```bash
-python manage.py runserver
-```
-
-Visit [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ---
 
