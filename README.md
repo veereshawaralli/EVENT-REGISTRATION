@@ -20,6 +20,40 @@ EventHub aims to bridge the gap between event organizers and attendees by provid
 
 ---
 
+## 📸 Platform Screenshots
+
+### 1. Certificate Layout Builder
+![Certificate Layout Builder](screenshots/certificate_builder.png)
+
+### 2. Organizer Dashboard
+![Organizer Dashboard](screenshots/organizer_dashboard.png)
+
+### 3. User Profile
+![User Profile](screenshots/user_profile.png)
+
+### 4. Event Organizer Registration
+![Event Organizer Registration](screenshots/organizer_registration.png)
+
+### 5. Event Details & Ticketing
+![Event Details](screenshots/event_details.png)
+
+### 6. Attendee Dashboard
+![Attendee Dashboard](screenshots/attendee_dashboard.png)
+
+### 7. Secure Checkout
+![Secure Checkout](screenshots/secure_checkout.png)
+
+### 8. Login Page
+![Login Page](screenshots/login.png)
+
+### 9. Event Details (Public View)
+![Event Details Public](screenshots/event_details_public.png)
+
+### 10. Home Page
+![Home Page](screenshots/home_page.png)
+
+---
+
 ## 👥 User Roles
 
 ### **Organizer**
